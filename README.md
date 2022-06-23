@@ -1,2 +1,2 @@
 # my-notes
-A collection of my Obsidian notes
+A collection of my notes
