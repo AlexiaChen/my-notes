@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "DotNet/DotNet学习笔记.md",
+            "file": "Python/Robot-Framework学习笔记.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "DotNet/DotNet学习笔记.md",
+                "file": "Python/Robot-Framework学习笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "DotNet/DotNet学习笔记.md",
+                "file": "Python/Robot-Framework学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -112,6 +112,7 @@
   },
   "active": "a61e5207f3c07e11",
   "lastOpenFiles": [
+    "Python/Robot-Framework学习笔记.md",
     "DotNet/DotNet学习笔记.md",
     "ECU-TEST/ECU-TEST的学习笔记.md",
     "ECU-TEST/zkcards/ECU.md",
@@ -120,7 +121,6 @@
     "ROS/zkcards/publisher的cpp代码.md",
     "ROS/zkcards/ROS的安装.md",
     "ROS/zkcards/subscriber的cpp代码.md",
-    "ROS/zkcards/service中的server代码.md",
-    "ROS/zkcards/service中的client代码.md"
+    "ROS/zkcards/service中的server代码.md"
   ]
 }
