@@ -113,14 +113,14 @@
   "active": "a61e5207f3c07e11",
   "lastOpenFiles": [
     "ECU-TEST/ECU-TEST的学习笔记.md",
+    "ECU-TEST/zkcards/ECU.md",
+    "ECU-TEST/zkcards/ECU-TEST.md",
     "ROS/ROS学习笔记.md",
     "ROS/zkcards/publisher的cpp代码.md",
     "ROS/zkcards/ROS的安装.md",
     "ROS/zkcards/subscriber的cpp代码.md",
     "ROS/zkcards/service中的server代码.md",
     "ROS/zkcards/service中的client代码.md",
-    "公式.md",
-    "ROS/img/turtle-demo.png",
-    "ROS/img/rqt_grahp_turtle.png"
+    "公式.md"
   ]
 }
