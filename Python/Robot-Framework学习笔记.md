@@ -63,3 +63,14 @@ WebDriverException: Message: 'msedgedriver' executable needs to be in PATH.
 
 以上就是robot的配置文件本身，只是Ride这个图形界面是这些配置文件的可视化和IDE开发环境而已，Ride通过调用robot 的 API来执行配置文件定义的测试样例。
 
+
+
+## 一个完整的Robot Demo
+
+这里是用户手册
+https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
+
+[Robot Demo](https://github.com/robotframework/RobotDemo)
+
+这个Demo包含怎么测试一个自己的python库
+
