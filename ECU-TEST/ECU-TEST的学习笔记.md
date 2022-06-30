@@ -18,3 +18,15 @@
 
 ![[ECU]]
 
+### ECU-TEST教程
+
+[How to Create a Test case](https://www.youtube.com/watch?v=MWGBIU0_eko)
+
+[How ro run a test case](https://www.youtube.com/watch?v=6CsQq49HXD4)
+
+[How to evaluate test steps](https://www.youtube.com/watch?v=oz5ERGhI5HY)
+
+[Tutorial | Test Automation with TraceTronic ECU-Test Integration](https://www.youtube.com/watch?v=GLJvS0NcAkQ)
+
+[How to Ducument test results](https://www.youtube.com/watch?v=i7JiwdUrOsg)
+
