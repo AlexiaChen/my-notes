@@ -61,7 +61,7 @@ WebDriverException: Message: 'msedgedriver' executable needs to be in PATH.
 
 ![[822f0a7cb7b03bde22a4a0897cc30ed.png]]
 
-以上就是robot的配置文件本身，只是Ride这个图形界面是这些配置文件的可视化和IDE开发环境而已，Ride通过调用robot 的 API来执行配置文件定义的测试样例。
+以上就是robot的配置文件本身，只是Ride这个图形界面是这些配置文件的可视化和IDE开发环境而已，Ride通过调用robot 的 API活着robot命令行来执行配置文件定义的测试样例。
 
 
 
@@ -72,5 +72,14 @@ https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
 
 [Robot Demo](https://github.com/robotframework/RobotDemo)
 
-这个Demo包含怎么测试一个自己的python库
+这个Demo包含怎么测试一个自己的python库。
 
+当时遇到了一个问题，被自己解决了: https://github.com/robotframework/RobotDemo/issues/2   关键字和参数之间一定要多个空格，关键字词语之间必须一个空格！
+
+
+## API文档参考
+
+https://robot-framework.readthedocs.io/en/stable/
+
+
+而API的使用样例可以去robot的repo里的src下的robot目录的rebot和run.py里面去查看相关信息。
