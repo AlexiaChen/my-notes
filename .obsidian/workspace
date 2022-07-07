@@ -10,6 +10,7 @@
           "type": "markdown",
           "state": {
             "file": "Data-structure-algorithm/算法.md",
+            "file": "DotNet/DotNet学习笔记.md",
             "mode": "source",
             "source": false
           }
@@ -70,6 +71,7 @@
               "type": "backlink",
               "state": {
                 "file": "Data-structure-algorithm/算法.md",
+                "file": "DotNet/DotNet学习笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -98,6 +100,7 @@
               "type": "outgoing-link",
               "state": {
                 "file": "Data-structure-algorithm/算法.md",
+                "file": "DotNet/DotNet学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -129,5 +132,15 @@
     "compiler/JVM.md",
     "BigData/面向数据的设计.md",
     "AI/机器学习.md"
+    "DotNet/DotNet学习笔记.md",
+    "VideoAudio/zkcard/RGB-YUV.md",
+    "VideoAudio/音视频学习笔记.md",
+    "VideoAudio/zkcard/流媒体相关的软件系统对比.md",
+    "Python/Robot-Framework学习笔记.md",
+    "ECU-TEST/ECU-TEST的学习笔记.md",
+    "ECU-TEST/zkcards/ECU.md",
+    "ECU-TEST/zkcards/ECU-TEST.md",
+    "ROS/ROS学习笔记.md",
+    "ROS/zkcards/publisher的cpp代码.md"
   ]
 }
