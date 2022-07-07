@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "a61e5207f3c07e11",
+        "id": "9896d7dd29745642",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "VideoAudio/音视频学习笔记.md",
+            "file": "Data-structure-algorithm/算法.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "storage",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "VideoAudio/音视频学习笔记.md",
+                "file": "Data-structure-algorithm/算法.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,30 +97,37 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "VideoAudio/音视频学习笔记.md",
+                "file": "Data-structure-algorithm/算法.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
+            }
+          },
+          {
+            "id": "f09676f380ce22f9",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
             }
           }
         ]
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
-  "active": "a61e5207f3c07e11",
+  "active": "9896d7dd29745642",
   "lastOpenFiles": [
+    "Data-structure-algorithm/算法.md",
+    "Back-end/数据库与分布式.md",
+    "compiler/PLT.md",
+    "Back-end/系统设计.md",
+    "AI/神经网络.md",
+    "Python/数据处理.md",
     "VideoAudio/音视频学习笔记.md",
-    "VideoAudio/zkcard/流媒体相关的软件系统对比.md",
-    "DotNet/DotNet学习笔记.md",
-    "Python/Robot-Framework学习笔记.md",
-    "ECU-TEST/ECU-TEST的学习笔记.md",
-    "ECU-TEST/zkcards/ECU.md",
-    "ECU-TEST/zkcards/ECU-TEST.md",
-    "ROS/ROS学习笔记.md",
-    "ROS/zkcards/publisher的cpp代码.md",
-    "ROS/zkcards/ROS的安装.md"
+    "compiler/JVM.md",
+    "BigData/面向数据的设计.md",
+    "AI/机器学习.md"
   ]
 }
