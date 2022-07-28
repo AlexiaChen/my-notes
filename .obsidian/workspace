@@ -4,14 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "de79acb4ae9d054f",
+        "id": "72844c6aeae6795f",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "VideoAudio/zkcard/H.264.md",
-            "file": "Data-structure-algorithm/算法.md",
-            "file": "DotNet/DotNet学习笔记.md",
+            "file": "VideoAudio/zkcard/RTMP概览.md",
             "mode": "source",
             "source": false
           }
@@ -71,12 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-<<<<<<< HEAD
-                "file": "VideoAudio/zkcard/H.264.md",
-=======
-                "file": "Data-structure-algorithm/算法.md",
-                "file": "DotNet/DotNet学习笔记.md",
->>>>>>> e0c773cf310eba1104bef099d5e7ae748341d89b
+                "file": "VideoAudio/zkcard/RTMP概览.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,12 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-<<<<<<< HEAD
-                "file": "VideoAudio/zkcard/H.264.md",
-=======
-                "file": "Data-structure-algorithm/算法.md",
-                "file": "DotNet/DotNet学习笔记.md",
->>>>>>> e0c773cf310eba1104bef099d5e7ae748341d89b
+                "file": "VideoAudio/zkcard/RTMP概览.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -127,44 +115,20 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
-<<<<<<< HEAD
-  "active": "de79acb4ae9d054f",
+  "active": "72844c6aeae6795f",
   "lastOpenFiles": [
-    "VideoAudio/工作笔记.md",
-    "Back-end/WSL2.md",
-    "Back-end/linux/Linux学习笔记.md",
-    "VideoAudio/zkcard/FFmpeg.md",
+    "VideoAudio/zkcard/RTP-RTCP-RTSP-RTMP.md",
+    "Embbed-System/树莓派学习笔记.md",
     "VideoAudio/zkcard/H.264.md",
+    "VideoAudio/工作笔记.md",
     "VideoAudio/zkcard/RTMP概览.md",
-    "VideoAudio/音视频学习笔记.md",
-    "VideoAudio/zkcard/MPEG.md",
-    "VideoAudio/zkcard/RTMP-wiki.md",
-    "VideoAudio/zkcard/流媒体相关的软件系统对比.md"
-=======
-  "active": "9896d7dd29745642",
-  "lastOpenFiles": [
-    "Data-structure-algorithm/算法.md",
-    "Back-end/数据库与分布式.md",
-    "compiler/PLT.md",
-    "Back-end/系统设计.md",
-    "AI/神经网络.md",
-    "Python/数据处理.md",
-    "VideoAudio/音视频学习笔记.md",
-    "compiler/JVM.md",
-    "BigData/面向数据的设计.md",
-    "AI/机器学习.md"
-    "DotNet/DotNet学习笔记.md",
-    "VideoAudio/zkcard/RGB-YUV.md",
-    "VideoAudio/音视频学习笔记.md",
     "VideoAudio/zkcard/流媒体相关的软件系统对比.md",
-    "Python/Robot-Framework学习笔记.md",
-    "ECU-TEST/ECU-TEST的学习笔记.md",
-    "ECU-TEST/zkcards/ECU.md",
-    "ECU-TEST/zkcards/ECU-TEST.md",
-    "ROS/ROS学习笔记.md",
-    "ROS/zkcards/publisher的cpp代码.md"
->>>>>>> e0c773cf310eba1104bef099d5e7ae748341d89b
+    "VideoAudio/zkcard/RTMP-wiki.md",
+    "VideoAudio/zkcard/RGB-YUV.md",
+    "Back-end/WSL2.md",
+    "Back-end/linux/Linux学习笔记.md"
   ]
 }

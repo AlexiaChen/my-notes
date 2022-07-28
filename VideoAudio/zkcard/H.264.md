@@ -23,6 +23,7 @@ B帧前后参考解码，所以既要参考I帧，也要参考后面的P帧，�
 B帧前后参考时，向前也可以参考P帧，图内可以看出来这一点。
 B帧与B帧是没有任何参考的。
 
+
 ## H264码流中的SPS,PPS
 
 #### SPS
@@ -65,5 +66,44 @@ H264是MPEG-4标准定义的一种编码格式，比较新。H264是经过有损
 #### NAL Unit(NALU)的格式
 
 ![[Pasted image 20220728095537.png]]
+
+
+- 一个NALU包含START CODE， NALU Header，RBSP三部分
+- START CODE只是一个标记，以四个特定字节打头，0x00, 0x00,0x00, 0x01 这四个字节代表一个NALU单元的开始
+- NALU Header是紧跟在start code后的一个字节，里面有各种位段
+
+![[Pasted image 20220728101539.png]]
+
+![[Pasted image 20220728101642.png]]
+
+其中的0x67就是NALU Header的字段了，把0x67，换算成8个bit就是0110 0111。
+
+- 1 bit必须定义为0，所以这里是对的
+- 2 bit现在是3，取值范围是0-3， 3 最高，越高表示重要性越高
+- 后5个bit现在是7，表示这是一个SPS的NAL Unit
+
+#### NALU的分类
+
+从之前的H264分析器可以看到，NALU分为SPS,PPS, SEI, IDR_SLICE, SLICE类型，这些NALUs组成了一个序列。
+
+![[Pasted image 20220728103152.png]]
+
+一个H264视频可能包含一个躲着多个序列。一般来说，一个序列代表的是1秒内采集到的视频数据集合，在FPS帧率为30的情况下，一个sequence，包含1个SPS，1个PPS， 1个SEI， 1个IDR，和 29个PDR。当然IDR就是特殊的I帧了(IDR帧肯定是I帧，I帧不一定是IDR帧)，PDR就是所谓的P帧了，记录图像变化，参考前面的P帧或者I帧。
+
+根据以上的解释，我个人感觉一个序列可能跟一个GOP这样的概念很相似。好像差不多。
+
+
+![[Pasted image 20220728104049.png]]
+
+
+对于SLICE这样类型的NALU来说，NALU主体的格式就分为Slice Header + Slice Data这样的部分了。
+
+Slice就分为I Slice，P Slice， B Slice， SI Slice， SP Slice。这些片内就是所谓的I, P, B帧了。
+
+![[Pasted image 20220728105245.png]]
+
+再深入的详情请参考 [(4条消息) H264数据格式解析_qq_34613314的博客-CSDN博客_h264格式](https://blog.csdn.net/qq_34613314/article/details/117430731)
+
+
 
 
