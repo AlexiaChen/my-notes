@@ -83,7 +83,7 @@ RTMP流中支持ACC,MP3的音频编码。视频上支持H.264/AVC，VP6编码。
 
 ### 代替RTMP的协议
 
-RTMP因为跟adobe绑定，所以未来不确定。HLS或者Http Live Streaming是一个热门的替代选择。
+RTMP因为跟adobe绑定，所以未来不确定。Http Live Streaming(HLS)是一个热门的替代选择。
 
 ## 使用FFmpeg来进行RTMP推流的教程
 

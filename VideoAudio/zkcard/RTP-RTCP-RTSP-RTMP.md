@@ -73,7 +73,7 @@ RTSP与RTMP的比较。
 RTMP(Real-time Messaging Protocol)呢，当时是个标准化的流媒体协议，它能有效地流传低延迟的按需内容。这种数据可以是预先录制的(视频文件)，也可以是现场直播的(摄像头推流)，但RTMP目前最常被用于直播的音视频内容。
 
 虽然大多数实时视频流媒体软件支持RTMP摄取，但大多数在线视频流利用 
-HLS流媒体协议。HLS--HTTP Live Streaming--协议是由苹果公司开创的，与几乎所有的移动设备、游戏机兼容。
+HLS流媒体协议。HTTP Live Streaming(HLS)协议是由苹果公司开创的，与几乎所有的移动设备、游戏机兼容。
 
 RTMP将音频和视频文件从RTMP编码器(推流端)传输到视频托管平台(Media Server)。而HLS将文件从托管平台（Media Server）传输到 各个用户的终端设备上。
 

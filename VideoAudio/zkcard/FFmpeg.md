@@ -15,7 +15,7 @@ FFmpeg命令行可视化，[YoungSx/ffmpeg-cmd-viewer (github.com)](https://gith
 
 #### FFmpeg推流与播放
 
-FFmpeg推RTP流,用的封装格式是mpeg-ts，跟GB28181几乎一样。以下命令就是无限重复推送这个文件，注意下面的端口号10000，是Media Server上的RTP服务配置
+FFmpeg推RTP流,用的封装格式是mpeg-ts(ffmpeg不支持mpeg-ps)，跟GB28181几乎一样。以下命令就是无限重复推送这个文件，注意下面的端口号10000，是Media Server上的RTP服务配置
 
 ```bash
 ffmpeg -stream_loop -1 -re -i ./TextInMotion-VideoSamp  
@@ -38,4 +38,45 @@ ffplay -showmode 0 rtsp://127.0.0.1:1554/rtp/1629F472
 
 [播放url规则 · ZLMediaKit/ZLMediaKit Wiki (github.com)](https://github.com/ZLMediaKit/ZLMediaKit/wiki/%E6%92%AD%E6%94%BEurl%E8%A7%84%E5%88%99)
 
+[ZLMediaKit推流测试 · ZLMediaKit/ZLMediaKit Wiki (github.com)](https://github.com/ZLMediaKit/ZLMediaKit/wiki/ZLMediaKit%E6%8E%A8%E6%B5%81%E6%B5%8B%E8%AF%95)
+
+下面是访问HLS协议的的浏览器URL:
+
+```txt
+http://172.22.22.94:8080/rtp/F6EC2C40/hls.m3u8?vhost=__defaultVhost__&secret=035c73f7-bb6b-4889-a715-d9eb2d1925cc
+```
+
+如果是在浏览器地址栏输入以上URL，那么不能通过m3u8文件播放视频，默认它会把文件下载到本地，本地用windows Media 11 Player播放器可以打开m3u8索引文件，但是找不到相关的.ts分片视频文件。
+
+
+[LiveQing](http://cloud.liveqing.com:18000/#/liveplayer)
+
+以上链接可以播放WSL2中的m3u8文件，完美支持HLS。
+
+以下是自己写的一个调用liveQing的静态网页实现的HLS播放
+
+```html
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+
+        <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+
+    </head>
+
+    <body>
+        <iframe src="http://cloud.liveqing.com:18000/LivePlayer.html?videoUrl=http%3A%2F%2F172.22.22.94%3A8080%2Frtp%2FF6EC2C40%2Fhls.m3u8%3Fvhost%3D__defaultVhost__%26secret%3D035c73f7-bb6b-4889-a715-d9eb2d1925cc" width="640" height="360" allowfullscreen></iframe>
+
+    </body>
+
+    <script>
+
+      
+
+    </script>
+
+</html>
+```
 
