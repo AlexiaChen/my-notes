@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "12e8dbd9cff49b03",
+        "id": "37ca99b062db0249",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Back-end/Database/MySQL/MySQL45讲-实践篇-10给字符串字段加索引.md",
+            "file": "Back-end/linux/Linux学习笔记.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Back-end/Database/MySQL/MySQL45讲-实践篇-10给字符串字段加索引.md",
+                "file": "Back-end/linux/Linux学习笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Back-end/Database/MySQL/MySQL45讲-实践篇-10给字符串字段加索引.md",
+                "file": "Back-end/linux/Linux学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -111,24 +111,25 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
     "width": 300,
     "collapsed": true
   },
-  "active": "12e8dbd9cff49b03",
+  "active": "37ca99b062db0249",
   "lastOpenFiles": [
-    "images/Pasted image 20220731202712.png",
-    "Back-end/Database/MySQL/MySQL45讲-实践篇-10给字符串字段加索引.md",
-    "Back-end/Database/MySQL/MySQL45讲-实践篇-09有些时候会选错索引.md",
-    "Back-end/Database/MySQL/MySQL45讲-实践篇-08普通索引和唯一索引的选择.md",
-    "Back-end/Database/MySQL/MySQL45讲-基础篇-07事务到底是隔离还是不隔离.md",
-    "Back-end/Database/MySQL/MySQL45讲-基础篇-06行锁功过.md",
-    "Back-end/Database/MySQL/MySQL45讲-基础篇-05全局锁和表锁.md",
-    "images/Pasted image 20220729211927.png",
-    "images/Pasted image 20220729211547.png",
-    "images/Pasted image 20220729211639.png"
+    "VideoAudio/工作笔记.md",
+    "Embbed-System/树莓派学习笔记.md",
+    "VideoAudio/zkcard/RTP-RTCP-RTSP-RTMP.md",
+    "VideoAudio/zkcard/FFmpeg.md",
+    "Back-end/WSL2.md",
+    "VideoAudio/zkcard/RTMP概览.md",
+    "VideoAudio/zkcard/ZLMediaKit学习笔记.md",
+    "Embbed-System/海思Hi3516.md",
+    "VideoAudio/zkcard/HLS学习笔记.md",
+    "VideoAudio/zkcard/流媒体相关的软件系统对比.md"
   ]
 }

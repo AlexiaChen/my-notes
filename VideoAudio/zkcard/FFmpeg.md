@@ -80,3 +80,21 @@ http://172.22.22.94:8080/rtp/F6EC2C40/hls.m3u8?vhost=__defaultVhost__&secret=035
 </html>
 ```
 
+RTMP推流
+
+```bash
+ffmpeg -stream_loop -1 -re -i ./TextInMotion-VideoSample-1080p.mp4 -vcodec h264 -acodec aac -f flv rtmp://127.0.0.1:1935/[app]/[stream id]
+```
+
+如果是用RTMP推流，用ffplay也可以播放RTMP，但是用HLS就可以播放RTMP的推流。用VLC也可以在宿主机上播放WSL2上media server的RTMP流.
+
+```txt
+rtmp://172.22.22.94:1935/live/test?vhost=__defaultVhost__&secret=035c73f7-bb6b-4889-a715-d9eb2d1925cc
+```
+
+```bash
+ffplay -showmode 0 rtmp://127.0.0.1:1935/live/test
+```
+
+注意：如果在WSL2上，ffplay播放不出本地mp4文件或者播放不出rtmp流，URL没有问题的话，那么就重启WSL2。
+

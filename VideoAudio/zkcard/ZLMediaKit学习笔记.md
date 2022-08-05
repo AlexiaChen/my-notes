@@ -18,3 +18,26 @@
 ![[ed74a6c160c0971f4bb370776611b15.png]]
 
 以上请求是拉取当前Media Server的配置。
+
+### 录制视频测试
+
+- ### `/index/api/getMp4RecordFile`
+- `/index/api/startRecord`
+- `/index/api/stopRecord`
+
+
+secret=035c73f7-bb6b-4889-a715-d9eb2d1925cc
+vhost=\_\_defaultVhost\_\_
+app=rtp
+stream=stream id
+
+```
+http://172.22.28.107:8080/index/api/startRecord?type=1&secret=035c73f7-bb6b-4889-a715-d9eb2d1925cc&vhost=__defaultVhost__&app=live&stream=test
+
+
+```
+
+这里与FFmpeg是联系的：
+
+![[FFmpeg]]
+
