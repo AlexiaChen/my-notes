@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "VideoAudio/zkcard/OpenCV学习笔记.md",
+            "file": "Embbed-System/树莓派学习笔记.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "VideoAudio/zkcard/OpenCV学习笔记.md",
+                "file": "Embbed-System/树莓派学习笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "VideoAudio/zkcard/OpenCV学习笔记.md",
+                "file": "Embbed-System/树莓派学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -121,8 +121,8 @@
   },
   "active": "acc56717ddad88f5",
   "lastOpenFiles": [
-    "Temp-Notes/工作笔记.md",
     "VideoAudio/zkcard/OpenCV学习笔记.md",
+    "Temp-Notes/工作笔记.md",
     "VideoAudio/zkcard/OnVif协议.md",
     "VideoAudio/zkcard/ZLMediaKit学习笔记.md",
     "VideoAudio/zkcard/FFmpeg学习笔记.md",
