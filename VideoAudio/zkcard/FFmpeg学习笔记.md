@@ -98,3 +98,7 @@ ffplay -showmode 0 rtmp://127.0.0.1:1935/live/test
 
 注意：如果在WSL2上，ffplay播放不出本地mp4文件或者播放不出rtmp流，URL没有问题的话，那么就重启WSL2。
 
+[Stream MP4 video successfully to RTMP with FFMPEG - Stack Overflow](https://stackoverflow.com/questions/33883405/stream-mp4-video-successfully-to-rtmp-with-ffmpeg)
+
+
+[StreamingGuide – FFmpeg](https://trac.ffmpeg.org/wiki/StreamingGuide)

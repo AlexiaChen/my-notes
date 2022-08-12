@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "37ca99b062db0249",
+        "id": "acc56717ddad88f5",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Back-end/linux/Linux学习笔记.md",
+            "file": "VideoAudio/zkcard/OpenCV学习笔记.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Back-end/linux/Linux学习笔记.md",
+                "file": "VideoAudio/zkcard/OpenCV学习笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Back-end/linux/Linux学习笔记.md",
+                "file": "VideoAudio/zkcard/OpenCV学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -119,17 +119,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "37ca99b062db0249",
+  "active": "acc56717ddad88f5",
   "lastOpenFiles": [
-    "VideoAudio/工作笔记.md",
-    "Embbed-System/树莓派学习笔记.md",
-    "VideoAudio/zkcard/RTP-RTCP-RTSP-RTMP.md",
-    "VideoAudio/zkcard/FFmpeg.md",
-    "Back-end/WSL2.md",
-    "VideoAudio/zkcard/RTMP概览.md",
+    "Temp-Notes/工作笔记.md",
+    "VideoAudio/zkcard/OpenCV学习笔记.md",
+    "VideoAudio/zkcard/OnVif协议.md",
     "VideoAudio/zkcard/ZLMediaKit学习笔记.md",
+    "VideoAudio/zkcard/FFmpeg学习笔记.md",
+    "VideoAudio/zkcard/GB28181.md",
+    "Embbed-System/树莓派学习笔记.md",
     "Embbed-System/海思Hi3516.md",
-    "VideoAudio/zkcard/HLS学习笔记.md",
-    "VideoAudio/zkcard/流媒体相关的软件系统对比.md"
+    "汇报.md",
+    "light_day_glass.jpg"
   ]
 }

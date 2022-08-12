@@ -14,3 +14,11 @@
 [Revenge of the Types | Armin Ronacher's Thoughts and Writings (pocoo.org)](https://lucumr.pocoo.org/2014/8/24/revenge-of-the-types/)
 
 
+#### python的一个异步框架
+
+[Async IO in Python: A Complete Walkthrough – Real Python](https://realpython.com/async-io-python/)
+
+[asyncio — Asynchronous I/O — Python 3.10.6 documentation](https://docs.python.org/3/library/asyncio.html)
+
+[cloudfit-public-docs | This is a collection of documents published by the BBC R&D Cloudfit team delving into the detail of technologies we have found interesting or useful during the course of our work.](https://bbc.github.io/cloudfit-public-docs/)
+

@@ -82,5 +82,12 @@ sudo resize2fs /dev/sda2
 ```
 
 
+#### Linux的管道性能
+
+- [How fast are Linux pipes anyway? (mazzo.li)](https://mazzo.li/posts/fast-pipes.html)
+- [cat - pipe and redirection speed, `pv` and UUOC - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/607737/pipe-and-redirection-speed-pv-and-uuoc/607745#607745)
+- [Optimizing Linux Pipes | Hackaday](https://hackaday.com/2022/06/03/optimizing-linux-pipes/)
+
+
 
 
