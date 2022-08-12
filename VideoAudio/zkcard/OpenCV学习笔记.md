@@ -193,339 +193,104 @@ cv2.destroyAllWindows()
 
 由上图可知，dlib平均处理每帧图像所需要的时间最短。MTCNN是最长的。
 
-#### python 的opencv摄像头人脸检测
-
-```python
-#!/usr/bin/env python3
-
-import subprocess as sp
-import cv2
-import face_recognition
-
-#rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/key"
-
-rtmp_url = "rtmp://192.168.31.185:1935/live/test"  # Use localhost for testing
-
-camera_path = "/dev/video0"
-
-cap = cv2.VideoCapture(camera_path)
-
-  
-
-# Get video information
-
-fps = int(cap.get(cv2.CAP_PROP_FPS))
-
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-  
-
-# ffmpeg command
-
-# OpenCV does not support audio.
-
-command = ['ffmpeg',
-
-        '-y',
-
-        '-re', # '-re' is requiered when streaming in "real-time"
-
-        '-f', 'rawvideo',
-
-        #'-thread_queue_size', '1024',  # May help https://stackoverflow.com/questions/61723571/correct-usage-of-thread-queue-size-in-ffmpeg
-
-        '-vcodec','rawvideo',
-
-        '-pix_fmt', 'bgr24',
-
-        #'-pix_fmt', 'rgb24',
-
-        '-s', "{}x{}".format(width, height),
-
-        '-r', str(fps),
-
-        '-i', '-',
-
-        #'-vn', '-i', camera_path,  # Get the audio stream without using OpenCV
-
-        '-c:v', 'h264',
-
-        '-pix_fmt', 'yuv420p',
-
-        '-preset', 'ultrafast',
-
-        # '-c:a', 'aac',  # Select audio codec
-
-        # '-bufsize', '64M',  # Buffering is probably required
-
-        '-f', 'flv',
-
-        rtmp_url]
-
-  
-
-# # Pipeline configuration
-
-p = sp.Popen(command, stdin=sp.PIPE)
-
-  
-
-process_this_frame = True
-
-face_locations = []
-
-face_encodings = []
-
-face_names = []
-
-  
-
-# read webcamera
-
-while (cap.isOpened()):
-
-    ret, frame = cap.read()
-
-    #print("cap.read duan cuowu ")
-
-    if not ret:
-
-        print("End of streaming")
-
-        break
-
-    # 1/2 frames of all frames to be process, to improve performance
-
-    if process_this_frame:
-
-        # Resize frame of video to 1/4 size for faster face recognition processing
-
-        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-
-        # Convert the image from BGR color (which OpenCV uses) to RGB  
-
-        # color (which face_recognition uses)
-
-        rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
-
-        # Find all the faces and face encodings in the current frame of video
-
-        face_locations = face_recognition.face_locations(rgb_small_frame)
-
-  
-
-    process_this_frame = not process_this_frame  
-
-  
-
-    for top, right, bottom, left in face_locations:
-
-        top *= 4
-
-        right *= 4
-
-        bottom *= 4
-
-        left *= 4
-
-        # Draw a box around the face
-
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-
-    # write to pipe
-
-    p.stdin.write(frame.tobytes())
-
-    # cv2.imshow('Video', frame)
-
-    # if cv2.waitKey(25) == 13:
-
-    #     break
-
-  
-
-p.stdin.close()  # Close stdin pipe
-
-p.wait()
-
-cv2.destroyAllWindows()
-
-```
 
 #### 检测人脸对比
 
 ```python
 #!/usr/bin/env python3
 
-  
-
 # pip install face_recognition -i https://mirrors.aliyun.com/pypi/simple/
 
-  
-
 import subprocess as sp
-
 import sys
-
 import cv2
-
 import face_recognition
-
 from multiprocessing import Process
-
 import time
-
 from mtcnn import MTCNN
-
 from yoloface import face_analysis
-
 import numpy
-
 from pathlib import Path
 
-  
-
 algo_name = ""
-
 input_file = ""
 
-  
-
 def main():
+    if algo_name == "" or input_file == "":
+        print("Please set algo_name and input file")
+        sys.exit(1)
+    
+    print("entry %s service" % algo_name)
 
-    if algo_name == "" or input_file == "":
+    if algo_name == "hog":
+        image = face_recognition.load_image_file(input_file)
+        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        face_locations = face_recognition.face_locations(image)
 
-        print("Please set algo_name and input file")
+        for top, right, bottom, left in face_locations:
+            # Draw a box around the face
+            cv2.rectangle(bgr_image, (left, top), (right, bottom), (0, 0, 255), 2)
+        
+        filename = "output_%s_%s.jpg" % (algo_name, Path(input_file).stem)
+        cv2.imwrite(filename, bgr_image)
+    
+    elif algo_name == "cnn":
+        image = face_recognition.load_image_file(input_file)
+        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        face_locations = face_recognition.face_locations(image, 1, model="cnn")
 
-        sys.exit(1)
+        for top, right, bottom, left in face_locations:
+            # Draw a box around the face
+            cv2.rectangle(bgr_image, (left, top), (right, bottom), (0, 0, 255), 2)
+        
+        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
+        cv2.imwrite(filename, bgr_image)
+    elif algo_name == "haar":
+        casc_path = "/home/mathxh/.local/lib/python3.8/site-packages/cv2/data/haarcascade_frontalface_default.xml"
+        faceCascade = cv2.CascadeClassifier(casc_path)
+       
+        image = face_recognition.load_image_file(input_file)
+        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    print("entry %s service" % algo_name)
+        face_locations = faceCascade.detectMultiScale2(bgr_image, scaleFactor=1.1, minNeighbors=5, flags=cv2.CASCADE_SCALE_IMAGE)
+        for x, y, w, h in face_locations[0]:
+            # Draw a box around the face
+            cv2.rectangle(bgr_image, (x, y), (x+w, y+h), (0, 0, 255), 2)
 
-  
+        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
+        cv2.imwrite(filename, bgr_image)
+    elif algo_name == "mtcnn":
+        image = face_recognition.load_image_file(input_file)
+        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    if algo_name == "hog":
+        detector = MTCNN()
+        results = detector.detect_faces(bgr_image)
+        if results:
+            box = results[0]['box']
+            conf = results[0]['confidence']
+            x, y, w, h = box[0], box[1], box[2], box[3]
+            if conf > 0.5:
+                cv2.rectangle(bgr_image, (x, y), (x+w, y+h), (0, 0, 255), 2)
+        
+        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
+        cv2.imwrite(filename, bgr_image)
+    elif algo_name == "yolo":
+        image = face_recognition.load_image_file(input_file)
+        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        image = face_recognition.load_image_file(input_file)
-
-        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-        face_locations = face_recognition.face_locations(image)
-
-  
-
-        for top, right, bottom, left in face_locations:
-
-            # Draw a box around the face
-
-            cv2.rectangle(bgr_image, (left, top), (right, bottom), (0, 0, 255), 2)
-
-        filename = "output_%s_%s.jpg" % (algo_name, Path(input_file).stem)
-
-        cv2.imwrite(filename, bgr_image)
-
-    elif algo_name == "cnn":
-
-        image = face_recognition.load_image_file(input_file)
-
-        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-        face_locations = face_recognition.face_locations(image, 1, model="cnn")
-
-  
-
-        for top, right, bottom, left in face_locations:
-
-            # Draw a box around the face
-
-            cv2.rectangle(bgr_image, (left, top), (right, bottom), (0, 0, 255), 2)
-
-        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
-
-        cv2.imwrite(filename, bgr_image)
-
-    elif algo_name == "haar":
-
-        casc_path = "/home/mathxh/.local/lib/python3.8/site-packages/cv2/data/haarcascade_frontalface_default.xml"
-
-        faceCascade = cv2.CascadeClassifier(casc_path)
-
-        image = face_recognition.load_image_file(input_file)
-
-        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-  
-
-        face_locations = faceCascade.detectMultiScale2(bgr_image, scaleFactor=1.1, minNeighbors=5, flags=cv2.CASCADE_SCALE_IMAGE)
-
-        for x, y, w, h in face_locations[0]:
-
-            # Draw a box around the face
-
-            cv2.rectangle(bgr_image, (x, y), (x+w, y+h), (0, 0, 255), 2)
-
-  
-
-        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
-
-        cv2.imwrite(filename, bgr_image)
-
-    elif algo_name == "mtcnn":
-
-        image = face_recognition.load_image_file(input_file)
-
-        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-  
-
-        detector = MTCNN()
-
-        results = detector.detect_faces(bgr_image)
-
-        if results:
-
-            box = results[0]['box']
-
-            conf = results[0]['confidence']
-
-            x, y, w, h = box[0], box[1], box[2], box[3]
-
-            if conf > 0.5:
-
-                cv2.rectangle(bgr_image, (x, y), (x+w, y+h), (0, 0, 255), 2)
-
-        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
-
-        cv2.imwrite(filename, bgr_image)
-
-    elif algo_name == "yolo":
-
-        image = face_recognition.load_image_file(input_file)
-
-        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-  
-
-        face = face_analysis()
-
-        img,box,conf=face.face_detection(image_path=input_file,model='tiny')
-
-        output_frame = face.show_output(img,box,frame_status=True)
-
-        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
-
-        cv2.imwrite(filename, output_frame)
-
-  
+        face = face_analysis()
+        img,box,conf=face.face_detection(image_path=input_file,model='tiny')
+        output_frame = face.show_output(img,box,frame_status=True)
+        filename = "output_%s_%s.jpg" % (algo_name,  Path(input_file).stem)
+        cv2.imwrite(filename, output_frame)
 
 if __name__ == "__main__":
+    algo_name = sys.argv[1]
+    input_file = sys.argv[2]
+    main()
 
-    algo_name = sys.argv[1]
 
-    input_file = sys.argv[2]
 
-    main()
 ```
 
 ##### 识别人脸
@@ -533,148 +298,80 @@ if __name__ == "__main__":
 ```python
 #!/usr/bin/env python3
 
-  
-
 # pip install face_recognition -i https://mirrors.aliyun.com/pypi/simple/
 
-  
-
 import subprocess as sp
-
 import sys
-
 import cv2
-
 import face_recognition
-
 from multiprocessing import Process
-
 import time
-
 from mtcnn import MTCNN
-
 from yoloface import face_analysis
-
 import numpy as np
-
 from pathlib import Path
-
 from PIL import Image, ImageDraw, ImageFont
-
-  
 
 input_file = ""
 
-  
-
 def cv2AddChineseText(img, text, position, textColor=(0, 255, 0), textSize=30):
+    if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
+        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # 创建一个可以在给定图像上绘图的对象
+    draw = ImageDraw.Draw(img)
+    # 字体的格式 simsun.tcc是中文字体文件
+    fontStyle = ImageFont.truetype(
+        "simsun.ttc", textSize, encoding="utf-8")
+    # 绘制文本
+    draw.text(position, text, textColor, font=fontStyle)
+    # 转换回OpenCV格式
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
-    if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
-
-        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-
-    # 创建一个可以在给定图像上绘图的对象
-
-    draw = ImageDraw.Draw(img)
-
-    # 字体的格式
-
-    fontStyle = ImageFont.truetype(
-
-        "simsun.ttc", textSize, encoding="utf-8")
-
-    # 绘制文本
-
-    draw.text(position, text, textColor, font=fontStyle)
-
-    # 转换回OpenCV格式
-
-    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
-
-  
-  
 
 def main():
+    if input_file == "":
+        print("Please set  input file")
+        sys.exit(1)
 
-    if input_file == "":
+    id_card_image = face_recognition.load_image_file('id_card.jpg')
+    id_card_face_encoding = face_recognition.face_encodings(id_card_image)[0]
 
-        print("Please set  input file")
+    known_face_encodings = [id_card_face_encoding]
+    known_face_names = ['陈绍涵']
 
-        sys.exit(1)
+    image = face_recognition.load_image_file(input_file)
+    bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    face_locations = face_recognition.face_locations(image)
+    face_encodings = face_recognition.face_encodings(image, face_locations)
 
-  
+    face_names = []
+    for face_encoding in face_encodings:
+        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+        name = "Unknown"
+    
+        face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+        best_match_index = np.argmin(face_distances)
+        if matches[best_match_index]:
+            name = known_face_names[best_match_index]
 
-    id_card_image = face_recognition.load_image_file('id_card.jpg')
+        face_names.append(name)
 
-    id_card_face_encoding = face_recognition.face_encodings(id_card_image)[0]
-
-  
-
-    known_face_encodings = [id_card_face_encoding]
-
-    known_face_names = ['陈绍涵']
-
-  
-
-    image = face_recognition.load_image_file(input_file)
-
-    bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-    face_locations = face_recognition.face_locations(image)
-
-    face_encodings = face_recognition.face_encodings(image, face_locations)
-
-  
-
-    face_names = []
-
-    for face_encoding in face_encodings:
-
-        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-
-        name = "Unknown"
-
-        face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-
-        best_match_index = np.argmin(face_distances)
-
-        if matches[best_match_index]:
-
-            name = known_face_names[best_match_index]
-
-  
-
-        face_names.append(name)
-
-  
-
-    for (top, right, bottom, left), name in zip(face_locations, face_names):
-
-        # Draw a box around the face
-
-        cv2.rectangle(bgr_image, (left, top), (right, bottom), (0, 0, 255), 2)
-
-        print("sss: %s" % name)
-
-        # Draw a label with a name below the face
-
-        # cv2.rectangle(bgr_image, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-
-        # font = cv2.FONT_HERSHEY_DUPLEX
-
-        # cv2.putText(bgr_image, name, (left + 6, bottom + 15), font, 5.0, (0, 0, 255), 2)
-
-        bgr_image = cv2AddChineseText(bgr_image, name, (left + 6, bottom + 15), (255,0,0), 100)
-
-    filename = "output_%s_%s.jpg" % ('face_recg', Path(input_file).stem)
-
-    cv2.imwrite(filename, bgr_image)
-
-  
+    for (top, right, bottom, left), name in zip(face_locations, face_names):
+        # Draw a box around the face
+        cv2.rectangle(bgr_image, (left, top), (right, bottom), (0, 0, 255), 2)
+        print("sss: %s" % name)
+        # Draw a label with a name below the face
+        # cv2.rectangle(bgr_image, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+        # font = cv2.FONT_HERSHEY_DUPLEX
+        # cv2.putText(bgr_image, name, (left + 6, bottom + 15), font, 5.0, (0, 0, 255), 2)
+        bgr_image = cv2AddChineseText(bgr_image, name, (left + 6, bottom + 15), (255,0,0), 100)
+    filename = "output_%s_%s.jpg" % ('face_recg', Path(input_file).stem)
+    cv2.imwrite(filename, bgr_image)
+    
+    
 
 if __name__ == "__main__":
+    input_file = sys.argv[1]
+    main()
 
-    input_file = sys.argv[1]
-
-    main()
 ```
