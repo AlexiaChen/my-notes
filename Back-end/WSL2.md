@@ -28,3 +28,12 @@ netsh interface portproxy delete v4tov4 listenport=1935 listenaddress=172.27.146
 ```
 
 注意connectaddress一般为WSL2中的port，由`ip addr`命令查看 inet。 listenaddress就是宿主机windows的地址了，这里的0.0.0.0是监听在any addr上。
+
+#### WSL2上开启systemd
+
+[WSL 2 - Enabling systemd (github.com)](https://gist.github.com/djfdyuruiry/6720faa3f9fc59bfdf6284ee1f41f950)
+
+[arkane-systems/genie: A quick way into a systemd "bottle" for WSL (github.com)](https://github.com/arkane-systems/genie)
+
+[DamionGans/ubuntu-wsl2-systemd-script: Script to enable systemd support on current Ubuntu WSL2 images [Unsupported, no longer updated] (github.com)](https://github.com/DamionGans/ubuntu-wsl2-systemd-script)
+

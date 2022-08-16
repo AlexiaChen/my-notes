@@ -22,4 +22,8 @@
 
 
 
+#### Channel
+
+[Golang 的 Channel 是一种免费的无锁实现吗？ | 卡瓦邦噶！ (kawabangga.com)](https://www.kawabangga.com/posts/4777)
+
 

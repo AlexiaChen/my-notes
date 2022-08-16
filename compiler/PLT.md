@@ -33,6 +33,8 @@ Stephen Dolan is one of those amazing people who knows both theory and practice 
 
 
 
+范畴论简介 [Gentle intro to category theory | Vagrant Gautam (dippedrusk.com)](https://dippedrusk.com/posts/2022-08-08-category-theory/)
+
 
 
 
