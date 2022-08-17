@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "f449ef4b8ebfb7d4",
+        "id": "850f8e36a776ee68",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Back-end/linux/iptables命令详解.md",
+            "file": "Back-end/linux/ufw防火墙配置.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "iptables",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Back-end/linux/iptables命令详解.md",
+                "file": "Back-end/linux/ufw防火墙配置.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Back-end/linux/iptables命令详解.md",
+                "file": "Back-end/linux/ufw防火墙配置.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -110,17 +110,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "f449ef4b8ebfb7d4",
+  "active": "850f8e36a776ee68",
   "lastOpenFiles": [
-    "images/5bd3dd7d900ebf8ddd252230e950388c.png",
     "Back-end/linux/iptables命令详解.md",
+    "images/3d-rotation.png",
     "Back-end/linux/Linux学习笔记.md",
+    "images/Pasted image 20220816160401.png",
+    "images/5bd3dd7d900ebf8ddd252230e950388c.png",
     "c-cpp/Perf命令使用.md",
     "c-cpp/C-and-CPP学习笔记.md",
     "Back-end/linux/lsof命令详解和例子.md",
     "Java/MyBatis-Plus学习笔记.md",
-    "VideoAudio/zkcard/视频智能插帧.md",
-    "Back-end/WSL2.md",
-    "VideoAudio/音视频学习笔记.md"
+    "VideoAudio/zkcard/视频智能插帧.md"
   ]
 }
