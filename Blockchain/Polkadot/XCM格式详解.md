@@ -145,3 +145,137 @@ enum Instruction {
 
 ##### XCM中支付手续费
 
+**XCM 中的手续费支付是一个相当重要的用例。** Polkadot 社区中的大多数链会要求他们的对话者为他们想要进行的任何操作支付手续费，否则他们会让自己受到"交易垃圾邮件"和DoS攻击。当链有充分的理由相信他们的对话者会表现良好时，就会出现例外情况 -- 当 Polkadot 中继链与 Polkadot Statemint 共同利益链相对应时就是这种情况。然而对于一般情况，收费是确保 XCM 消息及其传输协议不能被过度使用的好方法。让我们来看看当 XCM 消息到达 Polkadot 时如何支付手续费。
+
+正如已经提到的，XCM 并没有把手续费和手续费支付的想法作为第一等公民纳入其中。与以太坊的交易模式不同，手续费支付并不是协议中的内容，没有必要的用例必须明显地规避。就像 Rust 的零成本抽象一样，在 XCM 中，手续费支付没有很大的设计开销。
+
+不过对于那些需要支付手续费的系统，**XCM 提供了用资产购买执行资源的能力。** 概括地说，这样做包括三个部分。
+
+- 首先，需要提供一些资产。
+- 其次，必须就用资产换取计算时间（用 Substrate 的说法就是权重）进行协商。
+- 最后，XCM 的操作将按照指示进行。
+
+第一部分是由若干提供资产的 XCM 指令之一管理的。我们已经知道其中一条指令（`WithdrawAsset`），但还有其他几条，我们将在后面看到。当然，持有寄存器中的资产将用于支付与执行 XCM 相关的手续费。任何未用于支付费用的资产，我们都将存入某个目标账户中。在我们的例子中，我们假设 XCM 发生在 Polkadot 中继链上，而且是 1 DOT（即 10,000,000,000 不可分割的单位）。
+
+到目前为止，我们的 XCM 指令看起来像：
+
+```rust
+WithdrawAsset((Here, 10_000_000_000).into()),
+```
+
+这给我们带来了第二部分，用这些资产的（部分）换取计算时间来支付我们的 XCM 的费用。为此，我们有一个 XCM 指令 `BuyExecution`。让我们来看看它。
+
+```rust
+enum Instruction {
+    /*snip*/
+    BuyExecution {
+       fees: MultiAsset,
+       weight: u64,
+    },
+}
+```
+
+第一项 `fees` 是应从 Holding Register 中提取并用于支付手续费的金额。从技术上讲，这只是最高限额，因为任何未使用的余额都会立即退回。
+
+最终花费的金额由解释系统决定 -- `fees` 只是限制它，如果解释系统需要为所需的执行支付更多的费用，那么 `BuyExecution` 指令将导致错误。第二项是指定要购买的执行时间的数量。这一般应不低于 XCM 程序 (programme) 的总权重。
+
+在我们的例子中，我们假设所有的 XCM 指令都需要一百万的权重，所以到目前为止，我们的两个项目（`WithdrawAsset` 和 `BuyExecution`）是两百万，还有一个是接下来的内容。我们将使用所有我们拥有的 DOT 来支付这些费用（这只是一个好主意，如果我们相信目的地链不会有疯狂的费用 -- 我们将假设我们有）。让我们看看到目前为止我们的 XCM:
+
+```rust
+WithdrawAsset((Here, 10_000_000_000).into),
+BuyExecution {
+	fees: (Here, 10_000_000_000).into(),
+	weight: 3_000_000
+},
+```
+
+我们的 XCM 的第三部分是将剩余的资金存入 Holding Register。为此，我们将使用 `DepositAsset` 指令。我们实际上不知道持有 Holding Register 中还有多少资金，但这并不重要，因为我们可以为应该存入的资产指定一个通配符。我们将把它们存入 Statemint 的主权账户（该账户被识别为 `Parachain(1000)`）。
+
+因此，我们最终的 XCM 指令看起来像这样：
+
+```rust
+WithdrawAsset((Here, 10_000_000_000).into),
+BuyExecution {
+	fees: (Here, 10_000_000_000).into(),
+	weight: 3_000_000
+},
+
+DepositAsset {
+	assets: All.into(),
+	max_assets: 1,
+	beneficiary: Parachain(1000).into(),
+}
+```
+
+##### 在不同链之间移动资产
+
+向另一条链发送资产可能是链间信息传递的最常见的使用情况。允许一条链管理另一条链的原生资产，可以实现各种衍生用途（不是双关语），最简单的是去中心化的交易所，但通常被归类为去中心化的金融或 DeFi。
+
+一般来说，有两种方式可以让资产在链之间移动，**这取决于链之间是否信任对方的安全和逻辑。**
+
+##### Teleporting（远程传送）
+
+对于相互信任的链（如同一整体共识和安全保护伞下的同质分片），我们可以使用 Polkadot 称为远程传送 (Teleporting) 的框架，这基本上只是意味着在发送方销毁资产，在接收方铸币。这很简单，也很高效 -- 它只需要两个链的协调，而且只涉及任何一方的一个动作。不幸的是，如果接收链不能 100% 相信发送链会真正销毁它正在铸造的资产（并且确实不会在商定的资产规则之外铸造资产），那么发送链就真的没有依据在消息的背后铸造资产了。
+
+让我们看看从 Polkadot 中继链上传送（大部分）1 DOT 到 Statemint 上的主权账户的 XCM 会是什么样子。我们将假设 Polkadot 方面已经支付了手续费。
+
+```rust
+WithdrawAsset((Here, 10_000_000_000).into()),
+InitiateTeleport {
+	assets: All.into(),
+	dest: Parachain(1000).into(),
+	xcm: Xcm(vec![
+		BuyExecution {
+			fees: (Parent, 10_000_000_000).into(),
+			weight: 3_000_000,
+		},
+		DepositAsset {
+			assets: All.into(),
+			max_assets: 1,
+			beneficiary: Parent>into(),
+		}
+	]),
+}
+```
+
+正如你所看到的，这看起来与我们上次看到的直接`提款 - 购买 - 存款`模式相当相似。不同的是 `InitiateTeleport` 指令，它被插入到最后两条指令（`BuyExecution` 和 `DepositAsset`）的周围。在幕后，发送方（Polkadot Relay）链在执行 `InitiateTeleport` 指令时，正在创建一个全新的消息；它采用 xcm 字段，并将其置于一个新的 XCM，`ReceiveTeleportedAsset`，并将这个 XCM 发送给接收方（Statemint）链。Statemint 相信 Polkadot 中继链在发送消息之前已经销毁了它那边的 1 DOT。(它确实如此！）。
+
+`beneficiary`(受益人) 被表述为 `Parent.into()`，精明的读者可能会想，在 Polkadot 中继链的上下文中，这可能指的是什么。答案是 "没有什么"，但这里没有错。xcm 参数中的所有内容都是从接收方的角度编写的，所以尽管这是整个 XCM 的一部分，被送入 Polkadot 中继链，但它实际上只在 Statemint 上执行，因此它是在 Statemint 的上下文中编写的。
+
+当 Statemint 最终得到消息时，它看起来像这样：
+
+```rust
+ReceiveTeleportedAsset((Parent, 10_000_000_000).into()),
+BuyExecution {
+	fees: (Parent, 10_000_000_000).into(),
+	weight: 3_000_000,
+},
+DepositAsset {
+	assets: All.into(),
+	max_assets: 1,
+	beneficiary: Parent.into(),
+}
+```
+
+你可能会注意到，这看起来与之前的 `WithdrawAsset` XCM 相当相似。唯一的区别是，不是通过从本地账户取款来资助费用和存款，而是通过相信 DOT 在发送方（Polkadot 中继链）被忠实地销毁，并遵守 `ReceiveTeleportedAsset` 消息而 "神奇" 地存在。
+
+值得注意的是，我们在 Polkadot 中继链上发送的 1 个 DOT 的资产标识符（这里指的是中继链本身是 DOT 的原生家园）已经自动变异为 Statemint 上的表示。`Parent.into()`，这是 Statemint 上下文中的中继链的位置。
+
+`beneficiary`(受益人) 也被指定为 Polkadot 中继链，因此它的主权账户（在 Statemint 上）被记入新造的 1 DOT 减去手续费。XCM 可能只是很容易地为受益人指定一个账户或其他地方。就像现在这样，后来从中继链发送的 `TransferAsset` 可以用来转移这 1 DOT。
+
+##### 储备金
+
+https://mp.weixin.qq.com/s/KR9-tETKZRjCurb0nmPgEQ
+
+
+### 一些资料
+- 深入了解波卡跨共识消息 XCM 1 https://mp.weixin.qq.com/s/dbgR9xJNNT1zyb_3iyDb3A
+- 深入了解波卡跨共识消息 XCM 2 https://mp.weixin.qq.com/s/9_aAN2mlRo9yy10Y-RNbIQ
+- 深入了解波卡跨共识消息 XCM 3 https://mp.weixin.qq.com/s/7GuBD_3b0Opxui3AKpWoGA
+-  悄悄颠覆你跨链习惯的XCM是什么 https://mp.weixin.qq.com/s/ylZdlJp53BEl7lBmMHNdXg
+- Gavin Wood: XCM 1 https://mp.weixin.qq.com/s/TLgXYLMedzpopvtlhFDWyA
+- Gavin Wood: XCM 2  版本控制和兼容性 https://mp.weixin.qq.com/s/uDRKfVrx2E8-uiTpZJF9iQ
+- Gavin Wood: XCM 3  执行和错误管理 https://mp.weixin.qq.com/s/VANLIM9WS6vzh3jcZL6rnQ
+- 波卡XCM从基础到实践 https://mp.weixin.qq.com/s/vy0PpP8fN_wYhyifhuwHMw
+- 波卡跨链转账教程 [Parachain Development · Polkadot Wiki](https://wiki.polkadot.network/docs/build-pdk#testing-a-parachain)
+- 波卡XCM 官方 [Cross-Consensus Message Format (XCM) · Polkadot Wiki](https://wiki.polkadot.network/docs/learn-crosschain)

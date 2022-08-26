@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Blockchain/Polkadot学习笔记.md",
+            "file": "Blockchain/Polkadot/Substrate学习笔记.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "iptables",
+                "query": "测试网",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/Polkadot学习笔记.md",
+                "file": "Blockchain/Polkadot/Substrate学习笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/Polkadot学习笔记.md",
+                "file": "Blockchain/Polkadot/Substrate学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -112,15 +112,15 @@
   },
   "active": "f646f2aca3e52dd8",
   "lastOpenFiles": [
-    "Blockchain/zkCard/XCM格式详解.md",
-    "Blockchain/Polkadot学习笔记.md",
-    "Blockchain/Substrate学习笔记.md",
+    "images/Pasted image 20220826093427.png",
+    "images/Pasted image 20220823170335.png",
+    "Blockchain/Polkadot/Substrate学习笔记.md",
+    "Blockchain/Polkadot/Substrate教程.md",
+    "Blockchain/Polkadot/Polkadot平行链开发指南.md",
+    "Blockchain/Polkadot/Polkadot学习笔记.md",
+    "Blockchain/Polkadot/XCM格式详解.md",
     "images/3acb8a69b044476dcebf534dbb3c2113.png",
     "[.md",
-    "Blockchain/zkCard/DID技术.md",
-    "Temp-Notes/工作笔记.md",
-    "Blockchain/Solona学习笔记.md",
-    "images/9b21dbdce8433b6c74c08d5123c29e3.png",
-    "PL/Rust/Rust学习笔记.md"
+    "Blockchain/zkCard/DID技术.md"
   ]
 }
