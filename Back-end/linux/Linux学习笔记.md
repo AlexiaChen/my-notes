@@ -238,3 +238,19 @@ grep -i "killed process" /var/log/messages
 - [tldr-pages/tldr: 📚 Collaborative cheatsheets for console commands (github.com)](https://github.com/tldr-pages/tldr)
 - [nvbn/thefuck: Magnificent app which corrects your previous console command. (github.com)](https://github.com/nvbn/thefuck)
 
+#### cron任务调度
+
+![[Pasted image 20220827214101.png]]
+
+
+#### 标准错误和输出重定向
+
+老是忘记，记录一下。其中2>&1的意思是把标准错误流重新定向到标准输出流的地址。   0是标准输入流，1是标准输出流，2是标准错误流 ，最后一个&符号，当然就是后台运行的意思了。
+
+```bash
+cmd_line > outputfile 2>&1 &
+```
+
+References:
+
+- https://unix.stackexchange.com/questions/74520/can-i-redirect-output-to-a-log-file-and-background-a-process-at-the-same-time

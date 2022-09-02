@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "f646f2aca3e52dd8",
+        "id": "d2555043acc87e78",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Blockchain/Polkadot/Substrate学习笔记.md",
+            "file": "Math/四元数学习笔记.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "测试网",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/Polkadot/Substrate学习笔记.md",
+                "file": "Math/四元数学习笔记.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/Polkadot/Substrate学习笔记.md",
+                "file": "Math/四元数学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -110,17 +110,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "f646f2aca3e52dd8",
+  "active": "d2555043acc87e78",
   "lastOpenFiles": [
-    "images/Pasted image 20220826093427.png",
-    "images/Pasted image 20220823170335.png",
-    "Blockchain/Polkadot/Substrate学习笔记.md",
-    "Blockchain/Polkadot/Substrate教程.md",
-    "Blockchain/Polkadot/Polkadot平行链开发指南.md",
-    "Blockchain/Polkadot/Polkadot学习笔记.md",
-    "Blockchain/Polkadot/XCM格式详解.md",
-    "images/3acb8a69b044476dcebf534dbb3c2113.png",
-    "[.md",
-    "Blockchain/zkCard/DID技术.md"
+    "images/4e41b0bdf9ed9ba24104f58851674cd.png",
+    "Tools/Google搜索技巧.md",
+    "Back-end/container/k8s crash course.md",
+    "Back-end/container/k8s.md",
+    "PL/Golang/Golang学习笔记.md",
+    "Back-end/linux/Linux学习笔记.md",
+    "Back-end/linux/SSH学习笔记.md",
+    "Blockchain/Polkadot/Substrate开发构建笔记.md",
+    "Blockchain/Polkadot/Moonbeam本地XCM跨链环境搭建.md",
+    "Blockchain/Polkadot/Substrate教程.md"
   ]
 }

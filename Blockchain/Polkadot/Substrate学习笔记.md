@@ -942,10 +942,41 @@ Substrate最大限度地使用了泛型，以提供最大的灵活性。你定�
 与链外工作者不同，链下索引在每次处理一个区块时都会填充链下存储。通过在每个区块中填充数据，链下索引确保数据始终是一致的，并且对于启用索引的每个运行节点来说是完全相同的。也就是链下索引保证了链外存储的数据的一致性。
 
 
-## Substrate的一些前缀缩写
+## Substrate的补充
+
+这里可能主要是知乎或者其他地方看到的一些substrate的零散的知识片段。
+
+### 项目文件命名的一些前缀缩写
 
 - `sp-*` Substrate primitives
 - `frame-*` FRAME
 - `pallets-*`  pallets
 - `/bin`  都是一些二进制和工具
 - `/client/*` 和 `sc-`  Substrate client
+
+### Runtime的简要补充
+
+substrate的我们理解的普通的链的节点用FRAME框架构建runtime。FRAME允许runtime开发者在称为pallet的模块中声明自定义的逻辑，FRAME的核心是用宏写的，主要使创建pallet更容易，并且灵活地组合这些pallets，所以各种pallets组成了runtime。
+
+- 每个runtime配置了多个pallet来包含到runtime中。每个pallet配置由一个代码块决定，该代码块以 `impl $PALLET_NAME::Config for Runtime` 开头
+- 不同的pallet通过`construct_runtime!`宏来阻止这些pallets到一个runtime中。
+
+### Pallet
+
+Substrate项目的runtime是由许多FRAME pallet组成的
+
+一个FRAME pallet由许多区块链原语组成:
+
+-   Storage: 存储，FRAME 框架定义了一套丰富的强大的存储抽象，使得使用 Substrate 的高效键值数据库来管理区块链的不断变化的状态变得容易。
+-   Dispatchable: 可调用方法，FRAME pallet 定义了特殊类型的函数，可以从运行时外部调用 (dispatched)，以更新其状态。
+-   Event: 事件，Substrate 使用事件来通知用户在运行时中的重要变化。
+-   Errors: 错误，当一个 dispatchable 函数失败时，它会返回一个错误。
+-   Config: 配置，配置接口用于定义 FRAME pallet 所依赖的类型和参数。
+
+以上的原语，不一定每个pallet都需要实现。可能是部分组合。
+
+
+[(9 封私信 / 83 条消息) 金晓 - 知乎 (zhihu.com)](https://www.zhihu.com/people/jin-xiao-94-7/posts)
+
+[使用 Rust 和 Substrate 构建自己的区块链平台 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/498774892)
+

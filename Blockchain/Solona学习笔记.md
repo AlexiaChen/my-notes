@@ -66,3 +66,23 @@ Cpu 12或24核，内存至少128 GB，硬盘2T SSD，网络带宽至少达到300
 
 考虑到以太坊转型POS后节点硬件配置要求会调低，Solana对节点硬件的要求远远高于前者。根据部分说法，一个Solana节点的硬件成本，相当于几百个转型POS后的以太坊节点。
 
+#### solana的协议
+
+PoH(Proof of history) 这个共识基本就是不可靠，有问题的。
+
+Proof of history: what is it good for?  [poh.pdf (shoup.net)](https://www.shoup.net/papers/poh.pdf)  作者Victor Shoup
+
+```txt
+Wow, really great. I never understood what PoH brings to the table. I even thought it's a rebranded PoW. But a bit worse: all verifiers need to redo the work...
+
+n theory, VDFs could enforce delays ala Fantomette https://arxiv.org/abs/1805.06786 except.. VDFs admit an adversarial advantage, not as bad as proof-of-work, but still 10x or worse. In really, you discover the time by treating message arrival times as votes on the time.
+
+great work! i don’t think that PoH provides any utility in making consensus faster or reducing consensus complexity. IMO, the strongest argument for it is as an embedded “objective” history metric, to address so-called “weak subjectivity” of typical PoS systems
+```
+
+[buffalu 🤖💦 在 Twitter: "didn't look at any source code yet cited a lack of information? nice. quick points: PoH is a recursive hash combined with merkle root of tx signatures: https://t.co/j7ojcD2SLY it keeps track of time and at what point txs were executed bc blocks are "streamed" out" / Twitter](https://twitter.com/buffalu__/status/1523501818260725760)
+
+[Victor Shoup 在 Twitter: ""Proof of history: what is it good for?" Some thoughts on Solana's proof of history mechanism. https://t.co/AiB4yOaZz4 #solana #proofofhistory" / Twitter](https://twitter.com/VictorShoup/status/1523015525814894597)
+
+[David Wong 在 Twitter: "So looking into Solana. It’s a BFT, and it uses an old-school VDF to do leader election, having said that I still don’t see where the perfs come from" / Twitter](https://twitter.com/cryptodavidw/status/1562774435018330112)
+

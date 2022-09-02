@@ -27,3 +27,31 @@
 [Golang 的 Channel 是一种免费的无锁实现吗？ | 卡瓦邦噶！ (kawabangga.com)](https://www.kawabangga.com/posts/4777)
 
 
+### 内存对齐
+
+[Memory Alignment. Today we're going to talk about memory… | by 👨‍💻 Dillen Meijboom | Aug, 2022 | Medium](https://medium.com/@dillen.dev/memory-alignment-8760a5dfc4dc)
+
+
+### go pprof的基本用法
+
+记录的比较凌乱
+
+
+seconds参数是60秒钟的间隔观察
+
+go tool pprof http://localhost:6060/debug/pprof/profile?seconds=60
+
+go tool pprof http://207.244.236.5:6060/debug/pprof/heap
+    -inuse_space：分析应用程序的常驻内存占用情况
+    -alloc_objects：分析应用程序的内存临时分配情况
+
+go tool pprof -inuse_space -cum -svg http://13.57.246.198:6060/debug/pprof/heap > heap_inuse.svg
+ go tool pprof --alloc_space http://localhost:6060/debug/pprof/heap
+
+##### 分析goroutine
+
+ go tool pprof  http://127.0.0.1:6060/debug/pprof/goroutine
+
+go tool pprof http://localhost:6060/debug/pprof/block
+
+go tool pprof http://localhost:6060/debug/pprof/mutex

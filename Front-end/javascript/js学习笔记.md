@@ -7,3 +7,12 @@
 [SmallData | Blog | Copying objects in Javascript](https://smalldata.tech/blog/2018/11/01/copying-objects-in-javascript)
 
 
+### npm包管理
+
+使用nrm来管理registry:
+
+```bash
+npm install -g nrm
+nrm ls
+nrm use taobao
+```

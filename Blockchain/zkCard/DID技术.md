@@ -34,3 +34,11 @@ DID Document(DID Doc)包含着所有与DID subject有关的信息，在Doc中有
 ![[Pasted image 20220823155331.png]]
 
 
+
+
+
+
+### A16z的DID
+
+[Anonymous Credentials and Decentralizing ID Systems with Foteini Baldimtsi | a16z crypto research - YouTube](https://www.youtube.com/watch?v=kgNcxQH-hMQ)
+
