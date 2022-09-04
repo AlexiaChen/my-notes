@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Blockchain/Polkadot/Substrate教程.md",
+            "file": "Blockchain/zkCard/DID技术.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/Polkadot/Substrate教程.md",
+                "file": "Blockchain/zkCard/DID技术.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/Polkadot/Substrate教程.md",
+                "file": "Blockchain/zkCard/DID技术.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -110,10 +110,10 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "37dc58cfac316a81",
+  "active": "f40cdc1659d237f3",
   "lastOpenFiles": [
-    "Images/9a7d0651fce9e89b900bb583143e383.png",
     "Blockchain/Polkadot/Substrate教程.md",
+    "Images/9a7d0651fce9e89b900bb583143e383.png",
     "Blockchain/Polkadot/Substrate开发构建笔记.md",
     "Blockchain/Polkadot/Moonbeam本地XCM跨链环境搭建.md",
     "Math/四元数学习笔记.md",
