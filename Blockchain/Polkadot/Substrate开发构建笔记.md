@@ -310,6 +310,103 @@ indentity Hasher封装了一种Hash算法，其输出等于其输入（身份函
 
 ### 创世配置
 
+Substrate的runtime存储API包含了在你的区块链的创世区块中初始化存储项的功能。创世存储配置API暴露了许多初始化存储的机制，所有这些机制都在`#[pallet::genesis_config]`中有入口点。`GenesisConfig`数据类型定义`在#[pallet::genesis_config]`属性下，`#[pallet::genesis_build]` 属性用于构建genesis配置。  
+  
+要消耗一个pallet的创世配置能力，你必须在将pallet添加到runtime时包含`config`元素。所有为runtime提供信息的pallet的`GenesisConfig`类型将被聚合到该runtime的一个`GenesisConfig`类型中，该类型实现了`BuildStorage trait` [BuildStorage in sp_runtime - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sp_runtime/trait.BuildStorage.html)。例如，在`node_template_runtime::GenesisConfig struct` [GenesisConfig in node_template_runtime - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/node_template_runtime/struct.GenesisConfig.html)中，该类型的每个属性都对应于runtime的pallet中具有`Config`元素的`GenesisConfig`。最终，runtime的`GenesisConfig`通过`ChainSpec trait` [ChainSpec in sc_chain_spec - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_chain_spec/trait.ChainSpec.html) 的方式暴露出来。  
+  
+关于使用Substrate的创世存储配置能力的一个完整而具体的例子，请参考Substrate代码库中的Chain Spec中的society pallet的创世存储配置。继续阅读以获得对这些能力的更详细的描述。  [substrate/chain_spec.rs at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/blob/master/bin/node/cli/src/chain_spec.rs)
+
+#### `genesis_config`
+
+`#[pallet::genesis_config]` [pallet in frame_support - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/attr.pallet.html#genesis-config-palletgenesis_config-optional) 宏提供了一个扩展，将为pallet的`GenesisConfig`数据类型添加一个属性。这个属性的值将被用作你的链的创世块中的存储项的初始值。`config`扩展需要一个参数，它将决定`GenesisConfig`数据类型的属性名称--如果提供get方法，这个参数是可选的。
+
+下面是一个例子，演示了使用`config`扩展和一个名为`MyVal`的存储值，在`GenesisConfig`数据类型上为存储值的pallet创建一个名为`init_val`的属性。然后，这个属性被用于演示使用`GenesisConfig`类型在你的链的创世块中设置存储值的初始值。
+
+在`my_pallet/src/lib.rs` :
+
+```rust
+#[pallet::genesis_config]
+pub struct GenesisConfig<T: Config> {
+		pub init_val: u64,
+	}
+```
+
+在 `chain_spec.rs`: 
+
+```rust
+GenesisConfig {
+    my_pallet: MyPalletConfig {
+        init_val: 221u64 + SOME_CONSTANT_VALUE,
+    },
+}
+```
+
+#### `gensis_build`
+
+`#[pallet::genesis_build]` [pallet in frame_support - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/attr.pallet.html#genesis-build-palletgenesis_build-optional) 属性允许你定义`genesis_configuration`如何在pallet本身中构建（这让你可以访问pallet的私有函数）。
+
+这里有一个例子，演示了使用`#[pallet::genesis_config]`和`#[pallet::genesis_build]`来设置一个存储项的初始值。在这种情况下，这个例子涉及两个存储项：一个表示成员账户ID的列表，另一个指定列表中的一个特殊成员（首要成员）。
+
+在`my_pallet/src/lib.rs`：
+
+```rust
+#[pallet::genesis_config]
+struct GenesisConfig {
+    members: Vec<T::AccountId>,
+    prime: T::AccountId,
+}
+
+#[pallet::genesis_build]
+impl<T: Config> GenesisBuild<T> for GenesisConfig {
+    fn build(&self) {
+        Pallet::<T>::initialize_members(&self.members);
+        SomeStorageItem::<T>::put(self.prime);
+    }
+}
+```
+
+在`chain_spec.rs`中
+
+```rust
+GenesisConfig {
+    my_pallet: MyPalletConfig {
+        members: LIST_OF_IDS,
+        prime: ID,
+    },
+}
+```
+
+你也可以使用`genesis_build`来定义一个`GenesisConfig`属性，该属性不与特定的存储项绑定。如果你想在你的pallet中调用一个私有的helper函数来设置几个存储项，或者调用一个在你的pallet中包含的其他pallet中定义的函数，这可能是可取的。例如，使用一个名为`intitialize_members`的假想的私有函数，这将看起来像:
+
+在`my_pallet/src/lib.rs`:
+
+```rust
+#[pallet::genesis_config]
+struct GenesisConfig {
+    members: Vec<T::AccountId>,
+    prime: T::AccountId,
+}
+
+#[pallet::genesis_build]
+impl<T: Config> GenesisBuild<T> for GenesisConfig {
+    fn build(&self) {
+        Pallet::<T>::initialize_members(&config.members);
+        SomeStorageItem::<T>::put(self.prime);
+    }
+}
+```
+
+在 `chain_spec.rs`
+
+```rust
+GenesisConfig {
+    my_pallet: MyPalletConfig {
+        members: LIST_OF_IDS,
+        prime: ID,
+    },
+}
+```
+
 
 
 ### 最佳实践
@@ -348,11 +445,610 @@ Substrate在extrinsic dispatch之前不缓存状态。相反，它在extrinsic�
 
 ## 交易，权重和费用
 
+当交易被执行或数据被存储在链上时，该活动改变了链的状态并消耗了区块链资源。因为区块链可用的资源是有限的，所以管理链上的操作如何消耗这些资源很重要。除了在实际方面受到限制--如存储容量--区块链资源代表了恶意用户的潜在攻击媒介。例如，一个恶意的用户可能会试图用信息使网络超载，以阻止网络产生新的区块。为了保护区块链资源不被耗尽或超载，你需要管理它们如何被提供以及如何被消耗。需要注意的资源包括。
+
+- 内存使用
+- 存储输入和输出
+- 计算
+- 交易和区块大小
+- 状态数据库大小
+
+substrate为区块的编写者（生成者）提供了几种方法来管理对资源的访问，并防止链上的个别组件消耗过多的任何单一资源。区块编写者可用的两个最重要的机制是权重和交易费用。
+
+权重是用来管理验证一个区块所需的时间。一般来说，权重是用来描述执行区块body中的calls所需的时间。通过控制一个区块所能消耗的执行时间，权重对存储输入和输出以及计算设定了限制。
+
+一个区块所允许的一些权重是作为区块初始化和finalization的一部分而消耗的。权重也可能被用来执行强制性的 inherent extrinsic calls。为了帮助确保区块不消耗过多的执行时间，并防止恶意用户用不必要的calls使系统超载，权重与交易费用结合使用。
+
+交易费用提供了一种经济激励，以限制执行时间、计算和执行操作所需的calls数量。交易费也被用来使区块链在经济上可持续发展，因为它们通常适用于由用户发起的交易，并在执行交易请求之前扣除。
+
+### 费用怎么被计算
+
+一项交易的最终费用是用以下参数计算的。
+
+- 基本费用。这是用户为一项交易支付的最低金额。它在runtime被声明为一个基本权重，并使用`WeightToFee`转换为费用。
+- 权重费。与交易消耗的执行时间（输入和输出以及计算）成比例的费用。
+- 长度费。与交易的编码长度成比例的费用。
+- tip：一个可选的提示，用于提高交易的优先级，使其有更大的机会被交易队列所包含。
+
+基本费用和按比例计算的权重和长度费用构成了inclusion fee(基本费用+权重费用+长度费用)。inclusion fee是交易被包含在一个区块中必须具备的最低费用。
+
+### 使用transaction payment pallet
+
+交易支付pallet [pallet_transaction_payment - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_transaction_payment/index.html) 提供了计算inclusion费用的基本逻辑。
+
+你也可以使用交易支付pallet来做：
+
+- 使用`Config::WeightToFee`将权重值转换为基于货币类型的可扣除费用。
+- 使用`Config::FeeMultiplierUpdate`，根据上一个区块结束时链的最终状态，通过定义一个乘数（倍率）来更新下一个区块的费用。
+- 使用`Config::OnChargeTransaction`管理交易费用的提取、退款和存款。
+
+你可以在交易支付文档中了解更多关于这些configuration trait [pallet_transaction_payment - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_transaction_payment/index.html) 的信息。
+
+你应该注意，交易费用是在交易执行前提取的。在交易执行后，交易权重可以被调整以反映交易使用的实际资源。如果交易使用的资源比预期的少，交易费会被修正，调整后的交易费会被存入。
+
+#### 仔细看一下inclusion fee
+
+计算最终费用的公式是这样的:
+
+$$
+
+inclusion fee = base fee + length fee + （targeted fee adjustment * weight fee）
+
+$$
+
+$$
+final fee = inclusion fee + tip
+$$
+
+在这个公式中，`targeted_fee_adjustment` 是一个乘数，可以根据网络的拥堵情况来调整最终的费用。
+
+- 从基本权重(base weight)得出的基本费用(`base_fee`)涵盖了签名验证等包容开销。
+- `length_fee`是一个按字节计算的费用，它乘以编码的extrinsic的长度。
+- `weight_fee`费用是用两个参数计算的。
+  `ExtrinsicBaseWeight`，该参数在runtime声明，适用于所有的extrinsis。
+  `#[pallet::weight]`注解，该注解说明了一个extrinsic的复杂性。
+
+为了将权重转换为货币，runtime必须定义一个`WeightToFee`结构，实现一个转换函数`Convert<Weight,Balance>`。
+
+请注意，在调用extrinsic之前，extrinsic的发送者会被收取inclusion fee。即使交易执行失败，该费用也会从发送者的余额中扣除。
+
+#### 余额不足的账户
+
+如果一个账户没有足够的余额来inclusion fee并保持活力--也就是说，没有足够的余额来支付inclusion fee并保持最低存在的存款(deposit)--那么你应该确保交易被取消，这样就不会被扣除费用，交易也不会开始执行。
+
+Substrate并不强制执行这种回滚行为。然而，这种情况会很少发生，因为交易队列和区块制作逻辑在向区块添加extrinsic之前会执行检查以防止这种情况。
+
+#### 费用倍率(乘法因子)
+
+inclusion fee公式总是对相同的input产生相同的费用。然而，权重可以是动态的，根据`WeightToFee`的定义方式 [Config in pallet_transaction_payment::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_transaction_payment/pallet/trait.Config.html#associatedtype.WeightToFee) ，最终的费用可以包括一定程度的变化。
+
+为了说明这种变化，交易支付pallet提供了`FeeMultiplierUpdate`可配置参数。[Config in pallet_transaction_payment::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_transaction_payment/pallet/trait.Config.html#associatedtype.FeeMultiplierUpdate)
+
+
+默认的更新功能受到Polkadot网络的启发，实现了有针对性的调整，其中定义了块权重的目标饱和度(saturation level)。如果前一个区块的饱和度较高，那么费用就会略有增加。同样地，如果前一个区块的交易量少于目标值，那么费用就会小幅减少。有关费用乘数调整的更多信息，请参见Web3研究页面。https://research.web3.foundation/en/latest/polkadot/overview/2-token-economics.html#relay-chain-transaction-fees-and-per-block-transaction-limits
+
+
+### 有特殊要求的交易
+
+inclusion fee在执行前必须是可计算的，因此只能代表固定的逻辑。有些交易需要用其他策略来限制资源。比如说。
+
+- 保证金（Bonds）是一种费用，在链上发生某些事件后可能会被退回或削减。
+
+例如，你可能想要求用户在参与投票时缴纳保证金(bond)。在投票结束后，保证金可能会被返还，或者在投票者试图进行恶意行为时被砍掉。
+
+- 存款(Deposit)是以后可能被退回的费用。
+
+例如，你可能要求用户支付押金（deposit）来执行一个使用存储的操作。如果随后的操作释放了存储，用户的押金就可以被返还。
+
+- 燃烧操作是用来根据一个交易的内部逻辑来支付的。
+
+例如，如果一个交易创建了新的存储项目来支付增加的状态大小，那么该交易可能会从发送方烧掉资金。
+
+- 限制使你能够对某些操作执行恒定或可配置的限制。
+
+例如，默认的Staking pallet只允许提名人提名16个validators，以限制validator选举过程的复杂性。
+
+需要注意的是，如果你查询链上的交易费用，它只返回inclusion fee。
+
+### 默认权重注解
+
+Substrate中的所有dispatchable functions必须指定一个权重。这样做的方法是使用基于注解的系统，该系统可以让你将数据库读/写权重的固定值和/或基于基准的固定值结合起来。最基本的例子是这样的。
+
+```rust
+#[pallet::weight(100_000)]
+fn my_dispatchable() {
+    // ...
+}
+```
+
+请注意，`ExtrinsicBaseWeight`会自动添加到声明的权重中，以考虑到简单地将一个空的extrinsic纳入一个块中的成本。
+
+#### 权重和数据库读写操作
+
+为了使权重注解独立于所部署的数据库后端，它们被定义为常数，然后在表达由dispatchable程序执行的数据库访问时在注解中使用。
+
+```rust
+#[pallet::weight(T::DbWeight::get().reads_writes(1, 2) + 20_000)]
+fn my_dispatchable() {
+    // ...
+}
+```
+
+这个dispatchable程序除了做一个数据库的读取和两个数据库的写入之外，还做了其他的事情，增加了可增加的20,000。一般来说，每次访问`#[pallet::storage]`块内声明的值时，就会有一次数据库访问。然而，只有唯一的访问被计算在内，因为一个值被访问后，它被缓存起来，再次访问它不会导致数据库操作。就是说。
+
+- 同一个值的多次读取算作一次读取。
+- 同一个值的多次写入算作一次写入。
+- 多次读同一个值，然后写这个值，算作一次读和一次写。
+- 写入后再读，只算作一次写入。
+
+#### 分发类(Dispacth classes)
+
+分发(dispatch)被分成三类。
+
+- 正常
+- 操作性
+- 强制性
+
+如果一个分发在权重注释中没有被定义为操作性或强制性，那么该调度默认被识别为正常。你可以指定该dispatchable使用另一个类，比如这样。
+
+```rust
+#[pallet::weight((100_000, DispatchClass::Operational))]fn my_dispatchable() {
+    // ...
+}
+```
+
+这个元组符号还允许你指定一个最终参数，决定是否根据注释的权重向用户收费。如果你不另行指定，则假定`Pays::Yes`。
+
+```rust
+#[pallet::weight(100_000, DispatchClass::Normal, Pays::No)]
+fn my_dispatchable() {
+    // ...
+}
+```
+
+##### 普通分发
+
+这类分发代表了正常的用户触发的交易。这些类型的分发只消耗一个块的总权重限制的一部分。关于普通分发可消耗的块的最大部分的信息，见`AvailableBlockRatio`。[BlockLength in frame_system::limits - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_system/limits/struct.BlockLength.html#method.max_with_normal_ratio) 普通分发被发送到交易池中。[Glossary | Substrate_ Docs](https://docs.substrate.io/reference/glossary/#transaction-pool)
+
+##### 操作性分发
+
+与代表网络能力使用的普通分发不同，操作性分发是那些提供网络能力的分发。操作性分发可以消耗一个区块的全部权重限制。它们不受`AvailableBlockRatio`的约束。这类调度被赋予最大的优先权，并免于支付length fee。
+
+##### 强制分发
+
+强制性分发被包含在一个区块中，即使它们导致区块超过其权重限制。你只能对区块作者提交的inherent 交易 [Glossary | Substrate_ Docs](https://docs.substrate.io/reference/glossary/#inherent-transactions) 使用强制派分发。这个分发类旨在表示作为区块验证过程一部分的功能。因为这些分发总是包含在区块中，无论函数的权重如何，关键是验证过程要防止恶意节点滥用该函数来制作有效但不可能重的区块。你通常可以通过确保以下几点来实现这一点。
+
+- 执行的操作始终是轻的。
+- 该操作只能包含在一个区块中一次。
+
+为了使恶意节点更难滥用强制分发，它们不能被包含在返回错误的块中。这个分发类的存在是为了服务于这样的假设：允许创建一个超重的块比不允许创建任何块要好。
+
+#### 动态权重
+
+除了纯粹的固定权重和常数之外，权重的计算还可以考虑dispatchable的输入参数。权重应该是可以通过一些基本的算术从输入参数中计算出来的。
+
+```rust
+#[pallet::weight(FunctionOf(
+  |args: (&Vec<User>,)| args.0.len().saturating_mul(10_000),
+  DispatchClass::Normal,
+  Pays::Yes,
+))]
+fn handle_users(origin, calls: Vec<User>) {
+    // Do something per user
+}
+```
+
+
+### 分发后的权重校正
+
+根据执行逻辑，一个dispatchable的函数所消耗的权重可能比分发前规定的要少。为了纠正权重，该函数声明一个不同的返回类型并返回其实际重量。
+
+```rust
+#[pallet::weight(10_000 + 500_000_000)]
+fn expensive_or_cheap(input: u64) -> DispatchResultWithPostInfo {
+    let was_heavy = do_calculation(input);
+
+    if (was_heavy) {
+        // None means "no correction" from the weight annotation.
+        Ok(None.into())
+    } else {
+        // Return the actual weight consumed.
+        Ok(Some(10_000).into())
+    }
+}
+```
+
+
+### 自定义费用
+
+你还可以通过自定义权重函数或inclusion fee函数来定义自定义收费系统。
+
+#### 自定义权重
+
+你可以使用权重模块 [frame_support::weights - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/weights/index.html) 创建一个自定义的权重计算类型，而不是使用默认的权重注解。自定义权重计算类型必须实现以下trait。  
+  
+- `WeighData<T>`来确定分发的权重。  
+- `ClassifyDispatch<T>`来确定分发的类别。  
+- `PaysFee<T>`确定分发的发送者是否支付费用。
+
+然后，Substrate 将这三个trait的输出信息捆绑到 `DispatchInfo` struct中，并通过为所有 Call 变体和不透明的extrinsic类型实现` GetDispatchInfo` 来提供这些信息。这被System和Excutive模块内部使用。  
+  
+`ClassifyDispatch`、`WeighData` 和 `PaysFee` 在 T 上是通用的，T 被解析为除origin外的所有分发参数的元组。下面的例子说明了一个计算权重的结构，即`m * len(args)`，其中m是一个给定的乘数，`args`是所有分发参数的连接元组。在这个例子中，如果交易的参数长度超过100字节，分发类就会被操作（操作性分发），如果编码的长度大于10字节，就会支付费用。  
+  
+```rust
+struct LenWeight(u32);
+impl<T> WeighData<T> for LenWeight {
+    fn weigh_data(&self, target: T) -> Weight {
+        let multiplier = self.0;
+        let encoded_len = target.encode().len() as u32;
+        multiplier * encoded_len
+    }
+}
+
+impl<T> ClassifyDispatch<T> for LenWeight {
+    fn classify_dispatch(&self, target: T) -> DispatchClass {
+        let encoded_len = target.encode().len() as u32;
+        if encoded_len > 100 {
+            DispatchClass::Operational
+        } else {
+            DispatchClass::Normal
+        }
+    }
+}
+
+impl<T> PaysFee<T> {
+    fn pays_fee(&self, target: T) -> Pays {
+        let encoded_len = target.encode().len() as u32;
+        if encoded_len > 10 {
+            Pays::Yes
+        } else {
+            Pays::No
+        }
+    }
+}
+```
+
+一个权重计算器函数也可以被胁迫为参数的最终类型，而不是将其定义为一个可以被编码的模糊类型。代码大致会是这样的。
+
+```rust
+struct CustomWeight;
+impl WeighData<(&u32, &u64)> for CustomWeight {
+    fn weigh_data(&self, target: (&u32, &u64)) -> Weight {
+        ...
+    }
+}
+
+// given a dispatch:
+#[pallet::call]
+impl<T: Config<I>, I: 'static> Pallet<T, I> {
+    #[pallet::weight(CustomWeight)]
+    fn foo(a: u32, b: u64) { ... }
+}
+```
+
+在这个例子中，`CustomWeight`只能与具有特定签名`（u32, u64）`的分发一起使用，而`LenWeight`则可以与任何东西一起使用，因为对`<T>`没有任何假设。
+
+#### 自定义inclusion fee
+
+下面的例子说明了如何定制你的inclusion fee。你必须在相应的模块中配置适当的关联类型(associaated type)。
+
+```rust
+// Assume this is the balance type
+type Balance = u64;
+
+// Assume we want all the weights to have a `100 + 2 * w` conversion to fees
+struct CustomWeightToFee;
+impl Convert<Weight, Balance> for CustomWeightToFee {
+    fn convert(w: Weight) -> Balance {
+        let a = Balance::from(100);
+        let b = Balance::from(2);
+        let w = Balance::from(w);
+        a + b * w
+    }
+}
+
+parameter_types! {
+    pub const ExtrinsicBaseWeight: Weight = 10_000_000;
+}
+
+impl frame_system::Config for Runtime {
+    type ExtrinsicBaseWeight = ExtrinsicBaseWeight;
+}
+
+parameter_types! {
+    pub const TransactionByteFee: Balance = 10;
+}
+
+impl transaction_payment::Config {
+    type TransactionByteFee = TransactionByteFee;
+    type WeightToFee = CustomWeightToFee;
+    type FeeMultiplierUpdate = TargetedFeeAdjustment<TargetBlockFullness>;
+}
+
+struct TargetedFeeAdjustment<T>(sp_std::marker::PhantomData<T>);
+impl<T: Get<Perquintill>> Convert<Fixed128, Fixed128> for TargetedFeeAdjustment<T> {
+    fn convert(multiplier: Fixed128) -> Fixed128 {
+        // Don't change anything. Put any fee update info here.
+        multiplier
+    }
+}
+```
+
+
 ## 自定义pallet
 
-## Pallets之间联接
+构建自定runtime最常见的方法是以现有的pallets开始 [FRAME pallets | Substrate_ Docs](https://docs.substrate.io/reference/frame-pallets/) 。例如，你可以开始建立一个特定于应用的staking pallet，使用现有的collective和balances pallet中暴露的类型，但包括你的应用及其staking规则所需的自定义runtime逻辑。
+
+### Pallet宏和属性
+
+FRAME广泛使用Rust宏来封装复杂的代码块。构建自定义pallet的最重要的宏是pallet宏。pallet宏定义了一个pallet必须提供的核心属性集。比如说  
+  
+- `#[pallet::pallet]`是一个强制性的pallet属性，它使你能够为pallet定义一个结构（struct），这样pallet它就可以存储易于检索的数据。  
+- `#[pallet::config]`是一个强制性的Pallet属性，使你能够为Pallet定义configuration trait。  
+
+pallet宏还定义了pallet通常提供的核心属性集。例如。  
+  
+- `#[pallet::call]` 是使你能够为pallet实现dispatchable函数calls的属性。  
+- `#[pallet::error]` 是使你能够产生dispatchable的errors的属性。  
+- `#[pallet::event]` 是使你能够产生dispatchable的events的属性。  
+- `#[pallet::storage]` 是使你能够在runtime生成一个存储实例及其元数据的属性。  
+
+这些核心属性与你在编写自定义pallet时需要做出的决定一致。例如，你需要考虑。  
+  
+- 存储。你的pallet要存储什么数据？数据是存储在链上还是链外？  
+- 函数。你的pallet暴露的可调用函数是什么？  
+- 交易性。你的函数调用是否被设计为原子化地修改存储？  
+- 钩子。你的pallet是否会调用任何runtime钩子？  
+
+	宏简化了你为实现自定义runtime逻辑所需编写的代码。然而，有些宏对函数声明有特殊要求。例如，`Config trait`必须被`fram_system::Config` 约束，`#[pallet::pallet]` struct必须被声明为`pub struct Pallet<T>(_)`;。关于FRAME pallets中使用的宏的概述，见FRAME宏。[FRAME macros | Substrate_ Docs](https://docs.substrate.io/reference/frame-macros/)  
+  
+
+### 有用的FRAME traits
+
+- Pallet Origin
+- Origins: EnsureOrigin, EnsureOneOf ...
+
+### runtime实现
+
+编写一个pallet和为runtime实现它是相辅相成的。你的pallet的`Config trait`是为runtime实现的，而runtime是一个特殊的结构，用于编译`construct_runtime`宏中的所有实现的pallets。
+
+- `parameter_types` [parameter_types in frame_support - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/macro.parameter_types.html) 和`ord_parameter_types` [ord_parameter_types in frame_support - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/macro.ord_parameter_types.html) 宏对于向可配置的pallet常量传递数值非常有用。
+- \[ 其他考虑因素，如no_std \]
+- 最小化的runtime引用
+- 侧链架构引用
+- Api端点：oninitialize, offchain workers ?
+
+
+## Pallets之间耦合(coupling)
+
+耦合一词经常被用来描述两个软件模块相互依赖的程度。例如，在面向对象的编程中，紧耦合和松耦合被用来描述对象类之间的关系。
+
+- 紧密耦合是指两组类之间相互依赖。
+- 松散耦合是指一个类使用另一个类所暴露的接口。
+
+在Substrate中，pallet紧耦合和pallet松耦合被用来描述一个托盘如何调用另一个托盘的函数。这两种技术以不同的方式实现同样的事情，各自有一定的权衡。相当于有松耦合调用和紧耦合调用。
+
+### 紧耦合pallets
+
+因为紧耦合使pallets的工作不那么灵活和可扩展，所以只有当一个pallet需要整体继承其耦合的对应物而不是特定的类型或方法时，你才会使用pallet紧耦合。
+
+当编写一个需要紧耦合的pallet时，你要明确地指定pallet的`Config trait`被要耦合的pallet的配`Config trait`所约束。
+
+所有FRAME pallets都与`frame_system` pallet紧密耦合。下面的例子说明了如何使用名为`some_pallet`的pallet的`Config trait`来与`frame_system` pallet紧密耦合。
+
+```rust
+pub trait Config: frame_system::Config + some_pallet::Config {
+    // --snip--
+}
+```
+
+这与面向对象编程中使用类的继承非常相似。提供这个trait bound意味着这个pallet只能安装在同时安装了`some_pallet` pallet的runtime中。与`frame_system`类似，这个例子中的紧耦合要求你在耦合的pallet的Cargo.toml文件中指定`some_pallet`。
+
+紧密耦合有几个缺点，开发者应该考虑到。
+
+- 可维护性：一个pallet的改变往往会导致需要修改另一个pallet。
+- 可重用性：两个模块都必须包含其中一个才能使用，这使得紧密耦合的pallets更难集成。
+
+### 松耦合pallets
+
+在松散的pallet耦合中，你可以指定某些类型需要被绑定的trait和函数接口。
+
+这些类型的实际实现是在runtime配置中在pallet之外进行的--通常是在`/runtime/src/lib.rs`文件中定义的代码。通过松散耦合，你可以使用另一个已经实现了trait的pallet中的类型和接口，或者你可以声明一个全新的结构，实现这些trait，并在runtime实现pallet时将其分配。
+
+举个例子，假设你有一个可以访问账户余额并向另一个账户转账的pallet。这个pallet定义了一个 "`Currency`" trait，它有一个抽象的函数接口，以后会实现实际的转账逻辑。
+
+```rust
+pub trait Currency<AccountId> {
+    // -- snip --
+    fn transfer(
+        source: &AccountId,
+        dest: &AccountId,
+        value: Self::Balance,
+        // don't worry about the last parameter for now
+        existence_requirement: ExistenceRequirement,
+    ) -> DispatchResult;
+}
+```
+
+在第二个pallet中，你定义了`MyCurrency`的关联类型，并通过`Currency<Self::AccountId>`trait将其绑定，这样你就可以通过调用`T::MyCurrency::transfer(...)`来使用余额转移逻辑。
+
+```rust
+pub trait Config: frame_system::Config {
+    type MyCurrency: Currency<Self::AccountId>;
+}
+
+impl<T: Config> Pallet<T> {
+    pub fn my_function() {
+        T::MyCurrency::transfer(&buyer, &seller, price, ExistenceRequirement::KeepAlive)?;
+    }
+}
+```
+
+注意，在这一点上，你还没有指定如何实现`Currency::transfer()`逻辑。只是约定了它将在某处实现。
+
+现在，你可以使用runtime配置-`runtime/src/lib.rs`来实现pallet并指定类型为`Balances`。
+
+```rust
+impl my_pallet::Config for Runtime {
+    type MyCurrency = Balances;
+}
+```
+
+`Balances`类型在`construct_runtime！`宏中被指定为实现`Currency trait` [pallet_balances - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_balances/index.html#implementations-1)的`pallet_balances` [pallet_balances - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_balances/index.html)的一部分。
+
+通过runtime提供的实现，你可以在你松散耦合的pallet中使用`Currency<AccountId>` trait。
+
+许多FRAME pallets都以这种方式耦合到这个`Currency trait`。
+
+### 选择一个pallet的耦合策略
+
+一般来说，松耦合比紧耦合提供更多的灵活性，从系统设计的角度来看，松耦合被认为是一种更好的做法。它能保证你的代码有更好的可维护性、可重用性和可扩展性。然而，紧耦合对于那些不那么复杂的pallet或者方法和类型的重叠多于差异的pallet来说是有用的。
+
+在FRAME中，有两个pallets与`pallet_treasury` [substrate/frame/treasury at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/tree/master/frame/treasury) 紧密耦合。
+
+- 赏金pallet [substrate/frame/bounties at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/tree/master/frame/bounties)
+- 小费pallet [substrate/frame/tips at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/tree/master/frame/tips)
+
+一般来说，一个pallet越复杂，就越不应该将其紧密耦合。这让人想起计算机科学中的一个概念--内聚性 [Cohesion (computer science) - Wikipedia](https://en.wikipedia.org/wiki/Cohesion_(computer_science)) ，这是一个用来考察软件系统整体质量的指标。
+
+
+### How-to
+
+- [Use loose pallet coupling | Substrate_ Docs](https://docs.substrate.io/reference/how-to-guides/pallet-design/use-loose-coupling/)
+- [Use tight pallet coupling | Substrate_ Docs](https://docs.substrate.io/reference/how-to-guides/pallet-design/use-tight-coupling/)
 
 ## 事件和错误
+
+当一个pallet想要向外部实体如用户、区块链浏览器或dApps发送关于runtime的变化或条件的通知时，它可以emit事件。
+
+在自定义pallet中，你可以定义。
+
+- 你想发射什么类型的事件
+- 这些事件中包含哪些信息
+- 这些事件何时被发射出来
+
+### 声明一个事件
+
+runtime事件是使用`#[pallet::event]`宏创建的。比如说。
+
+```rust
+#[pallet::event]
+#[pallet::metadata(u32 = "Metadata")]
+pub enum Event<T: Config> {
+	/// Set a value.
+	ValueSet(u32, T::AccountId),
+}
+```
+
+`Event` enum需要在你的runtime的`Config` trait中声明。
+
+```rust
+#[pallet::config]
+	pub trait Config: frame_system::Config {
+		/// The overarching event type.
+		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+	}
+```
+
+
+### 向你的runtime暴露这些事件
+
+你在pallet中定义的任何事件必须在`/runtime/src/lib.rs` 文件中暴露给runtime。
+
+要将事件暴露给runtime。
+
+- 在一个文本编辑器中打开`/runtime/src/lib.rs` 文件。
+- 在你的pallet的`Config` trait中实现`Event`类型。
+
+```rust
+impl template::Config for Runtime {
+	 type Event = Event;
+}
+```
+
+- 添加`Event`类型到 `construct_runtime!`宏中
+
+```rust
+construct_runtime!(
+	 pub enum Runtime where
+ 	 Block = Block,
+	   NodeBlock = opaque::Block,
+	   UncheckedExtrinsic = UncheckedExtrinsic
+	 {
+    // --snip--
+	   TemplateModule: template::{Pallet, Call, Storage, Event<T>},
+	   //--add-this------------------------------------->
+		 }
+);
+```
+
+在这个例子中，事件是一个泛型，需要`<T>`参数。如果你的事件不使用泛型，就不需要`<T>`参数。
+
+### 存放一个事件
+
+Substrate提供了一个关于如何使用宏来存放事件的默认实现。存放一个事件的结构如下。
+
+```rust
+// 1. Use the `generate_deposit` attribute when declaring the Events enum.
+#[pallet::event]
+	#[pallet::generate_deposit(pub(super) fn deposit_event)] // <------ here ----
+	#[pallet::metadata(...)]
+	pub enum Event<T: Config> {
+		// --snip--
+	}
+
+// 2. Use `deposit_event` inside the dispatchable function
+#[pallet::call]
+	impl<T: Config> Pallet<T> {
+		#[pallet::weight(1_000)]
+		pub(super) fn set_value(
+			origin: OriginFor<T>,
+			value: u64,
+		) -> DispatchResultWithPostInfo {
+			let sender = ensure_signed(origin)?;
+			// --snip--
+			Self::deposit_event(RawEvent::ValueSet(value, sender));
+		}
+	}
+```
+
+这个函数的默认行为是在FRAME system中调用`deposit_event` [Pallet in frame_system::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_system/pallet/struct.Pallet.html#method.deposit_event) ，它将事件写入存储。
+
+这个函数将事件放在system pallet的runtime存储中，用于该块。在一个新的区块开始时，system pallet会自动删除所有从上一个区块存储的事件。
+
+使用默认实现存入的事件可以直接被下游库支持，比如Polkadot-JS API [polkadot-js/api: Promise and RxJS APIs around Polkadot and Substrate based chains via RPC calls. It is dynamically generated based on what the Substrate runtime provides in terms of metadata. Full documentation & examples available (github.com)](https://github.com/polkadot-js/api)。然而，如果你想以不同的方式处理事件，你可以实现你自己的 `deposit_event` 函数。
+
+### 支持的类型
+
+事件可以发射任何支持使用SCALE编解码器 [Type encoding (SCALE) | Substrate_ Docs](https://docs.substrate.io/reference/scale-codec/) 进行类型编码的类型。
+
+在你想使用runtime 泛型的情况下，如`AccountId`或`Balances`，你需要包括一个where子句 [Where clauses - Rust By Example (rust-lang.org)](https://doc.rust-lang.org/rust-by-example/generics/where.html) 来定义这些类型，如上面的例子所示。
+
+### 监听事件
+
+Substrate RPC并没有直接暴露查询事件的endpoints。如果你使用默认的实现，你可以通过查询System pallet的存储来查看当前块的事件列表。否则，Polkadot-JS API支持对runtime事件的WebSocket订阅。[polkadot-js/api: Promise and RxJS APIs around Polkadot and Substrate based chains via RPC calls. It is dynamically generated based on what the Substrate runtime provides in terms of metadata. Full documentation & examples available (github.com)](https://github.com/polkadot-js/api)
+
+### 错误
+
+runtime代码应该明确地、优雅地处理所有错误情况。runtime代码中的函数必须是不抛出(non-throwing)的函数，永远不会引起编译器的panic [To panic! or Not to panic! - The Rust Programming Language (rust-lang.org)](https://doc.rust-lang.org/book/ch09-03-to-panic-or-not-to-panic.html) 。编写non-throwing的Rust代码的一个常见习惯是编写返回Result类型[Result in frame_support::dispatch::result - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/dispatch/result/enum.Result.html) 的函数。`Result` enum类型拥有一个`Err`变量，它允许一个函数在不需要panic的情况下表示它未能成功执行。在FRAME开发环境中，可以被派发到runtime的函数调用必须返回一个`DispatchResult`类型 [DispatchResult in frame_support::dispatch - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/dispatch/type.DispatchResult.html) ，这个类型表示，如果函数遇到了错误，该类型可能是`DispatchError`变量。[DispatchError in frame_support::dispatch - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/dispatch/enum.DispatchError.html)
+
+每个FRAME pallet可以通过使用`#[pallet::error]`宏定义一个自定义的`DispatchError`。例如。
+
+```rust
+#[pallet::error]
+pub enum Error<T> {
+		/// Error names should be descriptive.
+		InvalidParameter,
+		/// Errors should have helpful documentation associated with them.
+		OutOfSpace,
+	}
+```
+
+FRAME support模块还包括一个有用的 `ensure!` 宏 [ensure in frame_support - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/macro.ensure.html) ，可以用来检查预设条件，如果不符合，就会发出错误。
+
+```rust
+frame_support::ensure!(param < T::MaxVal::get(), Error::<T>::InvalidParameter);
+```
 
 ## 随机
 
@@ -454,9 +1150,72 @@ substrate build-spec --chain=myCustomSpec.json --raw > customSpecRaw.json
 
 ## 特权调用(privileged calls)和起源(origins)
 
+runtime origin被可分发的函数用来检查一个调用来自哪里。
+
+### 原始 origins
+
+Substrate定义了三个原始origins，可以在你的runtime pallet中使用。
+
+```rust
+pub enum RawOrigin<AccountId> {
+	Root,
+	Signed(AccountId),
+	None,
+}
+```
+
+
+- Root。一个系统级的origin。这是最高的权限级别，可以被认为是runtime origin的超级用户。
+- 签名的。一个交易origin。这是由一些链上账户的私钥签署的，包括签署者的账户ID。这使得runtime可以验证dispatch的来源，并随后向相关账户收取交易费用。
+- None。缺乏Origin。这需要由validator同意或由模块验证后才能包括。这种origin类型的性质更复杂，因为它被设计为绕过某些runtime机制。这种origin类型的一个使用案例是允许validator直接将数据插入到一个块中。
+
+### Origin调用
+
+你可以在你的runtime中用任何origin构建calls。比如说。
+
+```rust
+// Root
+proposal.dispatch(system::RawOrigin::Root.into())
+
+// Signed
+proposal.dispatch(system::RawOrigin::Signed(who).into())
+
+// None
+proposal.dispatch(system::RawOrigin::None.into())
+```
+
+你可以看一下Sudo模块的源代码 [pallet_sudo - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_sudo/index.html) ，了解它的实际实现。
+
+
+### 自定义Origins
+
+除了三种核心origin类型外，runtime开发人员还可以定义自定义origin。这些可以被用作runtime特定模块函数内的授权检查，或围绕runtime请求的origin定义自定义访问控制逻辑。
+
+自定义origin允许runtime开发人员根据他们的runtime逻辑指定有效的origin。例如，可能需要将某些函数的访问限制在特殊的自定义origin上，并且只授权从一个集体（collective）[substrate/frame/collective at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/tree/master/frame/collective) 的成员中进行dispatch调用。使用自定义origin的好处是，它为runtime开发人员提供了一种方法，以配置对runtime的dispatch call的特权访问。
+
+### 下一步
+
+#### 学习更多的
+
+- 学习关于origin怎样在`#[pallet::call]`宏中被使用 [pallet in frame_support - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/attr.pallet.html#call-palletcall-optional)
+
+#### 例子
+
+- 查看`Sudo pallet`，看看它是如何允许用户用Root和Signed origin调用的。[substrate/frame/sudo at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/tree/master/frame/sudo)
+- 查看`Timestamp pallet`，看看它是如何验证一个带有None origin的调用。[substrate/frame/timestamp at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/tree/master/frame/timestamp)
+- 查看`Collective pallet`，看看它是如何构建一个自定义的Member origin。[substrate/frame/collective at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/tree/master/frame/collective)
+- 查看我们关于创建和使用自定义origin的配方。
+
+#### 参考
+
+- [RawOrigin in frame_system - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_system/enum.RawOrigin.html)
+
+
 ## RPCs
 
 ## 应用开发
+
+## 构建一个确定性的runtime
 
 ## 升级Runtime
 

@@ -681,3 +681,732 @@ polkadot purge-chain \
 
 
 
+
+
+
+
+## 添加一个pallet到runtime中
+
+正如你在构建本地区块链中所看到的，Substrate node template提供了一个工作的runtime，包括一些默认的FRAME开发模块--pallets，让你开始构建一个自定义的区块链。  
+  
+本教程介绍了为node template的runtime添加一个新pallet的基本步骤。任何时候你想在runtime添加一个新的FRAME pallet，步骤都是类似的。然而，每个pallet需要特定的配置设置--例如，执行pallet实现的函数所需的特定参数和类型。在本教程中，你将把Nicks pallet添加到node template的runtime中，因此你将看到如何配置Nicks pallet [pallet_nicks - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_nicks/index.html) 的特定设置。Nicks pallet允许区块链用户支付押金(deposit)，为他们控制的账户保留一个昵称。它实现了以下功能。  
+  
+- `set_name`函数用于收取押金，并在账户名称尚未被占用的情况下设置该名称。  
+- `clear_name`函数用于删除与账户相关的名称并返回押金。  
+- `kill_name`函数用于强行删除账户名称而不返回存款。  
+
+请注意，本教程是通向更高级教程的垫脚石，这些教程说明了如何用更复杂的配置设置添加pallet，如何创建自定义pallet，以及如何发布pallet。  
+
+### 添加nicks pallet到依赖中
+
+在你使用一个新的pallet之前，你必须在编译器用来构建runtime二进制文件的配置文件中(cargo.toml)添加一些关于它的信息。
+
+对于Rust程序，你使用Cargo.toml文件来定义配置设置和依赖关系，以决定在生成的二进制文件中被编译的内容。因为Substrate runtime既可以编译成包括标准Rust库函数的Native平台二进制文件，也可以编译成不包括标准Rust库的WebAssembly（Wasm）[WebAssembly](https://webassembly.org/) 二进制文件，所以Cargo.toml文件控制着两个重要的信息。
+
+- 要作为runtime的依赖项导入的pallet，包括要导入的pallet的位置和版本。
+- 在编译本地Rust二进制文件时应启用的每个pallet的特性。通过启用每个pallet的标准（std）特性集(feature set)，你可以在编译runtime时包含函数、类型和primitives，否则在构建WebAssembly二进制时就会丢失。
+
+关于在Cargo.toml文件中添加依赖项的信息，请参见Cargo文档中的依赖项 [Dependencies - The Cargo Book (rust-lang.org)](https://doc.rust-lang.org/cargo/guide/dependencies.html)。关于启用和管理依赖包的特性的信息，请参见Cargo文档中的特性(features)。[Features - The Cargo Book (rust-lang.org)](https://doc.rust-lang.org/cargo/reference/features.html)
+
+要将Nicks pallet的依赖项添加到runtime中。
+
+- 打开一个终端shell，改变到node template的根目录。
+- 在文本编辑器中打开 `runtime/Cargo.toml` 配置文件。
+- 找到`[dependencies]`部分，注意其他pallet的导入方式。
+- 复制一个现有的pallet依赖描述，用pallet-nicks替换pallet名称，使该pallet对node template的runtime可用。
+
+例如，添加类似以下的一行。
+
+```toml
+pallet-nicks = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.28" }
+```
+
+这一行将 `pallet-nicks` crate 作为依赖关系导入，并指定了以下内容。
+
+- 版本，以确定你要导入的是哪个版本的crate。
+- 在用标准Rust库编译runtime时，包含pallet特性的默认行为。
+- 用于检索 `pallet-nicks` crate 的存储库位置。
+- 检索crate时使用的分支。
+
+这些细节对于任何给定版本的node template中的每个pallet都应该是相同的。
+
+- 将`pallet-nicks/std` feature添加到编译runtime要启用的特性列表中。
+
+```toml
+[features]
+default = ["std"]
+std = [
+  ...
+  "pallet-aura/std",
+  "pallet-balances/std",
+  "pallet-nicks/std",
+  ...
+]
+```
+
+本节指定该runtime的默认特性集为std特性集进行编译。当runtime使用`std`特性集编译时，所有被列为依赖项的pallet中的`std`特性都被启用。关于runtime如何被编译为带有标准Rust库的平台native二进制文件和使用`no_std`属性编译为WebAssembly二进制文件的更多详细信息，请参见构建过程。[Build process | Substrate_ Docs](https://docs.substrate.io/build/build-process/)
+
+如果你忘记更新`Cargo.toml`文件中的`features`部分，你可能会在编译runtime二进制文件时看到找不到函数的错误。
+
+- 通过运行以下命令检查新的依赖关系是否正确解决。
+
+```bash
+cargo check -p node-template-runtime
+```
+
+
+
+### Review Balances的配置
+
+每个pallet都有一个名为`Config`的Rust trait。`Config trait`用于识别pallet执行其功能(函数)所需的参数和类型。
+
+添加一个pallet所需的大部分pallet代码都是通过Config trait实现的。你可以通过参考Rust文档或pallet的源代码来查看任何pallet需要实现的功能。例如，要想知道nicks pallet需要实现什么，可以参考`pallet_nicks::Config`的Rust文档 [Config in pallet_nicks::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_nicks/pallet/trait.Config.html) 或者Nicks pallet源代码中的trait定义。[substrate/lib.rs at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/blob/master/frame/nicks/src/lib.rs)
+
+在本教程中，你可以看到nicks pallet中的Config trait声明了以下类型。
+
+```rust
+pub trait Config: Config {
+    type Event: From<Event<Self>> + IsType<<Self as Config>::Event>;
+    type Currency: ReservableCurrency<Self::AccountId>;
+    type ReservationFee: Get<<<Self as Config>::Currency as Currency<<Self as Config>::AccountId>>::Balance>;
+    type Slashed: OnUnbalanced<<<Self as Config>::Currency as Currency<<Self as Config>::AccountId>>::NegativeImbalance>;
+    type ForceOrigin: EnsureOrigin<Self::Origin>;
+    type MinLength: Get<u32>;
+    type MaxLength: Get<u32>;
+}
+```
+
+在确定你的pallet需要的类型后，你需要在runtime中添加代码来实现Config trait。为了了解如何实现pallet的Config trait，让我们用Balances pallet作为一个例子。
+
+要查看Balances pallet的Config trait。
+
+- 用文本编辑器打开`runtime/src/lib.rs`文件。
+- 找到Balances pallet，注意它由以下实现（impl）代码块组成。
+
+```rust
+impl pallet_balances::Config for Runtime {
+  type MaxLocks = ConstU32<50>;
+  type MaxReserves = ();
+  type ReserveIdentifier = [u8; 8];
+  /// The type for recording an account's balance.
+  type Balance = Balance;
+  /// The ubiquitous event type.
+  type Event = Event;
+  /// The empty value, (), is used to specify a no-op callback function.
+  type DustRemoval = ();
+  /// Set the minimum balanced required for an account to exist on-chain
+  type ExistentialDeposit = ConstU128<500>;
+  /// The FRAME runtime system is used to track the accounts that hold balances.
+  type AccountStore = System;
+  /// Weight information is supplied to the Balances pallet by the node template runtime.
+  type WeightInfo = pallet_balances::weights::SubstrateWeight<Runtime>;
+}
+```
+
+正如你在这个例子中看到的，` impl pallet_balances::Config`块允许你配置由`Balances pallet Config trait`指定的类型和参数。例如，这个impl块将Balances pallet配置为使用`u128`类型来跟踪余额。
+
+### 实现Nicks的配置
+
+现在你已经看到了如何为Balances pallet实现`Config trait`的例子，你已经准备好为Nicks pallet实现`Config trait`了。
+
+要在你的runtime中实现Nicks pallet需要:
+
+- 用文本编辑器打开`runtime/src/lib.rs`文件。
+- 找到Balances代码块的最后一行。
+- 为Nicks pallet添加以下代码块。
+
+```rust
+impl pallet_nicks::Config for Runtime {
+// The Balances pallet implements the ReservableCurrency trait.
+// `Balances` is defined in `construct_runtime!` macro.
+type Currency = Balances;
+
+// Set ReservationFee to a value.
+type ReservationFee = ConstU128<100>;
+
+// No action is taken when deposits are forfeited.
+type Slashed = ();
+
+// Configure the FRAME System Root origin as the Nick pallet admin.
+// https://paritytech.github.io/substrate/master/frame_system/enum.RawOrigin.html#variant.Root
+type ForceOrigin = frame_system::EnsureRoot<AccountId>;
+
+// Set MinLength of nick name to a desired value.
+type MinLength = ConstU32<8>;
+
+// Set MaxLength of nick name to a desired value.
+type MaxLength = ConstU32<32>;
+
+// The ubiquitous event type.
+type Event = Event;
+}
+```
+
+- 把Nicks pallet添加进`construct_runtime!` macro
+
+```rust
+construct_runtime!(
+pub enum Runtime where
+   Block = Block,
+   NodeBlock = opaque::Block,
+   UncheckedExtrinsic = UncheckedExtrinsic
+ {
+   /* --snip-- */
+   Balances: pallet_balances,
+
+   /*** Add This Line ***/
+   Nicks: pallet_nicks,
+ }
+);
+```
+
+- `cargo build --release`
+
+
+### 启动区块链节点
+
+```rust
+./target/release/node-template --dev
+```
+
+看到节点不停地出块确认就可以了
+
+### 启动前端模板
+
+进入substrate-front-end-template
+
+```bash
+yarn start
+```
+
+一般会自动打开http://127.0.0.1:8000端口，连接上ws协议的端口，默认是9944
+
+### 使用Nicks pallet设置一个昵称
+
+在你启动前端模板后，你可以用它来与你刚刚添加到runtime的Nicks pallet进行交互。
+
+要为一个账户设置昵称。
+
+- 检查账户选择列表，确认当前选择的是Alice账户。
+- 在Pallet Interactor组件中，确认`Extrinsic`被选中。
+- 从可调用的托盘列表中选择`nicks`。
+- 选择`setName` [Call in pallet_nicks::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_nicks/pallet/enum.Call.html#variant.set_name) 作为从nicks pallet中调用的函数。
+- 输入一个长于MinNickLength（8个字符）但不长于MaxNickLength（32个字符）的名称。
+- 点击`Signed` 按钮执行这个setName的函数调用
+- 最后就可以看到call change从Ready 到InBlock再到Finalized了，然后看到事件被Nicks pallet发出
+
+![[9a7d0651fce9e89b900bb583143e383.png]]
+
+
+
+
+### 使用Nicks pallet查询一个账户的信息
+
+输入Alice账户的地址查询
+
+![[5b27cecd43d147b6e869dfe9ae01fbb.png]]
+
+返回的第一个参数`0x4d6174687848204368656e`是Alice账户昵称的Hex编码，`100`是在Alice账户中预留的金额以保证Alice昵称的使用。如果是输入Bob的账户地址查询，会返回None。然后调用clear_name，就可以把昵称删除了。再查就没有了。
+
+### 探索其他函数
+
+本教程说明了如何向runtime添加一个简单的pallet，并演示了如何使用前端模板与新的pallet进行交互。在本例中，你向runtime添加了nicks pallet，并使用前端模板调用set_name和nameOf函数。nicks pallet还提供了两个额外的函数--clear_name函数和kill_name函数--使账户所有者能够删除保留的名称，或者使root级用户能够强行删除账户名称。
+
+## 配置contracts pallet
+
+如果你已经学习完了添加Nicks pallet到runtime中，那么就可以学习本章了。这里也是添加一个pallet到runtime中，只是这个pallet是contracts pallet，有更复杂的配置，你添加这个pallet已给你的区块链提供智能合约开发的功能。
+
+### 添加pallet依赖
+
+- 在`runtime/Cargo.toml`的`[dependencies]` 下面添加`pallet-contracts`：
+
+```toml
+pallet-contracts = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.28" }
+```
+
+- 导入 `pallet-contracts-primitives` crate，通过将其添加到依赖项列表中，使其在node template runtime可用。
+
+在大多数情况下，你为任何给定版本的node template中的每个pallet指定相同的信息。然而，如果编译器表明发现了与你所指定的版本不同的版本，你可能需要修改依赖关系以匹配编译器所识别的版本。例如，如果编译器发现`pallet-contracts-primitives` crate的版本为6.0.0:
+
+```toml
+pallet-contracts-primitives = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.28" }
+```
+
+- 然后把pallet加入std feature列表:
+
+```toml
+[features]
+default = ["std"]
+std = [
+  "codec/std",
+  "scale-info/std",
+  "frame-executive/std",
+  "frame-support/std",
+  "frame-system-rpc-runtime-api/std",
+  "frame-system/std",
+  "pallet-aura/std",
+  "pallet-balances/std",
+  "pallet-contracts/std",
+  "pallet-contracts-primitives/std",
+]
+```
+
+
+### 实现contracts pallet的Config trait
+
+现在你已经成功导入了智能合约的pallet，你已经准备好在runtime中实现这些参数和类型。如果你探索过其他教程，你可能已经知道每个pallet都有一个`Config trait`--称为Config，runtime必须实现它。
+
+如果你查看了`pallet_contracts::Config`的Rust API文档 [Config in pallet_contracts::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_contracts/pallet/trait.Config.html) ，你会注意到--与Nicks pallet不同--这个pallet有很多关联类型(associal type)，所以本教程的代码会比以前的教程更复杂。
+
+要在runtime中为Contracts pallet实现`Config trait`。
+
+- 用文本编辑器打开`runtime/src/lib.rs`文件。
+- 找到`pub use frame_support`块，将Nothing添加到traits列表中。
+
+```rust
+pub use frame_support::{
+construct_runtime, parameter_types,
+traits::{
+  ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness, StorageInfo,Nothing // Nothing keyword added on this Line
+},
+weights::{
+ constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
+ IdentityFee, Weight,
+},
+StorageValue,
+};
+```
+
+- 增加一行，从合同pallet中导入默认的合同权重。例如。
+
+```rust
+pub use frame_system::Call as SystemCall;
+pub use pallet_balances::Call as BalancesCall;
+pub use pallet_timestamp::Call as TimestampCall;
+use pallet_transaction_payment::CurrencyAdapter;
+use pallet_contracts::DefaultContractAccessWeight; // Add this line
+```
+
+- 将Contracts pallet要求的常量添加到runtime中。
+
+```rust
+/* After this block */
+// Time is measured by number of blocks.
+pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
+pub const HOURS: BlockNumber = MINUTES * 60;
+pub const DAYS: BlockNumber = HOURS * 24;
+
+/* Add this block */
+// Contracts price units.
+pub const MILLICENTS: Balance = 1_000_000_000;
+pub const CENTS: Balance = 1_000 * MILLICENTS;
+pub const DOLLARS: Balance = 100 * CENTS;
+
+const fn deposit(items: u32, bytes: u32) -> Balance {
+items as Balance * 15 * CENTS + (bytes as Balance) * 6 * CENTS
+}
+const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(10);
+/*** End Added Block ***/
+```
+
+- 添加参数类型，并在runtime为`pallet_contracts`实现`Config trait`。
+
+```rust
+/*** Add a block similar to the following ***/
+parameter_types! {
+  pub const DepositPerItem: Balance = deposit(1, 0);
+  pub const DepositPerByte: Balance = deposit(0, 1);
+  pub const DeletionQueueDepth: u32 = 128;
+  pub DeletionWeightLimit: Weight = AVERAGE_ON_INITIALIZE_RATIO * BlockWeights::get().max_block;
+  pub Schedule: pallet_contracts::Schedule<Runtime> = Default::default();
+}
+
+impl pallet_contracts::Config for Runtime {
+  type Time = Timestamp;
+  type Randomness = RandomnessCollectiveFlip;
+  type Currency = Balances;
+  type Event = Event;
+  type Call = Call;
+  type CallFilter = frame_support::traits::Nothing;
+  type WeightPrice = pallet_transaction_payment::Pallet<Self>;
+  type WeightInfo = pallet_contracts::weights::SubstrateWeight<Self>;
+  type ChainExtension = ();
+  type Schedule = Schedule;
+  type CallStack = [pallet_contracts::Frame<Self>; 31];
+  type DeletionQueueDepth = DeletionQueueDepth;
+  type DeletionWeightLimit = DeletionWeightLimit;
+  type DepositPerByte = DepositPerByte;
+  type DepositPerItem = DepositPerItem;
+  type AddressGenerator = pallet_contracts::DefaultAddressGenerator;
+  type ContractAccessWeight = DefaultContractAccessWeight<BlockWeights>;
+  type MaxCodeLen = ConstU32<{ 256 * 1024 }>;
+  type RelaxedMaxCodeLen = ConstU32<{ 512 * 1024 }>;
+  type MaxStorageKeyLen = ConstU32<{ 512 * 1024 }>;
+}
+/*** End added block ***/
+```
+
+关于合约pallet的配置以及如何使用类型和参数的更多信息，请参阅合约pallet的源代码。 [substrate/lib.rs at master · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/blob/master/frame/contracts/src/lib.rs)
+
+- 把`pallet_contracts` 添加到`construct_runtime!` 宏中
+
+```rust
+// Create the runtime by composing the FRAME pallets that were previously configured
+construct_runtime!(
+  pub enum Runtime where
+    Block = Block,
+    NodeBlock = opaque::Block,
+    UncheckedExtrinsic = UncheckedExtrinsic
+  {
+     System: frame_system,
+     RandomnessCollectiveFlip: pallet_randomness_collective_flip,
+     Timestamp: pallet_timestamp,
+     Aura: pallet_aura,
+     Grandpa: pallet_grandpa,
+     Balances: pallet_balances,
+     TransactionPayment: pallet_transaction_payment,
+     Sudo: pallet_sudo,
+     Contracts: pallet_contracts,
+  }
+);
+```
+
+### 暴露contracts的API
+
+一些pallet，包括合约pallet，暴露了自定义的runtime API和RPC端点。你不需要启用合约pallet上的RPC调用来在链上使用它。然而，为Contracts pallet暴露API和端点是非常有用的，因为这样做可以让你执行以下任务。
+
+- 从链外读取合同状态。
+- 在不进行交易的情况下，对节点存储进行调用。
+
+要暴露合约的RPC API。
+
+- 在文本编辑器中打开`runtime/Cargo.toml`文件。
+- 在`[dependencies]`部分添加`pallet-contracts-rpc-runtime-api` pallet的描述，使用与其他pallet相同的版本和分支信息。
+
+```toml
+pallet-contracts-rpc-runtime-api = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.28" }
+```
+
+- 把`pallet-contracts-rpc-runtime-api`添加进std features列表
+
+```toml
+[features]
+default = ["std"]
+std = [
+  "codec/std",
+  ...
+  "pallet-contracts/std",
+  "pallet-contracts-primitives/std",
+  "pallet-contracts-rpc-runtime-api/std",
+  ...
+]
+```
+
+- 在文本编辑器中打开`runtime/src/lib.rs`文件，并通过添加以下常量来启用合约的调试。
+
+```rust
+const CONTRACTS_DEBUG_OUTPUT: bool = true;
+```
+
+- 打开`runtime/src/lib.rs`文件，在lib.rs文件末尾附近的` impl_runtime_apis!` 宏中实现合约的runtime API。
+
+例如，在 `impl_runtime_apis! { }`的部分。
+
+```rust
+/*** Add this block ***/
+impl pallet_contracts_rpc_runtime_api::ContractsApi<Block, AccountId, Balance, BlockNumber, Hash>
+ for Runtime
+ {
+  fn call(
+     origin: AccountId,
+     dest: AccountId,
+     value: Balance,
+     gas_limit: u64,
+     storage_deposit_limit: Option<Balance>,
+     input_data: Vec<u8>,
+  ) -> pallet_contracts_primitives::ContractExecResult<Balance> {
+     Contracts::bare_call(origin, dest, value, gas_limit, storage_deposit_limit, input_data, CONTRACTS_DEBUG_OUTPUT)
+  }
+  
+  fn instantiate(
+     origin: AccountId,
+     value: Balance,
+     gas_limit: u64,
+     storage_deposit_limit: Option<Balance>,
+     code: pallet_contracts_primitives::Code<Hash>,
+     data: Vec<u8>,
+     salt: Vec<u8>,
+  ) -> pallet_contracts_primitives::ContractInstantiateResult<AccountId, Balance> {
+     Contracts::bare_instantiate(origin, value, gas_limit, storage_deposit_limit, code, data, salt, CONTRACTS_DEBUG_OUTPUT)
+     }
+     
+  fn upload_code(
+     origin: AccountId,
+     code: Vec<u8>,
+     storage_deposit_limit: Option<Balance>,
+  ) -> pallet_contracts_primitives::CodeUploadResult<Hash, Balance> {
+     Contracts::bare_upload_code(origin, code, storage_deposit_limit)
+  }
+  
+  fn get_storage(
+     address: AccountId,
+     key: Vec<u8>,
+     ) -> pallet_contracts_primitives::GetStorageResult {
+     Contracts::get_storage(address, key)
+     }
+  }
+```
+
+- 这时候可以`cargo build --release`检查下有没有编译报错
+
+### 更新外层节点
+
+至此，你已经完成了向runtime添加Contracts pallet的工作。现在，你需要考虑外层节点是否需要任何相应的更新。Substrate提供了一个RPC服务器来与节点交互。然而，默认的RPC服务器并不提供对Contracts pallet的访问。为了与Contracts pallet交互，你必须扩展现有的RPC服务器以包括Contracts pallet和Contracts RPC API。为了让Contracts pallet利用RPC端点API，你需要在外层节点配置中添加自定义RPC端点。
+
+要添加RPC API扩展到外层节点。
+
+- 在文本编辑器中打开`node/Cargo.toml`文件，将Contracts和Contracts RPC crates添加到`[dependencies]`部分。
+
+```toml
+pallet-contracts = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.28" }
+pallet-contracts-rpc = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.28" }
+
+```
+
+因为你已经暴露了runtime的API，并且现在正在为外层节点编写代码，你不需要使用`no_std`配置，所以你不需要维护一个专门的`std`功能列表。
+
+- 用文本编辑器打开`node/src/rpc.rs`文件，找到以下一行。
+
+```rust
+use node_template_runtime::{opaque::Block, AccountId, Balance, Index};
+```
+
+- 在现有的`use node_template_runtime`声明中增加`BlockNumber`和`Hash`。
+
+```rust
+use node_template_runtime::{opaque::Block, AccountId, Balance, Index, BlockNumber, Hash}; 
+```
+
+- 在文件中添加`use pallet_contracts_rpc`。
+
+```rust
+// 这段在create_full fn中
+use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApiServer};
+use substrate_frame_rpc_system::{System, SystemApiServer};
+use pallet_contracts_rpc::{Contracts, ContractsApiServer}; // Add this line
+```
+
+- 把Contracs RPC pallet添加进`create_full`函数中，为RPC作扩展，主要是其中的Where子句:
+
+```rust
+/// Instantiate all full RPC extensions.
+pub fn create_full<C, P>(
+  deps: FullDeps<C, P>,
+) -> Result<RpcModule<()>, Box<dyn std::error::Error + Send + Sync>>
+where
+  C: ProvideRuntimeApi<Block>,
+  C: HeaderBackend<Block> + HeaderMetadata<Block, Error = BlockChainError> + 'static,
+  C: Send + Sync + 'static,
+  C::Api: substrate_frame_rpc_system::AccountNonceApi<Block, AccountId, Index>,
+  C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
+  C::Api: pallet_contracts_rpc::ContractsRuntimeApi<Block, AccountId, Balance, BlockNumber, Hash>, // Add this line
+  C::Api: BlockBuilder<Block>,
+  P: TransactionPool + 'static,
+```
+
+- 把扩展加入到`create_full`中
+
+```rust
+module.merge(System::new(client.clone(), pool.clone(), deny_unsafe).into_rpc())?;
+module.merge(TransactionPayment::new(client.clone()).into_rpc())?;
+module.merge(Contracts::new(client.clone()).into_rpc())?; // Add this line
+```
+
+- `cargo build --release` 编译
+
+注意，以上部分其实涉及到了自定义RPC的部分，RPC的自定义部分会涉及到外层节点，详情请参考 RPC的文档 [Remote procedure calls | Substrate_ Docs](https://docs.substrate.io/build/custom-rpc/)
+
+### 启动本地的substrate节点
+
+```rust
+./target/release/node-template --dev
+```
+
+看到出块并不断地确认就可以了。
+
+然后启动frontend-template：
+
+```bash
+yarn start
+```
+
+然后就可以在页面上看到合约暴露出来的API uploadCode了:
+
+![[Pasted image 20220904165733.png]]
+
+## 在自定义的pallet中使用宏
+
+本教程的目的就是带着你开发一个自定义的pallet，一个简单的proof of existence 应用。PoE是一种通过在区块链上存储有关对象的信息来验证数字对象的真实性和所有权的方法。由于区块链将时间戳和账户与对象相关联，区块链记录可以用来 "证明 "某个特定对象在特定日期和时间存在。它还可以验证在那个日期和时间，记录的主人是谁。
+
+## 针对一个call指定其origin
+
+这篇教程是在nicks pallet基础上做的。
+
+在之前的教程 “添加pallet到runtime中”，你将nicks pallet的函数添加到substrate node template的runtime中。
+
+Nicks pallet允许区块链用户支付押金(deposit)，为他们控制的账户保留一个昵称。它实现了以下函数。
+
+- `set_name`函数，使账户所有者(owner)能够设置他或她自己的账户的名称，如果该名称尚未被保留(占用)。
+- `clear_name`函数，使账户所有者能够删除与账户相关的名称，并返回存款(deposit)。
+- `kill_name`函数，为另一方强行删除账户名称，而不退还押金(deposit)。
+- `force_name`函数为另一方设置一个账户名称，而不要求押金。
+
+本教程说明了如何使用不同的原始账户(originating accounts)调用这些函数，以及为什么使用不同的原始账户调用这些函数很重要。
+
+### 识别管理账户
+
+正如你在《向runtime添加pallet》教程中所看到的，nicks pallet的`Config trait`声明了几种类型。在本教程中，重点是`ForceOrigin`类型。`ForceOrigin`类型是用来指定可以执行某些选项的账户。对于这个pallet，`ForceOrigin`类型指定了可以为另一个账户设置或删除名称的账户。通常情况下，只有具有管理权限的账户--如root超级用户账户--才能代表另一个账户行事。在Nicks pallet的情况下，只有账户的所有者或Root账户可以设置或删除一个保留的昵称。当你确定FRAME System的`Root origin` [RawOrigin in frame_system - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_system/enum.RawOrigin.html#variant.Root) 为nicks pallet管理员时，你在实现（implication）块中配置了这个Root账户。比如说
+
+```rust
+type ForceOrigin = frame_system::EnsureRoot<AccountId>;
+```
+
+在node template的chain spec中，`Sudo pallet` [pallet_sudo - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_sudo/index.html) 被配置为使用Alice账户作为FRAME system的`Root origin`。由于这种配置，默认情况下，只有Alice账户可以调用需要`ForceOrigin`类型的函数。
+
+如果你试图用Alice账户以外的账户调用`kill_name`或`force_name`，调用将不能被执行。
+
+
+### 为一个账户设置一个名称
+
+为了演示对origin的调用影响操作，让我们设置并尝试强行删除另一个账户的账户名。对于这个演示，要确保你有。  
+  
+- 以开发模式运行的节点模板： `./target/release/node-template --dev`  
+- 前端模板正在运行并连接到本地节点：`yarn start`  
+- 你的浏览器连接到本地网络服务器：`http://localhost:8000/``  
+- 将前端模板中的活动账户从Alice改为Bob。  
+- 在Pallet Interactor中选择Extrinsic。  
+    - 选择nicks pallet。  
+    - 选择setName函数。  
+    - 给一个账户输入一个昵称。  
+    - 点击Signed，提交这个由Bob签名的交易。  
+
+因为Bob是这个账户的所有者，所以交易成功了。作为账户的所有者，Bob也可以在签名的交易中执行`clearName`函数来删除账户的昵称。  
+  
+- 在选择了Extrinsic的情况下。  
+    - 选择nicks pallet。  
+    - 选择clearName函数。  
+    - 点击Signed，提交这个由Bob签名的交易。  
+  
+因为Bob是这个账户的所有者，所以交易是成功的。如果Bob要为另一个账户设置或删除昵称，他必须使用为该pallet配置的ForceOrigin调用forceName或killName函数。  
+  
+- 在选择了Extrinsic的情况下。  
+    - 选择nicks pallet。  
+    - 选择ForceName函数。  
+     - 复制并粘贴Charlie的账户地址作为目标。  
+     - 键入一个账户昵称。  
+     - 点击 "签名"，提交这个由Bob签名的交易。  
+  
+因为你用Bob的账户签署了这个交易，所以这个函数是用`Signed origin`而不是`Root origin`来dispatch的。在这种情况下，函数的调用本身是成功的。但是，名字的保留无法完成，因此发出了一个`BadOrigin`错误。
+
+![[Pasted image 20220904212016.png]]
+
+正如你在事件中所看到的，该交易导致从Bob的账户中提取了一笔钱作为提交交易的费用，但由于`Root origin`没有提交该交易，所以没有发生状态变化。状态改变的失败也说明了数据库读写的验证是--先校验--最后写的原则，以确保只有成功的操作被提交到磁盘上。
+
+如果你好奇，你可以看nicks pallet的源码，里面的force_name或kill_name的验证是这样的:
+
+```rust
+T::ForceOrigin::ensure_origin(origin)?;
+```
+
+必须确保是root origin，不然会报错。
+
+
+### 使用root origin来分发一个调用
+
+Sudo pallet使你可以使用`Root origin`来dispatch调用。在Nick pallet中，`forceName`和`killName`函数必须使用`ForceOrigin`配置所指定的`Root origin`来调用。在前端模板中，你可以访问Sudo pallet，通过点击SUDO来分配一个使用Root 的call。  
+  
+对于这个演示，请确保你有。  
+  
+- 以开发模式运行的节点模板：`./target/release/node-template --dev`  
+- 前端模板运行并连接到本地节点：`yarn start`  
+- 你的浏览器连接到本地网络服务器： `http://localhost:8000/``  
+- 将活动账户改为Alice。  
+  
+    正如在识别管理账户中提到的，当以开发模式运行链时，Alice是与`Root origin`相关的账户。  
+  
+- 在Pallet Interactor中选择Extrinsic。  
+     - 选择nicks pallet。  
+     - 选择forceName函数。  
+     - 复制并粘贴Charlie的账户地址作为目标。  
+     - 输入账户的昵称。  
+     - 点击SUDO，使用root origin提交此交易。  
+
+![[Pasted image 20220904215739.png]]
+
+- 在选择了Extrinsic的情况下。
+    - 选择nicks pallet。
+    - 选择killName函数。
+    - 复制并粘贴Bob的账户地址作为目标。
+    - 点击SUDO，使用Root origin提交此交易。
+
+在这种情况下，Sudo pallet会发出一个`Sudid事件` [Event in pallet_sudo::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_sudo/pallet/enum.Event.html) ，通知网络参与者，`Root origin`发出了一个调用，但发生了错误。
+
+![[Pasted image 20220904220302.png]]
+
+这个dispatch错误包括两块元数据。
+
+- 一个index，表示该错误来自哪个pallet。
+- 一个error number，表示从该pallet的 error enum中发出的错误。
+
+index与pallet在`construct_runtime！` 宏中的位置相对应，`construct_runtime！`宏中的第一个托盘的索引号为0（0）。
+
+在这个例子中，index是6（第七个pallet），error是2(0x02000000)（第三个错误）。
+
+```rust
+construct_runtime!(
+pub enum Runtime where
+  Block = Block,
+  NodeBlock = opaque::Block,
+  UncheckedExtrinsic = UncheckedExtrinsic
+{
+  System: frame_system,                                        // index 0
+  RandomnessCollectiveFlip: pallet_randomness_collective_flip, // index 1
+  Timestamp: pallet_timestamp,                                 // index 2
+  Aura: pallet_aura,                                           // index 3
+  Grandpa: pallet_grandpa,                                     // index 4
+  Balances: pallet_balances,                                   // index 5
+  Nicks: pallet_nicks,                                         // index 6
+}
+```
+
+
+```rust
+/// Error for the nicks pallet.
+#[pallet::error]
+pub enum Error<T> {
+	/// A name is too short.
+	TooShort,
+	/// A name is too long.
+	TooLong,
+	/// An account isn't named.
+	Unnamed,   // 0x02000000
+}
+```
+
+以上的操作就是，对一个没有昵称的账户做kill_name操作，那么就会报这个错误了。[Error in pallet_nicks::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_nicks/pallet/enum.Error.html)
+
+不管index的值是多少，错误值2对应于Nicks palley中的Unnamed错误。如果Bob没有保留昵称或者之前清除了名字的保留，这就是你期望的错误。
+
+你可以确认Alice可以使用SUDO调用`killName`函数来删除任何当前有名字保留的账户的昵称。
+
+- 在选择了Extrinsic的情况下。
+    - 选择nicks pallet。
+    - 选择killName函数。
+    - 复制并粘贴Charlie的账户地址作为目标。
+    - 点击SUDO，使用`Root origin`提交此交易。
+
+![[Pasted image 20220904221138.png]]
+
+## 发布自定义的pallet
+
+TODO
