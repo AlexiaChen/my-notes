@@ -1248,9 +1248,307 @@ yarn start
 
 本教程的目的就是带着你开发一个自定义的pallet，一个简单的proof of existence 应用。PoE是一种通过在区块链上存储有关对象的信息来验证数字对象的真实性和所有权的方法。由于区块链将时间戳和账户与对象相关联，区块链记录可以用来 "证明 "某个特定对象在特定日期和时间存在。它还可以验证在那个日期和时间，记录的主人是谁。
 
+### 数字对象和Hash值
+
+与其在区块链上存储整个文件，不如简单地存储该文件的密码学哈希值 https://en.wikipedia.org/wiki/Cryptographic_hash_function 来的更有效率。这也被称为 "数字指纹"。哈希值使区块链能够通过使用一个小而独特的哈希值有效地存储任意大小的文件。因为对文件的任何改变都会导致不同的哈希值，用户可以通过计算哈希值并将该哈希值与存储在链上的哈希值进行比较来证明文件的有效性。
+
+![[Pasted image 20220906091750.png]]
+
+### 数字对象和账户签名
+
+区块链使用公钥加密技术 https://en.wikipedia.org/wiki/Public-key_cryptography ，将数字身份映射到拥有私钥的账户。区块链记录了你用来存储数字对象哈希值的账户，作为交易的一部分。由于账户信息作为交易的一部分被存储，该账户的私钥控制者(owner)后来可以证明所有权是最初上传文件的人。
+
+### 设计这个PoE应用
+
+存在性证明应用程序暴露了以下可调用函数。
+
+- `create_claim()` 允许用户通过上传哈希值来声明一个文件的存在。
+- `revoke_claim()` 允许声称的当前所有者撤销所有权。
+
+### 构建自定义的pallet
+
+Substrate node template有一个基于FRAME的runtime。正如你在runtime开发中所学到的，FRAME是一个代码库，允许你通过组成称为pallet的模块来建立一个Substrate runtime。你可以把pallet看作是专门的逻辑单元，定义你的区块链可以做什么。Substrate为你提供了一些预先建立(pre-built)的pallet，以便在基于FRAME的runtime中使用。
+
+![[Pasted image 20220906093055.png]]
+
+本教程演示了如何创建你自己的FRAME pallet，以包含在你的自定义区块链中。
+
+#### 为你的pallet建立脚手架
+
+本教程演示了如何从头开始创建一个自定义pallet。因此，第一步是删除node template目录中的一些文件和内容。
+
+- 打开一个终端shell，cd到node template的root dir。
+- 通过运行以下命令改变到`pallets/template/src`目录。
+
+```bash
+cd pallets/template/src
+```
+
+- 删除以下文件
+
+```bash
+benchmarking.rs
+mock.rs
+tests.rs
+```
+
+- 用文本编辑器打开`lib.rs`文件
+
+这个文件包含的代码可以作为新pallet的模板使用。你不会在本教程中使用模板代码。然而，你可以在删除模板代码之前查看它提供的内容。
+
+- 删除`lib.rs`文件中的所有内容
+
+- 添加构建native Rust二进制文件（std）和WebAssembly二进制文件（no_std）所需的宏。
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+```
+
+在一个runtime中使用的所有pallet必须被设置为用`no_std`特性进行编译。
+
+- 通过复制以下代码，添加自定义pallet所需的pallet依赖项和宏 [FRAME macros | Substrate_ Docs](https://docs.substrate.io/reference/frame-macros/) 的骨架集。
+
+```rust
+// Re-export pallet items so that they can be accessed from the crate namespace.
+pub use pallet::*;
+
+#[frame_support::pallet]
+pub mod pallet {
+  use frame_support::pallet_prelude::*;
+  use frame_system::pallet_prelude::*;
+
+  #[pallet::pallet]
+  #[pallet::generate_store(pub(super) trait Store)]
+  pub struct Pallet<T>(_);
+
+  #[pallet::config]  // <-- Step 2. code block will replace this.
+  #[pallet::event]   // <-- Step 3. code block will replace this.
+  #[pallet::error]   // <-- Step 4. code block will replace this.
+  #[pallet::storage] // <-- Step 5. code block will replace this.
+  #[pallet::call]    // <-- Step 6. code block will replace this.
+}
+```
+
+你现在有一个框架，包括事件、错误、存储和可调用函数的占位符。
+
+#### 配置pallet的emit事件
+
+每个pallet都有一个叫 "`Config` "的Rust "trait"。你用这个trait来配置你的特定pallet所需的设置。在本教程中，Config设置使pallet能够发射事件。
+
+要为PoE ppalet定义Config trait。
+
+- 在文本编辑器中打开`pallets/template/src/lib.rs`文件。
+- 用以下代码块放在`#[pallet::config]`之下。
+
+```rust
+/// Configure the pallet by specifying the parameters and types on which it depends.
+pub trait Config: frame_system::Config {
+  /// Because this pallet emits events, it depends on the runtime's definition of an event.
+  type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+}
+```
+
+#### 实现pallet事件
+
+现在你已经配置了pallet来发射事件，你可以准备定义这些事件了。正如在设计应用程序中所描述的那样，PoE pallet在以下条件下会发出事件。
+
+- 当一个新的claim被添加到区块链上。
+- 当一个claim被撤销时。
+
+每个事件还显示一个AccountId，以识别谁触发了该事件，以及正在被存储或删除的PoE Claim（这个claim是作为一个Hash值）。
+
+为了实现托盘事件。
+
+- 在文本编辑器中打开`pallets/template/src/lib.rs`文件。
+- 用以下代码块加入`#[pallet::event]`这行之下。
+
+```rust
+#[pallet::generate_deposit(pub(super) fn deposit_event)]
+pub enum Event<T: Config> {
+  /// Event emitted when a claim has been created.
+  ClaimCreated { who: T::AccountId, claim: T::Hash },
+  /// Event emitted when a claim is revoked by the owner.
+  ClaimRevoked { who: T::AccountId, claim: T::Hash },
+}
+```
+
+#### 包含pallet的errors
+
+你定义的事件表明何时对pallet的调用已经成功完成。错误表明何时调用失败，以及失败的原因。在本教程中，你定义了以下错误条件。
+
+- 试图提出一个已经存在的claim。
+- 试图撤销一个不存在的claim。
+- 试图撤销一个被其他账户拥有的claim。
+
+为了实现PoE pallet的错误。
+
+- 在文本编辑器中打开`pallets/template/src/lib.rs`文件。
+- 用以下代码块放在`#[pallet::error]`行下面。
+
+```rust
+pub enum Error<T> {
+  /// The claim already exists.
+  AlreadyClaimed,
+  /// The claim does not exist, so it cannot be revoked.
+  NoSuchClaim,
+  /// The claim is owned by another account, so caller can't revoke it.
+  NotClaimOwner,
+}
+```
+
+#### 为存储项实现存储map
+
+为了向区块链添加一个新的claim，PoE pallet需要一个存储机制。为了解决这个需求，你可以创建一个KV map，其中每个要求指向所有者和提出claim时的区块编号。为了创建这个KV map，你可以使用FRAME StorageMap [StorageMap in frame_support::pallet_prelude - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_support/pallet_prelude/struct.StorageMap.html)。
+
+为了实现对PoE plalet的存储。
+
+- 在文本编辑器中打开`pallets/template/src/lib.rs`文件。
+- 用以下代码块加入到`#[pallet::storage]`一行下面。
+
+```rust
+pub(super) type Claims<T: Config> = StorageMap<_, Blake2_128Concat, T::Hash, (T::AccountId, T::BlockNumber)>;
+```
+
+#### 实现可调用函数
+
+PoE pallet向用户暴露了两个可调用的函数。
+
+- `create_claim()` 允许用户用哈希值claim一个文件的存在。
+- `revoke_claim()` 允许claim的所有者撤销该claim。
+
+这些函数使用`StorageMap`来实现以下逻辑。
+
+- 如果一个claim已经在存储中，那么它已经有一个所有者，不能再被claim。
+- 如果一个claim不在存储中，那么它就可以被claim并写入存储中。
+
+为了在PoE pallet中实现这一逻辑。
+
+- 用文本编辑器打开`pallets/template/src/lib.rs`文件。
+- 用以下代码块添加到`#[pallet::call]`行下面。
+
+```rust
+// Dispatchable functions allow users to interact with the pallet and invoke state changes.
+// These functions materialize as "extrinsics", which are often compared to transactions.
+// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
+impl<T: Config> Pallet<T> {
+  #[pallet::weight(0)]
+  pub fn create_claim(origin: OriginFor<T>, claim: T::Hash) -> DispatchResult {
+    // Check that the extrinsic was signed and get the signer.
+    // This function will return an error if the extrinsic is not signed.
+    let sender = ensure_signed(origin)?;
+
+    // Verify that the specified claim has not already been stored.
+    ensure!(!Claims::<T>::contains_key(&claim), Error::<T>::AlreadyClaimed);
+
+    // Get the block number from the FRAME System pallet.
+    let current_block = <frame_system::Pallet<T>>::block_number();
+
+    // Store the claim with the sender and block number.
+    Claims::<T>::insert(&claim, (&sender, current_block));
+
+    // Emit an event that the claim was created.
+    Self::deposit_event(Event::ClaimCreated { who: sender, claim });
+
+    Ok(())
+  }
+
+  #[pallet::weight(0)]
+  pub fn revoke_claim(origin: OriginFor<T>, claim: T::Hash) -> DispatchResult {
+    // Check that the extrinsic was signed and get the signer.
+    // This function will return an error if the extrinsic is not signed.
+    let sender = ensure_signed(origin)?;
+
+    // Get owner of the claim, if none return an error.
+    let (owner, _) = Claims::<T>::get(&claim).ok_or(Error::<T>::NoSuchClaim)?;
+
+    // Verify that sender of the current call is the claim owner.
+    ensure!(sender == owner, Error::<T>::NotClaimOwner);
+
+    // Remove claim from storage.
+    Claims::<T>::remove(&claim);
+
+    // Emit an event that the claim was erased.
+    Self::deposit_event(Event::ClaimRevoked { who: sender, claim });
+    Ok(())
+  }
+}
+```
+
+
+
+
+
+### 用的新pallet构建runtime
+
+因为在`runtime/src/lib.rs`中已经有:
+
+```rust
+// Include the custom logic from the pallet-template in the runtime.
+TemplateModule: pallet_template,
+```
+
+所以就可以直接构建编译运行了
+
+```bash
+cargo build --release
+./target/release/node-template --dev
+```
+
+注意，如果是新的pallet，一定要在runtime中添加
+
+### 与你的区块链交互
+
+现在，你有一个新的区块链正在运行，并带有定制的PoE pallet，我们可以与该链互动，以确保所有的功能都像预期的那样工作!
+
+为了做到这一点，我们将使用Polkadot JS Apps，它是一个开发者工具，可以连接到任何基于Substrate的区块链并与之互动。
+
+默认情况下，你的区块链应该在`ws:/127.0.0.1:9944`上运行，所以要连接到它，我们可以使用这个链接。
+
+https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/
+
+如果你的Substrate区块链正在运行，并且Polkadot JS Apps已被连接，你应该看到你的区块号码在左上角增加。
+
+![[Pasted image 20220906141743.png]]
+
+
+#### submit一个claim
+
+通过polkadot-js App连接上本地node-template后，你就选择Developer到Extrinsics的tab上。
+
+![[Pasted image 20220906142649.png]]
+选择templateModule模块，选择`createClaim` 然后签名并submit
+
+![[Pasted image 20220906142728.png]]
+![[Pasted image 20220906142736.png]]
+![[Pasted image 20220906142745.png]]
+发送成功后，你就可以看到extrinsics触发的事件了，claimCreated之类的
+
+![[Pasted image 20220906142822.png]]
+
+#### 读取一个claim
+
+![[Pasted image 20220906143025.png]]
+调整到templateModule到claims的查询
+
+把include option这个开关关闭，并点击＋
+
+![[Pasted image 20220906143108.png]]
+![[Pasted image 20220906143123.png]]
+- 如果你revokeClaim同一个文件Hash以后，那么重复以上步骤从Chainstate查出来的信息，就为空。
+
+```txt
+templateModule.claims: Option<(AccountId32,u32)>
+[]
+```
+
+所以从头到尾，这个PoE pallet本质上实现的功能就是某个Hash上链，做存证。比如法院档案什么的。这个文件实际存放位置还是IPFS或着ArcWeave
+之类的P2P存储系统上。甚至不严格的话，都可以存在中心化的OOS存储上。联盟链的这样的政府业务居多。
+
 ## 针对一个call指定其origin
 
 这篇教程是在nicks pallet基础上做的。
+
+> 按照我的理解，Origin其实有点类似函数的caller
 
 在之前的教程 “添加pallet到runtime中”，你将nicks pallet的函数添加到substrate node template的runtime中。
 
@@ -1409,4 +1707,809 @@ pub enum Error<T> {
 
 ## 发布自定义的pallet
 
-TODO
+[Publish custom pallets | Substrate_ Docs](https://docs.substrate.io/tutorials/work-with-pallets/publish-custom-pallets/)
+
+参考官方的文档，这里简单，就不说明了，因为pallet实际上就是rust的crate，所以可以发布到github上或者是crates.io上都可以。发布到crates上就不用指定git的URL和branch了。直接指定版本即可。
+
+## 为你的第一个合约作准备
+
+### Rust环境更新:
+
+```bash
+rustup component add rust-src --toolchain nightly
+rustup target add wasm32-unknown-unknown --toolchain nightly
+```
+
+### 安装substrate合约节点
+
+如果你之前做过添加contracts pallet的教程，那么这步可以跳过。这步主要是下载预编译好的默认带了contracts pallet的substrate node。
+
+```bash
+cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --tag <latest-tag> --force --locked
+```
+
+[Tags · paritytech/substrate-contracts-node (github.com)](https://github.com/paritytech/substrate-contracts-node/tags)
+
+### 安装其他的包
+
+在编译完`contracts-node`包后，你需要安装两个额外的包。
+
+- 用于你的操作系统的WebAssembly binaryen包，以优化合约的WebAssembly字节码。
+- 你用来设置智能合约项目的cargo-contract命令行接口。
+
+#### 安装WASM优化器
+
+```bash
+sudo apt install binaryen
+```
+
+#### 安装cargo-contract的包
+
+```bash
+cargo install dylint-link
+cargo install cargo-contract --force
+cargo contract --help
+```
+
+### 创建一个新的合约工程
+
+```bash
+cargo contract new flipper
+cd flipper/
+ls -al
+```
+
+```bash
+mathxh@MathxH:~/metablock-projects/flipper$ ls -al  
+total 20  
+drwxr-xr-x 2 mathxh mathxh 4096 Sep 8 10:21 .  
+drwxr-xr-x 10 mathxh mathxh 4096 Sep 8 10:21 ..  
+-rwxr-xr-x 1 mathxh mathxh 285 Sep 8 10:21 .gitignore  
+-rwxr-xr-x 1 mathxh mathxh 963 Sep 8 10:21 Cargo.toml  
+-rwxr-xr-x 1 mathxh mathxh 2262 Sep 8 10:21 lib.rs
+```
+
+和其他Rust项目一样，`Cargo.toml`文件用来提供包的依赖性和配置信息。`lib.rs`文件用于智能合约的业务逻辑。
+
+#### 探索默认的工程文件
+
+默认情况下，创建一个新的智能合约项目会生成一些模板源代码，用于一个非常简单的合约，其中有一个函数-`flip()` -将一个布尔变量从真变假，第二个函数-`get`-获得布尔变量的当前值。`lib.rs`文件还包含两个函数，用于测试合约是否按预期运行。
+
+随着你在本教程中的进展，你将修改启动代码的不同部分。在本教程结束时，你将拥有一个更高级的智能合约，看起来像Flipper的例子。[ink/lib.rs at master · paritytech/ink (github.com)](https://github.com/paritytech/ink/blob/master/examples/flipper/lib.rs)
+
+用vscode打开合约的目录，查看`Cargo.toml`的`[dependencies]`的这两项，如果是以下情况，就不需要改了
+
+```toml
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+```
+
+最后可以简要浏览下`lib.rs`看看里面的函数。可以看出来，这就是一个翻转bool值的合约。
+
+#### 测试默认的合约
+
+在合约目录下运行
+
+```bash
+cargo +nightly test
+```
+
+```bash
+running 2 tests  
+test flipper::tests::default_works ... ok  
+test flipper::tests::it_works ... ok  
+  
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+```
+
+
+#### 构建合约
+
+在合约目录下运行
+
+```bash
+cargo +nightly contract build
+```
+
+如果你之前`sudo apt install binaryen`版本不够高，那么可能会报以下错误:
+
+```txt
+[3/5] Post processing wasm file  
+[4/5] Optimizing wasm file  
+2022-09-08T02:48:22.286351Z INFO cargo_contract::cmd::build: Path to wasm-opt executable: /usr/bin/wasm-opt2022-09-08T02:48:22.400646Z INFO cargo_contract::cmd::build: The wasm-opt version output is 'wasm-opt version 91', whic  
+h was parsed to '91'ERROR: Your wasm-opt version is 91, but we require a version >= 99.  
+  
+If you tried installing from your system package manager the best  
+way forward is to download a recent binary release directly:  
+  
+https://github.com/WebAssembly/binaryen/releases  
+  
+Make sure that the `wasm-opt` file from that release is in your `PATH`.
+```
+
+把本地的binaryen卸载掉 `sudo apt remove binaryen`。手动按照提示下载linux 的x86_64的binary，下载下来把bin目录里的文件全部拷贝到`~/.local/bin`中，确保这个目录在PATH环境变量下。
+
+然后经过我的测试，就可以构建成功了。
+
+```txt
+
+Original wasm size: 47.9K, Optimized: 22.8K
+
+The contract was built in DEBUG mode.
+
+Your contract artifacts are ready. You can find them in:
+/Users/dev-doc/flipper/target/ink
+
+- flipper.contract (code + metadata)
+- flipper.wasm (the contract's code)
+- metadata.json (the contract's metadata)
+The `.contract` file can be used for deploying your contract to your chain.
+
+```
+
+`target/ink`目录下的`metadata.json`文件描述了你可以用来与这个合约互动的所有接口。这个文件包含几个重要的部分。
+
+- `spec`部分包括关于可以调用的函数（如constructors和messages）、发射的events以及可以显示的任何docs的信息。这一部分还包括一个`selector`字段，它包含了一个`4字节`的函数名称的`哈希值`，用于将合约调用到正确的函数。
+- `storage`部分定义了合约所管理的所有存储项以及如何访问它们。
+- `types`部分提供了整个JSON其余部分使用的自定义数据类型。
+
+
+### 启动substrate合约节点
+
+```bash
+./target/release/node-template --dev
+```
+
+然后通过官方合约开发网址链接本地节点 [Substrate Contracts UI](https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944)
+
+![[a1cfc82899d9b1bfcd0859344134c0e.png]]
+
+
+
+### 部署合约
+
+在这一点上，你已经完成了以下步骤。
+
+- 安装了用于本地开发的软件包。
+- 为flipper智能合约生成了WebAssembly二进制文件。
+- 在开发模式下启动本地节点。
+- 通过Contracts UI前端连接到本地节点。
+- 下一步是在你的Substrate链上部署flipper合约。
+
+然而，在Substrate上部署智能合约与在传统的智能合约平台上部署有一点不同。对于大多数智能合约平台，你必须在每次做出改变时部署一个全新的智能合约源代码。例如，标准的ERC20代币已经被部署到以太坊成千上万次。即使变化很小或只影响一些初始配置设置，每次变化都需要重新部署全部代码。每个智能合约实例消耗的区块链资源相当于完整的合约源代码，即使没有代码被实际改变。
+
+在Substrate中，合约部署过程分为两个步骤。
+
+- 将合约代码上传到区块链上。
+- 创建合约的实例。
+
+通过这种模式，你可以在区块链上存储一次像ERC20标准的智能合约的代码，然后将其实例化任意次数。你不需要反复重新加载相同的源代码，所以你的智能合约不会在区块链上消耗不必要的资源。
+
+#### 上传合约代码
+
+在本教程中，你使用Contracts UI前端在Substrate链上部署flipper合约。
+
+要上传智能合约的源代码。
+
+- 在网页浏览器中打开Contracts UI。[Substrate Contracts UI](https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944)
+- 确认你已连接到本地节点。
+- 点击添加新合约。
+- 点击上传新合约代码。
+- 选择一个账户来创建一个合约实例。
+       你可以选择任何现有账户，包括预定义账户，如alice。
+- 为智能合约键入一个描述性的名称，例如，Flipper contract。
+- 浏览并选择或拖放包含捆绑Wasm blob和元数据的`flipper.contract`文件到上传部分。
+![[Pasted image 20220908143125.png]]
+- 点击下一步
+
+#### 在区块链上创建一个实例
+
+智能合约作为Substrate区块链上的账户系统的延伸而存在。当你创建该智能合约的实例时，Substrate会创建一个`新的AccountId`来存储智能合约管理的任何余额，并允许你与该合约进行互动。
+
+在你上传智能合约并点击下一步后，合约用户界面会显示关于智能合约内容的信息。
+
+要创建实例。
+
+- 审查并接受智能合约初始版本的默认Deployment constructor选项。
+- 审查并接受默认的允许最大Gas 200000。‘’
+![[Pasted image 20220908143455.png]]
+- 点击下一步
+     该交易现在已经排队了。如果你需要进行修改，你可以点击 "back"来修改输入。
+![[Pasted image 20220908143542.png]]
+- 点击上传和实例化
+
+![[Pasted image 20220908143605.png]]
+
+
+### 调用合约
+
+现在你的合约已经部署在区块链上，你可以与它互动。默认的flipper智能合约有两个函数--`flip()`和`get()`--你可以使用合约用户界面来尝试它们。
+
+
+#### get() function
+
+当你实例化合约时，你将翻转合约值的初始值设置为false。你可以使用get()函数来验证当前值为false。
+
+要测试get()函数。
+
+- 从账户列表中选择任何账户。
+     这个合约没有对允许谁发送get()请求进行限制。
+- 选择get()。bool从要发送的消息列表中选择。
+- 点击读取。
+- 确认在调用结果中返回的值是false。
+
+![[Pasted image 20220908143839.png]]
+
+
+#### flip() funtion
+
+flip()函数将值从假变为真。翻转bool值
+
+要测试flip()函数。
+
+- 从账户列表中选择任何预定义的账户。
+> flip()函数是一个改变链状态的交易，需要一个有资金的账户来执行调用。因此，你应该选择一个有预定义账户余额的账户，如alice账户。
+
+- 从要发送的消息列表中选择flip()。
+- 点击调用。
+- 在调用结果中验证交易是否成功。
+
+![[Pasted image 20220908144056.png]]
+
+- 选择get()。bool从要发送的消息列表中选择。
+- 点击读取。
+- 在调用结果中验证新值是否为真。
+
+![[Pasted image 20220908144128.png]]
+
+看到以上步骤，flip()函数因为是要改变状态，所以是要花钱的，会从你的caller账户里面扣除调用费用。所以要发送Extrinsic，可以看到三个pallet发出的事件:
+
+```txt
+balances:Withdraw
+transactionPayment:TransactionFeePaid
+system:ExtrinsicSuccess
+```
+
+到此也验证了，开发合约仅仅只需要根据之前的教程，把contracts pallet 加入到runtime中就行了。就不需要自己下载contract node，这样可以加深理解。
+
+## 开发一个合约
+
+这章的教程会开发一个新合约，是一个累加计数器，调用一次就加一。
+
+### 智能合约和ink!
+
+在之前的教程中，你安装了`cargo-contract`软件包，可以通过命令行访问ink！编程语言。ink！语言是一种嵌入式特定领域语言 [Embedded domain specific language - HaskellWiki](https://wiki.haskell.org/Embedded_domain_specific_language) 。这种语言使你能够使用Rust编程语言编写基于WebAssembly的智能合约。
+
+该语言使用特殊化的`#[ink(...)]`属性宏来使用标准的Rust模式。这些属性宏描述了你的智能合约的不同部分所代表的内容，因此它们可以被转化为与Substrate兼容的WebAssembly字节码。
+
+
+### 创建一个新的合约工程
+
+```bash
+cargo contract new incrementer
+cd incrementer
+cargo +nightly test
+cargo +nightly contract build
+```
+
+### 存储简单的值
+
+现在你有了一些incrementer智能合约的启动源代码，你可以引入一些新功能。例如，这个智能合约需要存储简单的值。下面的代码说明了如何使用`#[ink(storage)]`属性宏来为这个合约存储简单的值。
+
+```rust
+#[ink(storage)]
+pub struct MyContract {
+	// Store a bool
+	my_bool: bool,
+	// Store a number
+	my_number: u32,
+}
+```
+
+#### 支持的类型
+
+substrate智能合约支持大多数Rust常见的数据类型，包括布尔、无符号和有符号整数、字符串、元组和数组。这些数据类型使用Parity scale codec 进行编码和解码 [paritytech/parity-scale-codec: Lightweight, efficient, binary serialization and deserialization codec (github.com)](https://github.com/paritytech/parity-scale-codec) ，以便在网络上高效传输。
+
+除了可以使用scale codec的普通Rust类型外，ink！语言还支持Substrate-specific类型，如`AccountId`、`Balance`和`Hash`，就像它们是primitives类型一样。下面的代码说明了如何为这个合同存储一个`AccountId`和`Balance`。
+
+```rust
+// We are importing the default ink! types
+use ink_lang as ink;
+
+#[ink::contract]
+mod MyContract {
+
+	// Our struct will use those default ink! types
+	#[ink(storage)]
+	pub struct MyContract {
+		// Store some AccountId
+		my_account: AccountId,
+		// Store some Balance
+		my_balance: Balance,
+	}
+	/* --snip-- */
+}
+```
+
+#### Constructors
+
+每个 ink！智能合约必须至少有一个构造函数，在合约创建时运行。然而，如果需要，一个智能合约可以有多个构造函数。下面的代码说明了使用多个构造函数。
+
+```rust
+use ink_lang as ink;
+
+#[ink::contract]
+mod mycontract {
+
+	#[ink(storage)]
+	pub struct MyContract {
+		number: u32,
+	}
+
+	impl MyContract {
+		/// Constructor that initializes the `u32` value to the given `init_value`.
+		#[ink(constructor)]
+		pub fn new(init_value: u32) -> Self {
+			Self {
+				number: init_value,
+			}
+		}
+
+		/// Constructor that initializes the `u32` value to the `u32` default.
+		///
+		/// Constructors can delegate to other constructors.
+		#[ink(constructor)]
+		pub fn default() -> Self {
+			Self {
+				number: Default::default(),
+			}
+		}
+	/* --snip-- */
+	}
+}
+```
+
+### 更新你的合约
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod incrementer {
+
+    /// Defines the storage of your contract.
+    /// Add new fields to the below struct in order
+    /// to add new static storage fields to your contract.
+    #[ink(storage)]
+    pub struct Incrementer {
+        /// Stores a single `bool` value on the storage.
+       my_count: i32,
+    }
+
+    impl Incrementer {
+        /// Constructor that initializes the `bool` value to the given `init_value`.
+        #[ink(constructor)]
+        pub fn new(init_value: i32) -> Self {
+            Self { my_count: init_value }
+        }
+
+     
+        /// Constructors can delegate to other constructors.
+        #[ink(constructor)]
+        pub fn default() -> Self {
+            Self::new(Default::default())
+        }
+
+        #[ink(message)]
+        pub fn incre(&mut self, by: i32) {
+            self.my_count += by;
+        }
+
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        pub fn get(&self) -> i32 {
+            self.my_count
+        }
+    }
+
+    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
+    /// module and test functions are marked with a `#[test]` attribute.
+    /// The below code is technically just normal Rust code.
+    #[cfg(test)]
+    mod tests {
+        /// Imports all the definitions from the outer scope so we can use them here.
+        use super::*;
+
+        /// Imports `ink_lang` so we can use `#[ink::test]`.
+        use ink_lang as ink;
+
+        /// We test a simple use case of our contract.
+        #[ink::test]
+        fn it_works() {
+           let contract = Incrementer::default();
+           assert_eq!(contract.get(), 0);
+
+           let mut contract = Incrementer::new(32);
+           assert_eq!(contract.get(), 32);
+           contract.incre(5);
+           assert_eq!(contract.get(), 32 + 5);
+           contract.incre(-2);
+           assert_eq!(contract.get(), 32 + 5 - 2);
+        }
+    }
+}
+
+```
+
+以上就是更新完成的累加器合约的完整代码, 并且`cargo +nightly test`无错误
+
+### 加一个得到一个存储值的函数
+
+```rust
+/// Simply returns the current value of our `bool`.
+#[ink(message)]
+pub fn get(&self) -> i32 {
+	self.my_count
+}
+```
+
+### 加一个修改存储值的函数
+
+```rust
+#[ink(message)]
+pub fn incre(&mut self, by: i32) {
+	self.my_count += by;
+}
+```
+
+#### 构建WASM contract
+
+```bash
+cargo +nightly contract build
+```
+
+### 部署和测试智能合约
+
+拿到`./target/ink/incrementer.contact`文件把其上传至substrate contract页面。按照其的方法测试。
+
+## 在合约中使用maps存储值
+
+在之前的开发智能合约教程中，你开发了一个用于存储和检索单个数字的智能合约。本教程说明了你如何扩展你的智能合约的功能，以管理每个用户的一个数字。为了添加这个功能，你将使用Mapping类型。(有点像ERC20的发币的感觉了)
+
+ink！语言提供了`Mapping`类型 [Mapping in ink_storage - Rust (paritytech.github.io)](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html)，使你能够将数据存储为键值对。例如，下面的代码说明了将一个用户映射到一个号码。
+
+```rust
+#[ink(storage)]
+pub struct MyContract {
+	// Store a mapping from AccountIds to a u32
+	my_number_map: ink_storage::Mapping<AccountId, u32>,
+}
+```
+
+通过`Mapping`数据类型，你可以为每个键存储一个唯一的存储值实例。在本教程中，每个`AccountId`代表一个键，它映射到一个且只有一个存储的数字`my_value`。每个用户只能存储、递增和检索与他或她自己的`AccountId`相关的值。
+
+### 初始化一个mapping
+
+第一步是初始化一个`AccountId`和一个存储值之间的mapping。你必须在你的合约中使用映射之前总是初始化它，以避免映射错误和不一致。要初始化一个mapping，你需要做以下工作。
+
+- 在存储结构上添加 `SpreadAllocate` trait。
+- 指定映射的键和映射到它的值。
+- 调用 `ink_lang::utils::initalize_contract` 函数来初始化该合约的映射。
+下
+面的例子说明了如何初始化一个映射和检索一个值。
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod mycontract {
+    use ink_storage::traits::SpreadAllocate;
+
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct MyContract {
+        // Store a mapping from AccountIds to a u32
+        map: ink_storage::Mapping<AccountId, u32>,
+    }
+
+    impl MyContract {
+        #[ink(constructor)]
+        pub fn new(count: u32) -> Self {
+            // This call is required to correctly initialize the
+            // Mapping of the contract.
+            ink_lang::utils::initialize_contract(|contract: &mut Self| {
+                let caller = Self::env().caller();
+                contract.map.insert(&caller, &count);
+            })
+        }
+
+        #[ink(constructor)]
+        pub fn default() -> Self {
+            ink_lang::utils::initialize_contract(|_| {})
+        }
+
+        // Get the number associated with the caller's AccountId, if it exists
+        #[ink(message)]
+        pub fn get(&self) -> u32 {
+            let caller = Self::env().caller();
+            self.map.get(&caller).unwrap_or_default()
+        }
+    }
+}
+```
+
+
+
+#### 鉴别一个contract caller
+
+在前面的例子中，你可能已经注意到`self.env().caller()`函数的调用。这个函数在整个合约逻辑中都是可用的，并且总是返回合约的调用者(contract caller)。值得注意的是，合约调用者与Origin调用者(origin caller)不一样。如果一个用户访问了一个合约，然后调用了一个后续的合约，那么第二个合约中的`self.env().caller()`就是第一个合约的地址，而不是原来的(original)用户。也就是origin caller是最初发起调用的人。
+
+#### 使用contract的caller
+
+在很多情况下，拥有合约调用者是有用的。例如，你可以使用`self.env().caller()`来创建一个访问控制层，只允许用户访问自己的值。你也可以使用`self.env().caller()`来在合约部署期间保存合约所有者(contract owner)。比如说。
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod mycontract {
+
+	#[ink(storage)]
+	pub struct MyContract {
+		// Store a contract owner
+		owner: AccountId,
+	}
+
+	impl MyContract {
+		#[ink(constructor)]
+		pub fn new() -> Self {
+			Self {
+				owner: Self::env().caller();
+			}
+		}
+		/* --snip-- */
+	}
+}
+```
+
+因为你已经用owner标识符保存了合约调用者，所以你以后可以编写函数来检查当前合约调用者是否是合约的所有者。
+
+### 给智能合约加上mapping
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod mapping {
+    use ink_storage::traits::SpreadAllocate;
+    /// Defines the storage of your contract.
+    /// Add new fields to the below struct in order
+    /// to add new static storage fields to your contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Mapping {
+        /// Stores a single `bool` value on the storage.
+       my_map: ink_storage::Mapping<AccountId, i32>,
+
+       value: i32,
+    }
+
+    impl Mapping {
+        /// Constructor that initializes the `bool` value to the given `init_value`.
+        #[ink(constructor)]
+        pub fn new(init_value: i32) -> Self {
+           ink_lang::utils::initialize_contract(|contract: &mut Self| {
+                contract.value = init_value;
+                let caller = Self::env().caller();
+                contract.my_map.insert(&caller, &0);
+           })
+        }
+
+        #[ink(constructor)]
+        pub fn default() -> Self {
+            ink_lang::utils::initialize_contract(| contract: &mut Self| {
+                contract.value = Default::default();
+            })
+        }
+
+        #[ink(message)]
+        pub fn get_mine(&self) -> i32 {
+            let caller = Self::env().caller();
+            self.my_map.get(&caller).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn get(&self) -> i32 {
+            self.value
+        }
+    }
+
+    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
+    /// module and test functions are marked with a `#[test]` attribute.
+    /// The below code is technically just normal Rust code.
+    #[cfg(test)]
+    mod tests {
+
+        /// Imports all the definitions from the outer scope so we can use them here.
+        use super::*;
+
+        /// Imports `ink_lang` so we can use `#[ink::test]`.
+        use ink_lang as ink;
+
+    
+
+        /// We test a simple use case of our contract.
+        #[ink::test]
+        fn it_works() {
+           let contract = Mapping::new(11);
+           assert_eq!(contract.get(), 11);
+           assert_eq!(contract.get_mine(), 0);
+        }
+    }
+}
+
+```
+
+### 插入，更新或删除
+
+Incrementer合约的最后一步是允许用户更新自己的值。你可以使用对Mapping API的调用，在智能合约中提供这一功能。
+
+`ink_storage` Mapping提供了对存储项的直接访问。例如，你可以通过调用Mapping::insert()，用现有的key替换之前为一个存储项持有的值。你也可以通过使用Mapping::get()首先从存储中读取数值，然后用Mapping::insert()更新数值。如果在给定的key上没有现有的值，Mapping::get()会返回None。
+
+因为Mapping API提供了对存储的直接访问，你可以使用Mapping::remove()方法来从存储中移除给定键的值。
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod mapping {
+    use ink_storage::traits::SpreadAllocate;
+    /// Defines the storage of your contract.
+    /// Add new fields to the below struct in order
+    /// to add new static storage fields to your contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Mapping {
+        /// Stores a single `bool` value on the storage.
+       my_map: ink_storage::Mapping<AccountId, i32>,
+
+       value: i32,
+    }
+
+    impl Mapping {
+        /// Constructor that initializes the `bool` value to the given `init_value`.
+        #[ink(constructor)]
+        pub fn new(init_value: i32) -> Self {
+           ink_lang::utils::initialize_contract(|contract: &mut Self| {
+                contract.value = init_value;
+                let caller = Self::env().caller();
+                contract.my_map.insert(&caller, &0);
+           })
+        }
+
+        #[ink(constructor)]
+        pub fn default() -> Self {
+            ink_lang::utils::initialize_contract(| contract: &mut Self| {
+                contract.value = Default::default();
+            })
+        }
+
+        #[ink(message)]
+        pub fn get_mine(&self) -> i32 {
+            let caller = Self::env().caller();
+            self.my_map.get(&caller).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn get(&self) -> i32 {
+            self.value
+        }
+
+        #[ink(message)]
+        pub fn incre_mine(&mut self, by: i32) {
+            let caller = Self::env().caller();
+            let my_value = self.get_mine();
+            self.my_map.insert(caller, &(my_value + by));
+        }
+
+        #[ink(message)]
+        pub fn remove_mine(&mut self) {
+            self.my_map.remove(Self::env().caller());
+        }
+    }
+
+    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
+    /// module and test functions are marked with a `#[test]` attribute.
+    /// The below code is technically just normal Rust code.
+    #[cfg(test)]
+    mod tests {
+
+        /// Imports all the definitions from the outer scope so we can use them here.
+        use super::*;
+
+        /// Imports `ink_lang` so we can use `#[ink::test]`.
+        use ink_lang as ink;
+
+    
+
+        /// We test a simple use case of our contract.
+        #[ink::test]
+        fn it_works() {
+           let mut contract = Mapping::new(11);
+           assert_eq!(contract.get(), 11);
+           assert_eq!(contract.get_mine(), 0);
+
+           contract.incre_mine(5);
+           assert_eq!(contract.get_mine(), 5);
+           contract.incre_mine(5);
+           assert_eq!(contract.get_mine(), 10);
+
+           contract.remove_mine();
+           assert_eq!(contract.get_mine(), 0);
+        }
+    }
+}
+
+```
+
+至于编译，部署和测试就不赘述了。部署合约的时候，可以看到相关事件被触发:
+
+```txt
+balances:Withdraw
+system:NewAccount
+balances:Endowed
+balances:Transfer (x2)
+balances:Reserved (x3)
+contracts:CodeStored
+contracts:Instantiated
+transactionPayment:TransactionFeePaid
+system:ExtrinsicSuccess
+```
+
+
+## 构建一个token合约
+
+
+
+## 合约开发的troubleshoot
+
+### Unexpected epoch change
+
+如果你中断了一个正在运行的节点而没有正确地停止它--例如，通过关闭终端或你的计算机切换到睡眠模式--你可能会看到以下错误。
+
+```bash
+ClientImport("Unexpected epoch change")
+```
+
+如果你看到这个error，那么就重新启动开发节点。
+
+```bash
+substrate-contracts-node --dev
+```
+
+这条命令清除了所有运行中的节点状态。重启节点后，重复你在节点关闭前执行的任何步骤。例如，重新部署你以前上传的任何合约。
+
+
+
+### Oudated contracts in local storage
+
+Contracts UI使用它自己的local storage来跟踪你所部署的合约。如果你使用Contracts UI部署了一个合同，然后为你的节点清除链数据，你会被提示重置你的local storage。在你为Contracts UI重置local storage后，重复你在清除节点前执行的任何步骤，并重新部署你以前上传的任何合约。
+
+相当于这个contracts UI利用了浏览器的功能。[Substrate Contracts UI](https://contracts-ui.substrate.io/)
+
+### ink!的参考
+
+- [ink | Parity's ink! to write smart contracts. (paritytech.github.io)](https://paritytech.github.io/ink/)
+- [Overview | ink! documentation (substrate.io)](https://ink.substrate.io/)
+- [ink/examples at master · paritytech/ink (github.com)](https://github.com/paritytech/ink/tree/master/examples)
