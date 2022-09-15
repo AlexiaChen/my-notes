@@ -153,7 +153,7 @@ RMRK是一个 "hack"，是直接在Kusama中继链之上的强制标准。由于
 
 Moonbeam和Polkadot/Kusama对应物Moonriver是具有Ethereum RPC endpoint的完整EVM部署。也就是RPC与ETH一致。
 
-这意味着Moonriver/Moonbeam的用户和开发者可以使用提供给其他EVM链的整个工具包（如Hardhat、Remix、Truffle、Metamask等技术堆栈），使其在吸引现有用户群方面有一个明显的先发优势。Moonriver是Moonbeam的测试网。
+这意味着Moonriver/Moonbeam的用户和开发者可以使用提供给其他EVM链的整个工具包（如Hardhat、Remix、Truffle、Metamask等技术堆栈），使其在吸引现有用户群方面有一个明显的先发优势。Moonriver是Moonbeam的测试网。这个Moonriver是在kusama这个金丝雀网络上的平行链的。
 
 然而，必须注意的是，Moonbeam是一个EVM链，因此在定制和NFT的功能丰富性方面会受到与任何其他EVM链相同的限制。
 

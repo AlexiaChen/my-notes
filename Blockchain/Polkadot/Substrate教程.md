@@ -348,8 +348,221 @@ TODO
 
 ## 升级运行中的网络
 
-TODO
+与许多区块链不同，Substrate开发框架支持对作为区块链核心的runtime进行无叉升级。大多数区块链项目需要对代码库进行硬分叉(相当于链上的逻辑用高度隔离) [Glossary | Substrate_ Docs](https://docs.substrate.io/reference/glossary/#fork) ，以支持新功能的持续开发或对现有功能的增强。有了Substrate，你可以部署增强的runtime功能--包括破坏性的变化--而不需要硬分叉。因为runtime的定义本身就是Substrate链状态中的一个元素，网络参与者可以通过调用交易中的`set_code`函数来更新这个值[Call in frame_system::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/frame_system/pallet/enum.Call.html#variant.set_code)。因为对runtime状态的更新是使用区块链的共识机制和加密保证来验证的，网络参与者可以使用区块链本身来分发更新或扩展的runtime逻辑，而不需要分叉链或发布新的区块链客户端。
 
+本教程说明了如何通过向现有 Substrate runtime部署以下更改来执行forkless升级。
+
+- 将Scheduler pallet添加到runtime中。
+- 使用Scheduler pallet来增加网络账户的最低余额。
+
+### 使用Sudo pallet授权升级
+
+在FRAME中，`Root origin`标识了runtime管理员。只有这个管理员可以通过调用`set_code`函数来更新runtime。为了使用`Root origin`调用这个函数，你可以使用Sudo pallet中的`sudo`函数来指定拥有超级用户管理权限的账户。
+
+默认情况下，node template的chain spec文件指定`alice`开发账户是Sudo管理账户的所有者(owner)。因此，本教程使用`alice`账户来执行runtime升级。
+
+#### runtime升级的资源核算
+
+分发派遣到substrate runtime的函数调用总是与一个权重相关 [Glossary | Substrate_ Docs](https://docs.substrate.io/reference/glossary/#weight) ，以考虑到资源的使用。FRAME system模块对这些交易可以使用的块长度和块重量设置了界限。然而，`set_code`函数被有意设计为消耗一个块中可容纳的最大权重。迫使runtime升级消耗整个块，可以防止同一个区块的交易在不同版本的runtime上执行。
+
+`set_code`函数的权重注解也指定了该函数属于操作类(Operational Class)，因为它提供了网络功能。被标识为操作性的函数调用。
+
+- 可以消耗一个块的整个权重限制。
+- 被赋予最大的优先权。
+- 免于支付交易费用。
+
+#### 管理资源核算
+
+在本教程中，`sudo_unchecked_weight`函数被用来调用runtime升级的`set_code`函数。`sudo_unchecked_weight`函数与`sudo`函数相同，只是它支持一个额外的参数来指定调用的权重。这个参数使你可以绕过资源核算保障措施，为调度`set_code`函数的调用指定一个零的权重。这个设置允许一个区块花费“无限的时间”来计算，以确保runtime升级不会失败，无论操作多么复杂。它可以花费所有需要的时间来成功或失败。
+
+### 添加scheduler pallet来对当前的runtime进行升级
+
+一般情况下，默认node template节点不包括scheduler pallet，所以我们就用这个来演示升级，首先启动一个无该pallet的node template
+
+- 启动
+
+```bash
+./target/release/node-template --dev
+```
+
+- 然后打开`node-template/runtime/Cargo.toml`，加入`[dependencies]`：
+
+```toml
+pallet-scheduler = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.28" }
+```
+
+- 添加到features list:
+
+```toml
+[features]
+default = ["std"]
+std = [
+ ...
+ "pallet-scheduler/std",
+ ...
+```
+
+- 添加Scheduler pallet要求的类型，在`runtime/src/lib.rs`中
+
+```rust
+parameter_types! {
+ pub MaximumSchedulerWeight: Weight = 10_000_000;
+ pub const MaxScheduledPerBlock: u32 = 50;
+}
+```
+
+- 加入Scheduler pallet的Config trait实现
+
+```rust
+impl pallet_scheduler::Config for Runtime {
+ type Event = Event;
+ type Origin = Origin;
+ type PalletsOrigin = OriginCaller;
+ type Call = Call;
+ type MaximumWeight = MaximumSchedulerWeight;
+ type ScheduleOrigin = frame_system::EnsureRoot<AccountId>;
+ type MaxScheduledPerBlock = MaxScheduledPerBlock;
+ type WeightInfo = ();
+ type OriginPrivilegeCmp = EqualPrivilegeOnly;
+ type PreimageProvider = ();
+ type NoPreimagePostponement = ();
+}
+```
+
+- 把该pallet加入到`construct_runtime!`宏中
+
+```rust
+construct_runtime!(
+ pub enum Runtime where
+ Block = Block,
+ NodeBlock = opaque::Block,
+ UncheckedExtrinsic = UncheckedExtrinsic
+ {
+   /*** snip ***/
+   Scheduler: pallet_scheduler,
+ }
+);
+```
+
+- 在文件的顶部加入之前Config中需要的trait依赖
+
+```rust
+pub use frame_support::traits::EqualPrivilegeOnly;
+```
+
+- 累加`spec_version`字段[RuntimeVersion in sp_version - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sp_version/struct.RuntimeVersion.html#structfield.spec_version)，在`RuntimeVersion` struct中 [RuntimeVersion in sp_version - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sp_version/struct.RuntimeVersion.html)， 相当于就是升级runtime的版本
+
+```rust
+pub const VERSION: RuntimeVersion = RuntimeVersion {
+ spec_name: create_runtime_str!("node-template"),
+ impl_name: create_runtime_str!("node-template"),
+ authoring_version: 1,
+ spec_version: 101,  // *Increment* this value, the template uses 100 as a base
+ impl_version: 1,
+ apis: RUNTIME_API_VERSIONS,
+ transaction_version: 1,
+};
+```
+
+查看`RuntimeVersion` struct的组成部分。
+
+- `spec_name`指定了runtime的名称。
+- `impl_name`指定了客户端的名称。
+- `authoring_version`指定块作者的版本 [Glossary | Substrate_ Docs](https://docs.substrate.io/reference/glossary/#author) 。
+- `spec_version`指定了runtime的版本。
+- `impl_version`指定了客户端的版本。
+- `apis`指定支持的API列表。
+- `transaction_version`指定了可分发函数接口的版本。[Glossary | Substrate_ Docs](https://docs.substrate.io/reference/glossary/#dispatch)
+
+要升级runtime，你必须增加`spec_version`。更多信息，请参阅FRAME system模块[substrate/lib.rs at v3.0.0 · paritytech/substrate (github.com)](https://github.com/paritytech/substrate/blob/v3.0.0/frame/system/src/lib.rs) 和`can_set_code`函数。
+
+- 以上修改完成就可以编译了`cargo build --release -p node-template-runtime`
+- 连接上[Polkadot/Substrate Portal](https://polkadot.js.org/apps/#/extrinsics?rpc=ws://127.0.0.1:9944) 中的local node来升级runtime
+- 选择`alice`账户，在Devloper的下面选择`Extrinsic`子页面，在sudo pallet中提交对`sudoUncheckedWeight`函数的调用，并从system pallet中调用`setCode`函数作为其参数。
+
+![[Pasted image 20220909164839.png]]
+
+- 选择`file upload`，然后选择或拖放你为runtime生成的WebAssembly文件。
+
+例如，导航选择`target/release/wbuild/node-template-runtime/node_template_runtime.compact.compressed.wasm`文件。
+
+将`_weight`参数保留为默认的0。
+
+![[Pasted image 20220909164953.png]]
+- 点击提交交易
+- 检查授权然后点击Sign and Submit
+
+在交易被包含在一个区块中后，显示在Polkadot-JS应用程序中的版本号表明，现在的runtime的版本是`101`。
+
+![[Pasted image 20220909165120.png]]
+
+如果你的本地节点在终端产生的块与浏览器中显示的一致，你就完成了一次成功的runtime升级。
+
+接下来，我们将
+
+- 升级你的runtime版本
+- 使用Scheduler pallet在你的运行中的链上安排调度你的runtime升级
+
+### 调度安排一个升级
+
+现在，node template已经升级到包含了Scheduler pallet的runtime，可以使用`schedule`函数 [Call in pallet_scheduler::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_scheduler/pallet/enum.Call.html#variant.schedule) 来执行下一次runtime升级。在上一部分中，`sudo_unchecked_weight`函数被用来覆盖与`set_code`函数相关的权重；在这一部分中，runtime升级将被计划，以便它可以作为一个块中唯一的extrinsic被处理。
+
+#### 准备一个升级的runtime
+
+这次升级比前一次更直接，只需要更新`runtime/src/lib.rs`中除了runtime的`spec_version`之外的一个值。
+
+```rust
+pub const VERSION: RuntimeVersion = RuntimeVersion {
+ spec_name: create_runtime_str!("node-template"),
+ impl_name: create_runtime_str!("node-template"),
+ authoring_version: 1,
+ spec_version: 102,  // *Increment* this value.
+ impl_version: 1,
+ apis: RUNTIME_API_VERSIONS,
+ transaction_version: 1,
+};
+
+/*** snip ***/
+
+parameter_types! {
+ pub const ExistentialDeposit: u128 = 1000;  // Update this value.
+ pub const MaxLocks: u32 = 50;
+}
+
+/*** snip ***/
+```
+
+这个变化增加了Balances pallet的`ExistentialDeposit`的值--从Balances pallet的角度来看，保持一个账户存活所需的最低余额。
+
+请记住，这一变化不会导致所有余额在500到1000之间的账户被清除回收--这需要存储迁移 (storage migration)[Upgrade the runtime | Substrate_ Docs](https://docs.substrate.io/build/upgrade-the-runtime/#storage-migration) ，这不在本教程的范围之内。
+
+#### 构建一个升级的runtime
+
+```bash
+cargo build --release -p node-template-runtime
+```
+
+这将覆盖任何以前的构建artifacts! 因此，如果你想手头有一份最后runtime Wasm构建文件的副本，一定要把它们复制到别的地方。也就是要备份上一次的runtime的WASM文件。以准备你调整回来
+
+#### 升级runtime
+
+在上一节中，Scheduler pallet被配置为Root origin作为其`ScheduleOrigin` [Config in pallet_scheduler::pallet - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_scheduler/pallet/trait.Config.html#associatedtype.ScheduleOrigin) ，` type ScheduleOrigin = frame_system::EnsureRoot<AccountId>;` 这意味着可以使用`sudo`函数（而不是`sudo_unchecked_weight`）来调用`schedule`函数。使用这个链接来打开Polkadot JS应用程序用户界面的Sudo标签：
+
+https://polkadot.js.org/apps/#/sudo?rpc=ws://127.0.0.1:9944
+
+等到所有其他字段都填好后再提供`when`参数。将`may_periodic`参数留空，优先级参数留为默认值0。 选择`System pallet`的`set_code`函数作为调用参数，并像以前一样提供Wasm二进制。让 "with weight override "的选项处于`关闭状态`。一旦所有其他字段都填写完毕，使用未来约10个区块（1分钟，因为一个区块6秒间隔）的区块号，填写`when`参数，并快速提交交易。
+
+> 这里的目的是什么？如果自己做过solo chain，以我自己的经历来看，每次升级都要高度隔离，然后发一个预告给广大生态用户，说是在高度XXX的时候，新版本的逻辑上线。这样也可以推测出是多少时间之后上线。因为正儿八经的项目不可能一来就升级。这些都要预留时间给社区的开发者准备。
+
+![[Pasted image 20220909185712.png]]
+
+你可以使用node template的命令行输出或Polkadot JS Apps UI区块浏览器来观察这个预定的调用发生。
+
+![[Pasted image 20220909185803.png]]
+
+在目标块被纳入链中后，Polkadot JS Apps UI左上角的版本号应该反映出运行时版本现在是`102`。
+
+然后，你可以通过使用Polkadot JS Apps UI链状态应用程序 [Polkadot/Substrate Portal](https://polkadot.js.org/apps/#/chainstate/constants?rpc=ws://127.0.0.1:9944) ，从Balances pallet查询`existentialDeposit`常量值，观察升级中的具体变化。
 
 ## 准备一个本地的平行链测试网
 
@@ -2480,6 +2693,1309 @@ system:ExtrinsicSuccess
 
 ## 构建一个token合约
 
+本教程说明了如何使用ink！语言构建一个ERC-20代币合约。ERC-20规范定义了一个可替换代币（FT）的通用标准。有了定义token属性的标准，遵循该规范的开发者就可以建立能够与其他产品和服务互操作的应用程序。
+
+ERC-20 token 标准不是唯一的令牌标准，但它是最常用的标准之一。
+
+### ERC20标准的基础
+
+ERC-20代币标准 [EIP-20: Token Standard (ethereum.org)](https://eips.ethereum.org/EIPS/eip-20) 定义了在以太坊区块链上运行的大多数智能合约的接口。这些标准接口允许个人在现有智能合约平台之上部署自己的加密货币。
+
+如果你回顾一下这个标准，你会发现定义了以下核心功能。
+
+```js
+// ----------------------------------------------------------------------------
+// ERC Token Standard #20 Interface
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
+// ----------------------------------------------------------------------------
+
+contract ERC20Interface {
+    // Storage Getters
+    function totalSupply() public view returns (uint);
+    function balanceOf(address tokenOwner) public view returns (uint balance);
+    function allowance(address tokenOwner, address spender) public view returns (uint remaining);
+
+    // Public Functions
+    function transfer(address to, uint tokens) public returns (bool success);
+    function approve(address spender, uint tokens) public returns (bool success);
+    function transferFrom(address from, address to, uint tokens) public returns (bool success);
+
+    // Contract Events
+    event Transfer(address indexed from, address indexed to, uint tokens);
+    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+}
+```
+
+用户的余额被映射到账户地址，接口允许用户转移他们拥有的代币或允许第三方代表他们转移代币(approval方法配合transferFrom)。最重要的是，必须实现智能合约逻辑，以确保资金不会被无意地创建或销毁，并保护用户的资金不受恶意行为的影响。
+
+请注意，所有的公共函数都返回一个`bool`，只表示调用是否成功。在Rust中，这些函数通常会返回一个`Result`。
+
+以下就是本教程的ERC20模板和完成的最终的ERC20的Rust版合约
+
+- https://docs.substrate.io/assets/tutorials/smart-contracts/erc20-template.rs/
+- https://docs.substrate.io/assets/tutorials/smart-contracts/erc20-final.rs/
+
+
+### 创建token supply
+
+处理ERC-20代币的智能合约类似于Incrementer合约，它使用mapping来存储值 在本教程中，ERC-20合约由固定供应的代币组成，这些代币在合约部署时全部存入与合约所有者(owner)相关的账户中。然后，合约所有者可以将代币分配给其他用户。
+
+你在本教程中创建的简单ERC-20合约并不代表你可以铸造和分发代币的唯一方式。然而，这个ERC-20合约为扩展你在其他教程中所学到的知识以及如何使用 ink！语言来构建更强大的智能合约提供了一个良好的基础。
+
+对于ERC-20代币合约，初始存储包括。
+
+- `total_supply`代表合约中代币的总供应量。
+- `balances`代表每个账户的个人余额。
+
+为了开始，让我们创建一个带有一些模板代码的新项目。
+
+```bash
+cargo contract new erc20
+cd arc20
+cargo +nightly test
+```
+
+然后把`lib.rs` 文件中的内容全部替换成 https://docs.substrate.io/assets/tutorials/smart-contracts/erc20-template.rs/
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod erc20 {
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
+
+    /// Create storage for a simple ERC-20 contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Erc20 {
+        /// Total token supply.
+        total_supply: Balance,
+        /// Mapping from owner to number of owned tokens.
+        balances: Mapping<AccountId, Balance>,
+    }
+
+    impl Erc20 {
+        /// Create a new ERC-20 contract with an initial supply.
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            // Initialize mapping for the contract.
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply)
+            })
+        }
+
+        /// Initialize the ERC-20 contract with the specified initial supply.
+        fn new_init(&mut self, initial_supply: Balance) {
+            let caller = Self::env().caller();
+            self.balances.insert(&caller, &initial_supply);
+            self.total_supply = initial_supply;
+        }
+
+        /// Returns the total token supply.
+        #[ink(message)]
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
+        }
+
+        /// Returns the account balance for the specified `owner`.
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balances.get(owner).unwrap_or_default()
+        }
+    }
+
+	#[cfg(test)]
+	mod tests {
+		use super::*;
+	
+		use ink_lang as ink;
+	
+		#[ink::test]
+		fn new_works() {
+			let contract = Erc20::new(777);
+			assert_eq!(contract.total_supply(), 777);
+		}
+	
+		#[ink::test]
+		fn balance_works() {
+			let contract = Erc20::new(100);
+			assert_eq!(contract.total_supply(), 100);
+			assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+			assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 0);
+		}
+	}
+}
+```
+
+这样就实现了ERC20的基本结构。以上的caller就相当于ETH solidity中的msg.sender了。
+
+要注意一点，合约里面的AccountId和Balance这些都是`#[ink::contract]`这个宏实现的。还有就是如果合约里面没有constructor或ink(message)，那么合约根本编译不过去。
+
+### 上传与实例化合约
+
+如果你想了解目前这个ECR20的基本功能，你可以现在就编译测试
+
+```bash
+cargo +nightly contract build
+```
+
+上传到[Substrate Contracts UI](https://contracts-ui.substrate.io/)
+
+### 代币转账
+
+在这一点上，ERC-20合约有一个用户账户，拥有该合约的代币总供应量。为了使这个合约有用，合约所有者必须能够将代币转移到其他账户。
+
+对于这个简单的ERC-20合约，你将添加一个public  `transfer`函数，使你--作为合约调用者--能够将你拥有的代币转让给另一个用户。
+
+public `transfer`函数调用一个private的`transfer_from_to()`函数。因为这是一个内部函数，它可以被调用而不需要任何授权检查。然而，转移的逻辑必须能够确定`from`账户是否有可用的代币转移到`to`账户。`transfer_from_to()`函数使用合约调用者（`self.env().caller()`）作为`from`账户。有了这个背景，`transfer_from_to()`函数就会做以下工作。
+
+代币转账无非就是from账户的余额减去转账金额，to账户的余额加上转账金额，注意判断余额是否合法就可以了:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod erc20 {
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
+
+    /// Specify ERC-20 error type.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Return if the balance cannot fulfill a request.
+        InsufficientBalance,
+    }
+
+    pub type Result<T> = core::result::Result<T, Error>;
+
+    /// Create storage for a simple ERC-20 contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Erc20 {
+        /// Total token supply.
+        total_supply: Balance,
+        /// Mapping from owner to number of owned tokens.
+        balances: Mapping<AccountId, Balance>,
+    }
+
+    impl Erc20 {
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply);
+            })
+        }
+
+        fn new_init(&mut self, initial_supply: Balance) {
+            let caller = Self::env().caller();
+            self.balances.insert(&caller, &initial_supply);
+            self.total_supply = initial_supply;
+        }
+
+        #[ink(message)]
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
+        }
+
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balances.get(owner).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
+            let from = self.env().caller();
+            self.transfer_from_to(from, to, value)
+        }
+
+        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<()> {
+            let from_balance = self.balance_of(from);
+            if from_balance < value {
+                return Err(Error::InsufficientBalance);
+            }
+
+            self.balances.insert(from, &(from_balance - value));
+            let to_balance = self.balance_of(to);
+            self.balances.insert(to, &(to_balance + value));
+
+            Ok(())
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn it_works() {
+            let mut contract = Erc20::new(32);
+            assert_eq!(contract.total_supply(), 32);
+
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 32);
+            assert_eq!(contract.balance_of(AccountId::from([0x00; 32])), 0);
+
+            let to = AccountId::from([0x00; 32]);
+            
+            assert_eq!(contract.transfer(to, 2).unwrap(), ()); 
+            assert_eq!(contract.balance_of(to), 2);
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 30);
+
+            assert_eq!(contract.transfer(to, 30 + 2).unwrap_err(), Error::InsufficientBalance);
+            
+        }
+    }
+}
+```
+
+以上合约的接口是返回Result，但是ERC20规定的是返回bool，后面我们会慢慢修改合约代码。以事件的方式发出一些通知，比如transfer了多少金额等等。
+
+### 创建事件
+
+ERC-20代币标准规定，合约调用在提交交易时不能直接返回一个值。然而，你可能希望你的智能合约以某种方式表明事件已经发生。例如，你可能想让你的智能合约表明何时进行了一笔交易或`approval`了一项`transfer`。你可以使用事件来发送这些类型的信号。
+
+你可以使用事件来传达任何种类的数据。定义一个事件的数据与定义一个结构相似。应使用`#[ink(event)]`属性来声明事件。
+
+#### 添加一个transfer事件
+
+为了更快地访问事件数据，它们可以有索引字段。你可以通过在该字段上使用`#[ink(topic)]`属性标签来做到这一点。
+
+```rust
+#[ink(event)]
+pub struct Transfer {
+   #[ink(topic)]
+   from: Option<AccountId>,
+   #[ink(topic)]
+   to: Option<AccountId>,
+   value: Balance,
+ }
+```
+
+你可以使用`.unwrap_or()`函数为一个`Option<T>`变量检索数据。
+
+#### 发射(emit)事件
+
+现在你已经声明了事件并定义了事件所包含的信息，你需要添加发射事件的代码。你可以通过调用`self.env().emit_event()`函数来做到这一点，事件名称是该调用的唯一参数。
+
+在这个ERC-20合约中，你想在每次transfer发生时发射一个transfer事件。在代码中，有两个地方出现这种情况。
+
+- 在初始化合约的新调用中。
+- 每次调用 transfer_from_to 的时候。
+
+`from`和`to`字段的值是`Option<AccountId`>数据类型。然而，在初始转移代币的过程中，为初始供应设置的值并不来自任何其他账户。在这种情况下，transfer事件的 from 值为 None。
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod erc20 {
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
+
+    /// Specify ERC-20 error type.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Return if the balance cannot fulfill a request.
+        InsufficientBalance,
+    }
+
+    pub type Result<T> = core::result::Result<T, Error>;
+
+    #[ink(event)]
+    pub struct Transfer {
+        #[ink(topic)]
+        from: Option<AccountId>,
+        #[ink(topic)]
+        to: Option<AccountId>,
+        value: Balance,
+    }
+
+    /// Create storage for a simple ERC-20 contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Erc20 {
+        /// Total token supply.
+        total_supply: Balance,
+        /// Mapping from owner to number of owned tokens.
+        balances: Mapping<AccountId, Balance>,
+    }
+
+    impl Erc20 {
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply);
+            })
+        }
+
+        fn new_init(&mut self, initial_supply: Balance) {
+            let caller = Self::env().caller();
+            self.balances.insert(&caller, &initial_supply);
+            self.total_supply = initial_supply;
+
+            self.env().emit_event(Transfer {
+                from: None,
+                to: Some(caller),
+                value: initial_supply
+            });
+        }
+
+        #[ink(message)]
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
+        }
+
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balances.get(owner).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
+            let from = self.env().caller();
+            self.transfer_from_to(from, to, value)
+        }
+
+        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<()> {
+            let from_balance = self.balance_of(from);
+            if from_balance < value {
+                return Err(Error::InsufficientBalance);
+            }
+
+            self.balances.insert(from, &(from_balance - value));
+            let to_balance = self.balance_of(to);
+            self.balances.insert(to, &(to_balance + value));
+
+            self.env().emit_event(Transfer {
+                from: Some(from),
+                to: Some(to),
+                value: value,
+            });
+
+            Ok(())
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn it_works() {
+            let mut contract = Erc20::new(32);
+            assert_eq!(contract.total_supply(), 32);
+
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 32);
+            assert_eq!(contract.balance_of(AccountId::from([0x00; 32])), 0);
+
+            let to = AccountId::from([0x00; 32]);
+            
+            assert_eq!(contract.transfer(to, 2).unwrap(), ()); 
+            assert_eq!(contract.balance_of(to), 2);
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 30);
+
+            assert_eq!(contract.transfer(to, 30 + 2).unwrap_err(), Error::InsufficientBalance);
+            
+        }
+    }
+}
+```
+
+### 让第三方能够transfer
+
+ERC-20代币合约现在可以在账户之间转移代币，并在发生这种情况时发出事件。作为最后一步，你可以添加`approve`和`transfer_from`函数来启用第三方转账。
+
+启用一个账户代表另一个账户花费代币，允许你的智能合约支持去中心化的交换(也就是去中心化的交易所，DEX)。你可以`approval`你拥有的一些代币代表你进行交易，而不是在合约中直接将你的代币转移给另一个用户。当你等待交易执行时，如果需要，你仍然可以控制和花费你的代币。你也可以`approval`多个合约或用户访问你的代币，所以如果一个合约提供了最好的交易，你不需要把代币从一个合约转移到另一个合约，这可能是一个昂贵和耗时的过程。
+
+为了确保approval和transfer可以安全进行，ERC-20代币合约采用两步流程，分别`approval`和`transfer_from`操作。
+
+
+#### 加入approval逻辑
+
+`approval`另一个账户花费你的代币是第三方transfer过程中的第一步。作为代币所有者，你可以指定任何账户和指定账户可以代表你转移的任何数量的代币。你不必批准你账户中的所有代币，你可以指定一个批准账户允许转移的最大数量。
+
+当你多次调用`approval`时，你会用新的值覆盖以前批准的值。默认情况下，任何两个账户之间的批准值是0。如果你想撤销对你账户中的代币的访问，你可以调用`approval` 函数，值为0。
+
+为了在ERC-20合约中存储approval值，你需要使用一个稍微复杂的`Mapping` key。
+
+由于每个账户可以有不同的approval金额供任何其他账户使用，你需要使用一个元组作为Key映射到到余额值。例如。
+
+```rust
+pub struct Erc20 {
+ /// Balances that can be transferred by non-owners: (owner, spender) -> allowed
+ allowances: ink_storage::Mapping<(AccountId, AccountId), Balance>,
+}
+```
+
+该tuple使用（`owner`，`spender`）来识别花费者账户，该账户被允许代表所有者访问代币，并达到指定的限额(`allowance`)。
+
+加入Approval事件和Error
+
+```rust
+#[ink(event)]
+pub struct Approval {
+   #[ink(topic)]
+   owner: AccountId,
+   #[ink(topic)]
+   spender: AccountId,
+   value: Balance,
+}
+
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum Error {
+   InsufficientBalance,
+   InsufficientAllowance,
+}
+```
+
+最终的代码如下:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod erc20 {
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
+
+    /// Specify ERC-20 error type.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Return if the balance cannot fulfill a request.
+        InsufficientBalance,
+        InsufficientAllowance,
+    }
+
+    pub type Result<T> = core::result::Result<T, Error>;
+
+    #[ink(event)]
+    pub struct Transfer {
+        #[ink(topic)]
+        from: Option<AccountId>,
+        #[ink(topic)]
+        to: Option<AccountId>,
+        value: Balance,
+    }
+
+    #[ink(event)]
+    pub struct Approval {
+        #[ink(topic)]
+        owner: AccountId,
+        #[ink(topic)]
+        spender: AccountId,
+        value: Balance,
+    }
+
+    /// Create storage for a simple ERC-20 contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Erc20 {
+        /// Total token supply.
+        total_supply: Balance,
+        /// Mapping from owner to number of owned tokens.
+        balances: Mapping<AccountId, Balance>,
+        /// support multi third party 
+        allowances: Mapping<(AccountId, AccountId), Balance>,
+    }
+
+    impl Erc20 {
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply);
+            })
+        }
+
+        fn new_init(&mut self, initial_supply: Balance) {
+            let caller = Self::env().caller();
+            self.balances.insert(&caller, &initial_supply);
+            self.total_supply = initial_supply;
+
+            self.env().emit_event(Transfer {
+                from: None,
+                to: Some(caller),
+                value: initial_supply
+            });
+        }
+
+        #[ink(message)]
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
+        }
+
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balances.get(owner).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn approval(&mut self, spender: AccountId, value: Balance) -> Result<()> {
+            let owner = self.env().caller();
+            self.allowances.insert(&(owner, spender), &value);
+            self.env().emit_event(Approval {
+                owner,
+                spender,
+                value
+            });
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+            self.allowances.get((owner, spender)).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
+            let from = self.env().caller();
+            self.transfer_from_to(from, to, value)
+        }
+
+        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<()> {
+            let from_balance = self.balance_of(from);
+            if from_balance < value {
+                return Err(Error::InsufficientBalance);
+            }
+
+            self.balances.insert(from, &(from_balance - value));
+            let to_balance = self.balance_of(to);
+            self.balances.insert(to, &(to_balance + value));
+
+            self.env().emit_event(Transfer {
+                from: Some(from),
+                to: Some(to),
+                value: value,
+            });
+
+            Ok(())
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn it_works() {
+            let mut contract = Erc20::new(32);
+            assert_eq!(contract.total_supply(), 32);
+
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 32);
+            assert_eq!(contract.balance_of(AccountId::from([0x00; 32])), 0);
+
+            let to = AccountId::from([0x00; 32]);
+            
+            assert_eq!(contract.transfer(to, 2).unwrap(), ()); 
+            assert_eq!(contract.balance_of(to), 2);
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 30);
+
+            assert_eq!(contract.transfer(to, 30 + 2).unwrap_err(), Error::InsufficientBalance);
+            
+        }
+
+        #[ink::test]
+        fn approval_test() {
+            let mut contract = Erc20::new(51);
+            let spender = AccountId::from([0x02; 32]);
+            assert_eq!(contract.approval(spender, 12).unwrap(), ());
+            assert_eq!(contract.allowance(AccountId::from([0x01; 32]), spender), 12);
+        }
+
+        
+    }
+}
+```
+
+#### 加入transfer逻辑
+
+现在你已经设置了一个账户代表另一个账户转移代币的`approval`，你需要创建一个`transfer_from`函数，以使已经批准的用户能够转移代币。`transfer_from`函数调用私有的`transfer_from_to`函数来完成大部分的转移逻辑。要授权非所有者转移代币，有几个要求。  
+  
+- `self.env().caller()`合约调用者必须被分配到从账户中可用的代币。  
+- 存储为`allowance`的分配必须多于要转移的价值。  
+
+如果这些要求得到满足，合约将更新的`allowance`插入到`allowances`变量中，并使用指定的`from`和`to`账户调用`transfer_from_to()`函数。  
+  
+记住在调用`transfer_from`时，`self.env().caller()`和`from`账户被用来查询当前的`allowance`，但是`transfer_from`函数是在指定的`from`和`to`账户之间调用的。  
+  
+每当调用`transfer_from`时，有三个账户变量在发挥作用，你需要确保正确使用它们。  
+  
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod erc20 {
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
+
+    /// Specify ERC-20 error type.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Return if the balance cannot fulfill a request.
+        InsufficientBalance,
+        InsufficientAllowance,
+    }
+
+    pub type Result<T> = core::result::Result<T, Error>;
+
+    #[ink(event)]
+    pub struct Transfer {
+        #[ink(topic)]
+        from: Option<AccountId>,
+        #[ink(topic)]
+        to: Option<AccountId>,
+        value: Balance,
+    }
+
+    #[ink(event)]
+    pub struct Approval {
+        #[ink(topic)]
+        owner: AccountId,
+        #[ink(topic)]
+        spender: AccountId,
+        value: Balance,
+    }
+
+    /// Create storage for a simple ERC-20 contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Erc20 {
+        /// Total token supply.
+        total_supply: Balance,
+        /// Mapping from owner to number of owned tokens.
+        balances: Mapping<AccountId, Balance>,
+        /// support multi third party 
+        allowances: Mapping<(AccountId, AccountId), Balance>,
+    }
+
+    impl Erc20 {
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply);
+            })
+        }
+
+        fn new_init(&mut self, initial_supply: Balance) {
+            let caller = Self::env().caller();
+            self.balances.insert(&caller, &initial_supply);
+            self.total_supply = initial_supply;
+
+            self.env().emit_event(Transfer {
+                from: None,
+                to: Some(caller),
+                value: initial_supply
+            });
+        }
+
+        #[ink(message)]
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
+        }
+
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balances.get(owner).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn approval(&mut self, spender: AccountId, value: Balance) -> Result<()> {
+            let owner = self.env().caller();
+            self.allowances.insert(&(owner, spender), &value);
+            self.env().emit_event(Approval {
+                owner,
+                spender,
+                value
+            });
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+            self.allowances.get((owner, spender)).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
+            let from = self.env().caller();
+            self.transfer_from_to(from, to, value)
+        }
+
+        #[ink(message)]
+        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<()> {
+            let caller = self.env().caller();
+            let allowance = self.allowance(from,caller);
+            if allowance < value {
+                return Err(Error::InsufficientAllowance);
+            }
+
+            self.transfer_from_to(from, to, value)?;
+            self.allowances.insert(&(from, caller), &(allowance - value));
+            Ok(())
+        }
+
+        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<()> {
+            let from_balance = self.balance_of(from);
+            if from_balance < value {
+                return Err(Error::InsufficientBalance);
+            }
+
+            self.balances.insert(from, &(from_balance - value));
+            let to_balance = self.balance_of(to);
+            self.balances.insert(to, &(to_balance + value));
+
+            self.env().emit_event(Transfer {
+                from: Some(from),
+                to: Some(to),
+                value: value,
+            });
+
+            Ok(())
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn it_works() {
+            let mut contract = Erc20::new(32);
+            assert_eq!(contract.total_supply(), 32);
+
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 32);
+            assert_eq!(contract.balance_of(AccountId::from([0x00; 32])), 0);
+
+            let to = AccountId::from([0x00; 32]);
+            
+            assert_eq!(contract.transfer(to, 2).unwrap(), ()); 
+            assert_eq!(contract.balance_of(to), 2);
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 30);
+
+            assert_eq!(contract.transfer(to, 30 + 2).unwrap_err(), Error::InsufficientBalance);
+            
+        }
+
+        #[ink::test]
+        fn approval_test() {
+            let mut contract = Erc20::new(51);
+            let spender = AccountId::from([0x02; 32]);
+            assert_eq!(contract.approval(spender, 12).unwrap(), ());
+            assert_eq!(contract.allowance(AccountId::from([0x01; 32]), spender), 12);
+        }
+
+        #[ink::test]
+        fn transfer_from_test() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            assert_eq!(contract.approval(AccountId::from([0x1; 32]), 20).unwrap(), ());
+            assert_eq!(contract.allowance(AccountId::from([0x01; 32]), AccountId::from([0x01; 32])), 20);
+            assert_eq!(contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 10).unwrap(), ()); 
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 10);
+        }
+
+        #[ink::test]
+        fn allowance_test() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            contract.approval(AccountId::from([0x1; 32]), 200).unwrap();
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 200);
+         
+            contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 50).unwrap();
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 50);
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 150);
+            
+            assert_eq!(contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 100).unwrap_err(), Error::InsufficientBalance);
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 150);
+        }
+
+        
+    }
+}
+```
+
+### 编写测试用例
+
+看到上一节的完整代码就包含比较完整的测试用例了。但是最终的合约代码一般是不允许返回`Result<()>`的。一般是返回bool。所以，修改版的如下:
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod erc20 {
+    use ink_storage::{
+        traits::SpreadAllocate,
+        Mapping,
+    };
+
+    /// Specify ERC-20 error type.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Return if the balance cannot fulfill a request.
+        InsufficientBalance,
+        InsufficientAllowance,
+    }
+
+    pub type Result<T> = core::result::Result<T, Error>;
+
+    #[ink(event)]
+    pub struct Transfer {
+        #[ink(topic)]
+        from: Option<AccountId>,
+        #[ink(topic)]
+        to: Option<AccountId>,
+        value: Balance,
+    }
+
+    #[ink(event)]
+    pub struct Approval {
+        #[ink(topic)]
+        owner: AccountId,
+        #[ink(topic)]
+        spender: AccountId,
+        value: Balance,
+    }
+
+    /// Create storage for a simple ERC-20 contract.
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Erc20 {
+        /// Total token supply.
+        total_supply: Balance,
+        /// Mapping from owner to number of owned tokens.
+        balances: Mapping<AccountId, Balance>,
+        /// support multi third party 
+        allowances: Mapping<(AccountId, AccountId), Balance>,
+    }
+
+    impl Erc20 {
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply);
+            })
+        }
+
+        fn new_init(&mut self, initial_supply: Balance) {
+            let caller = Self::env().caller();
+            self.balances.insert(&caller, &initial_supply);
+            self.total_supply = initial_supply;
+
+            self.env().emit_event(Transfer {
+                from: None,
+                to: Some(caller),
+                value: initial_supply
+            });
+        }
+
+        #[ink(message)]
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
+        }
+
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balances.get(owner).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
+            let owner = self.env().caller();
+            self.allowances.insert(&(owner, spender), &value);
+            self.env().emit_event(Approval {
+                owner,
+                spender,
+                value
+            });
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+            self.allowances.get((owner, spender)).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
+            let from = self.env().caller();
+            self.transfer_from_to(from, to, value)
+        }
+
+        #[ink(message)]
+        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<()> {
+            let caller = self.env().caller();
+            let allowance = self.allowance(from,caller);
+            if allowance < value {
+                return Err(Error::InsufficientAllowance);
+            }
+
+            self.transfer_from_to(from, to, value)?;
+            self.allowances.insert(&(from, caller), &(allowance - value));
+            Ok(())
+        }
+
+        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<()> {
+            let from_balance = self.balance_of(from);
+            if from_balance < value {
+                return Err(Error::InsufficientBalance);
+            }
+
+            self.balances.insert(from, &(from_balance - value));
+            let to_balance = self.balance_of(to);
+            self.balances.insert(to, &(to_balance + value));
+
+            self.env().emit_event(Transfer {
+                from: Some(from),
+                to: Some(to),
+                value: value,
+            });
+
+            Ok(())
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn it_works() {
+            let mut contract = Erc20::new(32);
+            assert_eq!(contract.total_supply(), 32);
+
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 32);
+            assert_eq!(contract.balance_of(AccountId::from([0x00; 32])), 0);
+
+            let to = AccountId::from([0x00; 32]);
+            
+            assert_eq!(contract.transfer(to, 2).unwrap(), ()); 
+            assert_eq!(contract.balance_of(to), 2);
+            assert_eq!(contract.balance_of(AccountId::from([0x01; 32])), 30);
+
+            assert_eq!(contract.transfer(to, 30 + 2).unwrap_err(), Error::InsufficientBalance);
+            
+        }
+
+        #[ink::test]
+        fn approval_test() {
+            let mut contract = Erc20::new(51);
+            let spender = AccountId::from([0x02; 32]);
+            assert_eq!(contract.approve(spender, 12).unwrap(), ());
+            assert_eq!(contract.allowance(AccountId::from([0x01; 32]), spender), 12);
+        }
+
+        #[ink::test]
+        fn transfer_from_test() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            assert_eq!(contract.approve(AccountId::from([0x1; 32]), 20).unwrap(), ());
+            assert_eq!(contract.allowance(AccountId::from([0x01; 32]), AccountId::from([0x01; 32])), 20);
+            assert_eq!(contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 10).unwrap(), ()); 
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 10);
+        }
+
+        #[ink::test]
+        fn allowance_test() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            contract.approve(AccountId::from([0x1; 32]), 200).unwrap();
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 200);
+         
+            contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 50).unwrap();
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 50);
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 150);
+            
+            assert_eq!(contract.transfer_from(AccountId::from([0x1; 32]), AccountId::from([0x0; 32]), 100).unwrap_err(), Error::InsufficientBalance);
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(contract.allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])), 150);
+        }
+
+        
+    }
+}
+```
+
+```rust
+#![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_lang as ink;
+
+#[ink::contract]
+mod erc20 {
+    use ink_storage::traits::SpreadAllocate;
+
+    #[ink(event)]
+    pub struct Transfer {
+        #[ink(topic)]
+        from: Option<AccountId>,
+        #[ink(topic)]
+        to: Option<AccountId>,
+        #[ink(topic)]
+        value: Balance,
+    }
+
+    #[ink(event)]
+    pub struct Approval {
+        #[ink(topic)]
+        owner: AccountId,
+        #[ink(topic)]
+        spender: AccountId,
+        #[ink(topic)]
+        value: Balance,
+    }
+
+    #[cfg(not(feature = "ink-as-dependency"))]
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Erc20 {
+        /// The total supply.
+        total_supply: Balance,
+        /// The balance of each user.
+        balances: ink_storage::Mapping<AccountId, Balance>,
+        /// Approval spender on behalf of the message's sender.
+        allowances: ink_storage::Mapping<(AccountId, AccountId), Balance>,
+    }
+
+    impl Erc20 {
+        #[ink(constructor)]
+        pub fn new(initial_supply: Balance) -> Self {
+            ink_lang::utils::initialize_contract(|contract: &mut Self| {
+                contract.total_supply = initial_supply;
+                let caller = Self::env().caller();
+                contract.balances.insert(&caller, &initial_supply);
+
+                // NOTE: `allowances` is default initialized by `initialize_contract`, so we don't
+                // need to do anything here
+
+                Self::env().emit_event(Transfer {
+                    from: None,
+                    to: Some(caller),
+                    value: initial_supply,
+                });
+            })
+        }
+
+        #[ink(message)]
+        pub fn total_supply(&self) -> Balance {
+            self.total_supply
+        }
+
+        #[ink(message)]
+        pub fn balance_of(&self, owner: AccountId) -> Balance {
+            self.balances.get(&owner).unwrap_or_default()
+        }
+
+        #[ink(message)]
+        pub fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
+            // Record the new allowance.
+            let owner = self.env().caller();
+            self.allowances.insert(&(owner, spender), &value);
+
+            // Notify offchain users of the approval and report success.
+            self.env().emit_event(Approval {
+                owner,
+                spender,
+                value,
+            });
+
+            true
+        }
+
+        #[ink(message)]
+        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+            self.allowance_of_or_zero(&owner, &spender)
+        }
+
+        #[ink(message)]
+        pub fn transfer_from(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            value: Balance,
+        ) -> bool {
+            // Ensure that a sufficient allowance exists.
+            let caller = self.env().caller();
+            let allowance = self.allowance_of_or_zero(&from, &caller);
+            if allowance < value {
+                return false
+            }
+
+            let transfer_result = self.transfer_from_to(from, to, value);
+            // Check `transfer_result` because `from` account may not have enough balance
+            //   and return false.
+            if !transfer_result {
+                return false
+            }
+
+            // Decrease the value of the allowance and transfer the tokens.
+            self.allowances.insert((from, caller), &(allowance - value));
+            true
+        }
+
+        #[ink(message)]
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
+            self.transfer_from_to(self.env().caller(), to, value)
+        }
+
+        fn transfer_from_to(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            value: Balance,
+        ) -> bool {
+            let from_balance = self.balance_of(from);
+            if from_balance < value {
+                return false
+            }
+
+            // Update the sender's balance.
+            self.balances.insert(&from, &(from_balance - value));
+
+            // Update the receiver's balance.
+            let to_balance = self.balance_of(to);
+            self.balances.insert(&to, &(to_balance + value));
+
+            self.env().emit_event(Transfer {
+                from: Some(from),
+                to: Some(to),
+                value,
+            });
+
+            true
+        }
+
+        fn allowance_of_or_zero(
+            &self,
+            owner: &AccountId,
+            spender: &AccountId,
+        ) -> Balance {
+            // If you are new to Rust, you may wonder what's the deal with all the asterisks and
+            // ampersends.
+            //
+            // In brief, using `&` if we want to get the address of a value (aka reference of the
+            // value), and using `*` if we have the reference of a value and want to get the value
+            // back (aka dereferencing).
+            //
+            // To read more: https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html
+            self.allowances.get(&(*owner, *spender)).unwrap_or_default()
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn new_works() {
+            let contract = Erc20::new(777);
+            assert_eq!(contract.total_supply(), 777);
+        }
+
+        #[ink::test]
+        fn balance_works() {
+            let contract = Erc20::new(100);
+            assert_eq!(contract.total_supply(), 100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 0);
+        }
+
+        #[ink::test]
+        fn transfer_works() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            assert!(contract.transfer(AccountId::from([0x0; 32]), 10));
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 10);
+            assert!(!contract.transfer(AccountId::from([0x0; 32]), 100));
+        }
+
+        #[ink::test]
+        fn transfer_from_works() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            contract.approve(AccountId::from([0x1; 32]), 20);
+            contract.transfer_from(
+                AccountId::from([0x1; 32]),
+                AccountId::from([0x0; 32]),
+                10,
+            );
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 10);
+        }
+
+        #[ink::test]
+        fn allowances_works() {
+            let mut contract = Erc20::new(100);
+            assert_eq!(contract.balance_of(AccountId::from([0x1; 32])), 100);
+            contract.approve(AccountId::from([0x1; 32]), 200);
+            assert_eq!(
+                contract
+                    .allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])),
+                200
+            );
+
+            assert!(contract.transfer_from(
+                AccountId::from([0x1; 32]),
+                AccountId::from([0x0; 32]),
+                50
+            ));
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(
+                contract
+                    .allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])),
+                150
+            );
+
+            assert!(!contract.transfer_from(
+                AccountId::from([0x1; 32]),
+                AccountId::from([0x0; 32]),
+                100
+            ));
+            assert_eq!(contract.balance_of(AccountId::from([0x0; 32])), 50);
+            assert_eq!(
+                contract
+                    .allowance(AccountId::from([0x1; 32]), AccountId::from([0x1; 32])),
+                150
+            );
+        }
+    }
+}
+```
 
 
 ## 合约开发的troubleshoot

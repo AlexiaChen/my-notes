@@ -4,12 +4,14 @@
     "type": "split",
     "children": [
       {
-        "id": "f40cdc1659d237f3",
+        "id": "d5db0c8395108adc",
         "type": "leaf",
         "state": {
-          "type": "image",
+          "type": "markdown",
           "state": {
-            "file": "Images/Pasted image 20220906093055.png"
+            "file": "Back-end/Database/KV存储.md",
+            "mode": "source",
+            "source": false
           }
         }
       }
@@ -38,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "WSL",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -67,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Images/Pasted image 20220906093055.png",
+                "file": "Back-end/Database/KV存储.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -95,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Images/Pasted image 20220906093055.png",
+                "file": "Back-end/Database/KV存储.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -108,17 +110,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "37dc58cfac316a81",
+  "active": "d5db0c8395108adc",
   "lastOpenFiles": [
-    "Images/a1cfc82899d9b1bfcd0859344134c0e.png",
-    "Blockchain/Polkadot/Substrate教程.md",
-    "Back-end/linux/Git学习笔记.md",
-    "Blockchain/Solidity学习笔记.md",
-    "Crypto/多方安全计算.md",
     "Crypto/零知识证明学习笔记.md",
-    "PL/Java/Java学习笔记.md",
-    "Back-end/Java学习笔记.md",
-    "Blockchain/Move学习笔记.md",
-    "Back-end/系统设计.md"
+    "Blockchain/DeFi/DeFi学习笔记.md",
+    "Back-end/系统设计.md",
+    "Blockchain/ETH/以太坊的Roadmap.md",
+    "Images/Pasted image 20220915110625.png",
+    "Blockchain/Merkle Tree和其证明.md",
+    "Images/Pasted image 20220915110946.png",
+    "Images/Pasted image 20220915083238.png",
+    "Blockchain/ETH/ETH的扩容技术.md",
+    "Blockchain/ETH/ETH的Gas.md"
   ]
 }
