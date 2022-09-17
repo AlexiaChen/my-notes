@@ -4,15 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "d5db0c8395108adc",
+        "id": "925b108bd84a780e",
         "type": "leaf",
         "state": {
-          "type": "markdown",
-          "state": {
-            "file": "Back-end/Database/KV存储.md",
-            "mode": "source",
-            "source": false
-          }
+          "type": "empty",
+          "state": {}
         }
       }
     ],
@@ -40,7 +36,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "T",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +65,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Back-end/Database/KV存储.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +92,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Back-end/Database/KV存储.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -110,17 +104,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "d5db0c8395108adc",
+  "active": "925b108bd84a780e",
   "lastOpenFiles": [
-    "Crypto/零知识证明学习笔记.md",
-    "Blockchain/DeFi/DeFi学习笔记.md",
-    "Back-end/系统设计.md",
+    "Images/Pasted image 20220917145545.png",
     "Blockchain/ETH/以太坊的Roadmap.md",
-    "Images/Pasted image 20220915110625.png",
-    "Blockchain/Merkle Tree和其证明.md",
-    "Images/Pasted image 20220915110946.png",
-    "Images/Pasted image 20220915083238.png",
+    "Blockchain/ETH/ETH的交易.md",
     "Blockchain/ETH/ETH的扩容技术.md",
-    "Blockchain/ETH/ETH的Gas.md"
+    "Blockchain/ETH/区块链扩容之zkRollups.md",
+    "Pasted image 20220917161008.png",
+    "Blockchain/ETH/区块链扩容之Optimistic Rollups.md",
+    "Blockchain/ETH/区块链扩容技术之Plasma.md",
+    "Blockchain/ETH/区块链扩容之状态通道.md",
+    "Blockchain/区块链状态系统.md"
   ]
 }

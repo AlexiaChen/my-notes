@@ -89,6 +89,10 @@ setStorage的Hex-encoded call是:
 
 ![[207084bf10b279104026bfb9aed01ce.png]]
 
+encoded call data `0x1f00000100147863444f54147863444f540c000100000000000000000000000000000001`
+
+注意这个decimal参数必须是external XC-20绑定的对应的token强相关，在这里decimal必须是`12` 不然是bug，到后面平行链转到中继链转账转不回来。
+
 点击提交，然后事件显示无问题:
 
 ```txt
@@ -115,6 +119,7 @@ extrinsic event
 
 ![[5108d5dbf8482e565ad9767236f4a08.png]]
 
+encoded call data `0x1f010001000000000000000000000000000000000000000000`
 
 ```txt
 system.ExtrinsicSuccess
@@ -130,6 +135,8 @@ extrinsic event
 
 ![[9052a4790a68e5367c9e508f66bced4.png]]
 
+
+asset id `42259045809535163221576417993425387648`
 
 - 确认要转移的资产ID ，这里主要是mintable XC-20s [Mintable XC-20s | Moonbeam Docs](https://docs.moonbeam.network/builders/xcm/xc20/mintable-xc20/#retrieve-list-of-mintable-xc-20s)
 
@@ -209,6 +216,7 @@ npm run launch -- --parachain moonbase-0.26.0
 
 ![[Pasted image 20220914163001.png]]
 
+encoded call data `0x630801000100a10f0100010300c0f0f4ab324c46e55d02d0033343b4be8a55532d010400000000070010a5d4e80000000000`
 
 注意，dest肯定是选择目标平行链parachainid是1000. 第二个参数bebeficary选择目标链的账号地址，目标链是Moonbeam的链，所以账号格式是以太坊的格式，选择AccountKey20这个类型，把
 目标平行链的任意一个地址复制进去(这里选择的是名叫`FAITH`这个账户)，assets参数就是选择转多少金额了，因为当时在平行链parachain 1000上创建的external XC-20的资产decimal是12，所以就是`1000000000000` 才相当于1个xcDOT的xc-20资产。最后提交交易，等到上链，就可以在平行链的polkadot js app上看到 Asset上有相应的余额了。
@@ -219,6 +227,35 @@ npm run launch -- --parachain moonbase-0.26.0
 
 #### 平行链到中继链的转账
 
+从上面那一节中可以看到xcDOT的资产上有余额了（上面是转到FAITH账户下，但是统一显示到了xcDOT的资产下面，以此类推），这一小节中，我们把xcDOT又转回到中继链上。在平行链上打开Extrinsic的页面，选择xToken pallet的`transfer`接口。
+
+currencyId肯定就填入ForeignAsset了， dest填写目标中继链的账户地址。 destWeight填写手续费权重 
+
+![[ad543b3c9c4a138c556aaa86917c8e4.png]]
+
+注意以上的transfer的XCM转账会报错，会有一个XcmExecutionFail的事件弹出来，是因为FAITH这个账户下面没有平行链的原生代币，来支付手续费。要往FAITH账户里面充点token。或者换一个方式，从中继链转到平行链的xcDOT，转到ALITH这个有token的账户下面，这样这个ALITH账户就可以成功转回xcDOT到中继链的任意地址了
+
+![[07b05d8c4f6dbcf1f96125627fd0c56.png]]
+
+encoded call data
+`0x1e00018080778c30c20fa2ebc0ed18d2cbca1f0010a5d4e800000000000000000000000101010100d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0000000000000000`
+
+
+根据上图，我们转了1200 amount过去，也就是1.2 xcDOT过去。是转到中继链的FERDIE账户下。你可以在平行链的xcDOT资产下面看到ALITH的账户少了余额
+
+![[71c4e4fe03369b009b5316408d2e791.png]]
+
+并且你还会在中继链的区块链浏览器中看到一个ump pallet的完成事件:
+
+![[09cc19509cba889229945e24d419668.png]]
+
+
+![[06e279add1c3ed246cb2342e98da106.png]]
+
+这里转到中继链的钱，<del>好像在相关账户下找不到金额</del>  这找不到金额是因为中继链是rococo的中继链，里面的原生token是1e12 普朗克。所以把中继链的原生token注册为平行链的external xc-20资产时，`decimal参数必须是12`，这样才正确，不然随便设置，会导致兑换问题，external xc-20必须1:1的兑换。如果可以随便乱设置，那么可以进行跨链套利了。
+
+
+#### 平行链到平行链的转账
 
 
 

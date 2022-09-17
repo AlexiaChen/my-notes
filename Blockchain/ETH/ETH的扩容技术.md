@@ -14,7 +14,9 @@ BTC是建议无信任计算是可能的。ETH即世界计算机，是其交付�
 
 如果交易在以太坊上结算，那么它就获得了以太坊的所有属性。[Haym 在 Twitter: "(1/16) Global Finance Fundamentals: Settlement and the DTCC Who actually owns a stock/bond? What happens when you buy/sell a security? How do we handle the complexity of billions of trades every single day? Looking to understand world trade? This thread is for you!" / Twitter](https://twitter.com/SalomonCrypto/status/1560052032509071360)
 
-状态通道是将执行转移到链外的第一次尝试。channel是两方或多方之间的一次性关系。双方在链上锁定资本，允许他们免费交换IOUs。[Haym 在 Twitter: "(1/14) Blockchain Scaling: State Channels @Bitcoin, @ethereum and all (good) blockchain computers share one important quality: they are SLOW. State channels are the first attempt at changing this and bringing blockchain to scale. Your guide to the original scaling tech. https://t.co/lF3snl8UCJ" / Twitter](https://twitter.com/SalomonCrypto/status/1568621672152039426)
+状态通道是将执行转移到链外的第一次尝试。channel是两方或多方之间的一次性关系。双方在链上锁定资本，允许他们免费交换IOUs。
+
+![[区块链扩容之状态通道]]
 
 来自 ETH的角度来看，一个状态通道是两个txns（每个参与者）：打开和关闭。这些txns代表了更多发生在链外的计算，但最终会结算到主网。
 
@@ -22,7 +24,9 @@ BTC是建议无信任计算是可能的。ETH即世界计算机，是其交付�
 
 Plasma（链）的开发是为了解决这些问题（的一部分）。
 
-Plasma是独立的区块链，其性能远高于（也更中心化）ETH。. 然而，它们通过将数据发布回主网而锚定在世界计算机上。也就是并没有降低一些成本。[Haym 在 Twitter: "(1/19) Blockchain Scaling: Plasma First there were state channels. There there was Plasma, the first persistent-state scaling solution that settled to @ethereum. Your guide to the precursor to modern blockchain scaling. https://t.co/OSuEe6aJez" / Twitter](https://twitter.com/SalomonCrypto/status/1568779570492637185)
+Plasma是独立的区块链，其性能远高于（也更中心化）ETH。. 然而，它们通过将数据发布回主网而锚定在世界计算机上。也就是并没有降低一些成本。
+
+![[区块链扩容技术之Plasma]]
 
 Plasma比状态通道有巨大的改进。
 
@@ -40,20 +44,22 @@ Plasma比状态通道有巨大的改进。
 
 第一类rollup是Optimistic rollup。
 
-Optimistic rollup假设所有发布到主网的txns都是有效的，所以它在链上记录它们。但是，为了以防万一，他们也留下了一个挑战窗口。[Haym 在 Twitter: "(1/24) Blockchain Scaling: Optimistic Rollups Wondering why folks are comfortable bridging assets to @arbitrum? Curious what's going on under @optimismFND's hood? Need to understand how @MetisDAO secures your $ETH? Your guide to the today's premier blockchain scaling solutions. https://t.co/1DDHlfAvre" / Twitter](https://twitter.com/SalomonCrypto/status/1569023606029697024)
+Optimistic rollup假设所有发布到主网的txns都是有效的，所以它在链上记录它们。但是，为了以防万一，他们也留下了一个挑战窗口。
+
+![[区块链扩容之Optimistic Rollups]]
 
 该Optimistic Rollup创建了自己的区块链，任何人都可以观察它是否有欺诈行为。一旦发现，他们可以发布欺诈证明(fraund proof)，证明该批次（the batch，这个的batch是把一堆交易批量提交的意思）是无效的，应该被撤销。
 
 其结果是：在挑战期（最长7天）过去之前，没有任何txn被最终确定（就是在ETH主链上的确认）
-。
+。本质就是为了提升交易性能和成本，这个拖得有点长了，让用户心焦。迟则生变。哈哈。
 
 这给我们带来了区块链扩展的真正解决方案和未来的 ETH: ZK-Rollups。
 
-像他们的Optimistic rollup这位兄弟一样，ZK-rollups将所有(压缩的)数据发布到主网，但他们也提供了一个零知识证明。[Haym 在 Twitter: "(1/23) Blockchain Scaling: Zero-Knowledge Rollups State Channels → Plasma → Optimistic Rollups → ZK-Rollups This is how @ethereum scales to 100k txn/sec. This is how Ethereum becomes the World Computer. Your guide to the future of blockchain scaling technology. https://t.co/hcKtmaQY9m" / Twitter](https://twitter.com/SalomonCrypto/status/1569334975614582784)
+像他们的Optimistic rollup这位兄弟一样，ZK-rollups将所有(压缩的)数据发布到主网，但他们也提供了一个零知识证明。
+
+![[区块链扩容之zkRollups]]
 
 ZKP代表了数学上的确定性，即在链上发布的任何信息都是有效的，并且在rollup中实际发生。如果证明成立，那么该交易在rollup上和 ETH上都被确认(final)
-.
-[Haym 在 Twitter: "(10/13) Verifiable computation is critical to improving processing speeds on blockchains without reducing security. Instead of processing every txn on-chain, @ethereum can offload execution. After processing, that chain can return the results to mainnet with a ZK-proof." / Twitter](https://twitter.com/SalomonCrypto/status/1569119871216267265)
 
 
 ZK-Rollups仍然是区块链技术的边缘；（我相信）今天还没有一个通用/EVM兼容的ZK-Rollup准备用于生产...。

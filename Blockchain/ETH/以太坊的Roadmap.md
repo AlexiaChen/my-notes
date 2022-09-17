@@ -66,9 +66,12 @@ Rollups是独立的、高性能的（集中式）区块链，通过发布其stat
 
 不幸的是，发布state root是不够的。state root只能让你验证一个txn是否发生，它并不包含实际的txn（相当于state root只是一个证明）。因此，rollups也必须发布rollup的txn数据--尽管是以高度压缩的形式。
 
-[Haym 在 Twitter: "(19/24) Rollups scale @ethereum in 2 ways: First, by moving computation to a high-performance chain, gas costs related to execution are drastically reduced Second, they are able to post txns in a highly compressed form, greatly reducing the gas costs of posting data to mainnet https://t.co/ytQrkVIO7z" / Twitter](https://twitter.com/SalomonCrypto/status/1569023683649482757)
+![[区块链扩容之Optimistic Rollups]]
 
-然后，这些压缩的txns被捆绑（rolled up）并输入到一个 "input "字段中。这个字段是在一个ETH的txn交易中。input字段用于传递信息给智能合约（然后智能合约使用它来改变EVM的状态）。input字段它不会直接改变EVM的状态。[Haym 在 Twitter: "(1/18) @ethereum Fundamentals: Transactions Sent $ETH? LP'ed into an AMM? Deployed a new contract? Everything you do on the World Computer leaves an on-chain record. Ever wonder what's inside your transactions? A field-by-field guide to the atomic unit of Ethereum computing https://t.co/hg4rK01naY" / Twitter](https://twitter.com/SalomonCrypto/status/1568092433803808770)
+然后，这些压缩的txns被捆绑（rolled up）并输入到一个 "input "字段中。这个字段是在一个ETH的txn交易中。input字段用于传递信息给智能合约（然后智能合约使用它来改变EVM的状态）。input字段它不会直接改变EVM的状态。
+
+![[ETH的交易]]
+
 因此，在ETH mainnet上存在一个（压缩的，但可恢复的）发生在rollup上的每个txn的记录。
 
 有了rollup state root和世界计算机上的txn副本（在input字段上的），我们可以实现我们的第三个也是最后一个需求：（最终）所有权在mainnet上得到解决。
