@@ -4,11 +4,15 @@
     "type": "split",
     "children": [
       {
-        "id": "925b108bd84a780e",
+        "id": "d77c5b5a89a8ae33",
         "type": "leaf",
         "state": {
-          "type": "empty",
-          "state": {}
+          "type": "markdown",
+          "state": {
+            "file": "Blockchain/Polkadot/Substrate中的MPT.md",
+            "mode": "source",
+            "source": false
+          }
         }
       }
     ],
@@ -49,7 +53,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 465.5
   },
   "right": {
     "id": "5d1ff6b4451a9628",
@@ -65,13 +69,14 @@
             "state": {
               "type": "backlink",
               "state": {
-                "collapseAll": false,
+                "file": "Blockchain/Polkadot/Substrate中的MPT.md",
+                "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
-                "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
+                "backlinkCollapsed": true,
+                "unlinkedCollapsed": false
               }
             }
           },
@@ -92,29 +97,31 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Blockchain/Polkadot/Substrate中的MPT.md",
                 "linksCollapsed": false,
-                "unlinkedCollapsed": true
+                "unlinkedCollapsed": false
               }
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",
     "width": 300,
     "collapsed": true
   },
-  "active": "925b108bd84a780e",
+  "active": "37dc58cfac316a81",
   "lastOpenFiles": [
-    "Images/Pasted image 20220917145545.png",
-    "Blockchain/ETH/以太坊的Roadmap.md",
-    "Blockchain/ETH/ETH的交易.md",
-    "Blockchain/ETH/ETH的扩容技术.md",
-    "Blockchain/ETH/区块链扩容之zkRollups.md",
-    "Pasted image 20220917161008.png",
-    "Blockchain/ETH/区块链扩容之Optimistic Rollups.md",
-    "Blockchain/ETH/区块链扩容技术之Plasma.md",
-    "Blockchain/ETH/区块链扩容之状态通道.md",
-    "Blockchain/区块链状态系统.md"
+    "Images/a46aeac2d5754c46e7428baeaacfeb0.png",
+    "ETH之MPT^9b422e.md",
+    "Blockchain/Polkadot/Substrate中的MPT.md",
+    "Blockchain/ETH/状态存储/ETH之MPT.md",
+    "Images/Pasted image 20220929104636.png",
+    "Blockchain/ETH/状态存储/Temp.md",
+    "Temp-Notes/Moonbeam EVM机制迁移到Aptos的初步调研报告.md",
+    "Temp-Notes/工作笔记.md",
+    "Blockchain/ETH/EVM学习笔记.md",
+    "Blockchain/ETH/EVM/深入理解EVM-part1.md"
   ]
 }
