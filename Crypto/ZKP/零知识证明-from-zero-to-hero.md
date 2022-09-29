@@ -144,20 +144,11 @@ Alice 和 Bob 都是数独爱好者，有一天 Alice 向 Bob 说，“我设计
 6.  SNARK证明过程：程序转化为多项式时间运算关系-> R1CS -> QAP -> QAP 整除关系 -> 椭圆曲线离散对数。
 
 
-![[Pasted image 20220918165936.png]]
-![[Pasted image 20220918170133.png]]
-![[Pasted image 20220918170205.png]]
-![[Pasted image 20220918170307.png]]
-![[Pasted image 20220918170331.png]]
-
-
----
-
 ![[e6a476fb0a0c665394c61f2c3427bc3.jpg]]
 
 ## zkSNARK与zkSTARK
 
-
+TODO
 
 ### SNARK与STARK含义
 

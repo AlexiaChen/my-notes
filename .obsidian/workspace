@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "d77c5b5a89a8ae33",
+        "id": "88feb3029933b849",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Blockchain/Polkadot/Substrate中的MPT.md",
+            "file": "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/Polkadot/Substrate中的MPT.md",
+                "file": "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/Polkadot/Substrate中的MPT.md",
+                "file": "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -111,17 +111,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "37dc58cfac316a81",
+  "active": "88feb3029933b849",
   "lastOpenFiles": [
-    "Images/a46aeac2d5754c46e7428baeaacfeb0.png",
-    "ETH之MPT^9b422e.md",
-    "Blockchain/Polkadot/Substrate中的MPT.md",
     "Blockchain/ETH/状态存储/ETH之MPT.md",
-    "Images/Pasted image 20220929104636.png",
+    "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
     "Blockchain/ETH/状态存储/Temp.md",
-    "Temp-Notes/Moonbeam EVM机制迁移到Aptos的初步调研报告.md",
-    "Temp-Notes/工作笔记.md",
-    "Blockchain/ETH/EVM学习笔记.md",
-    "Blockchain/ETH/EVM/深入理解EVM-part1.md"
+    "Attachments/Pasted image 20220929155940.png",
+    "Blockchain/Temp.md",
+    "Blockchain/Solona学习笔记.md",
+    "Blockchain/Move学习笔记.md",
+    "Blockchain/Merkle Tree和其证明.md",
+    "Blockchain/Polkadot/Substrate教程.md",
+    "Blockchain/Polkadot/XCM格式详解.md"
   ]
 }

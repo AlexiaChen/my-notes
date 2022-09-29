@@ -1,10 +1,15 @@
 ## 修改版的Merkle Patricia Tree(MPT)是怎样存储以太坊的状态的？
 
+
+
 这里其实主要是MPT的概览(overview)，还不会涉及太多的细节。
 
 抛开网络部分，我们可以说以太坊是一个状态机，交易在以太坊网络上修改状态。一个状态可以被表达为一个键值对。虽然有几种表示键值对的方法，但以太坊规范定义了修改的Merkle Patricia Trie（又称MPT）作为保存状态的方法。
 
 基本上，MPT是Patricia trie和Merkle树的组合，有一些额外的优化，符合Ethereum的特点。因此，在了解MPT之前，应该先了解Patricia trie和Merkle tree。
+
+![[Pasted image 20220929155940.png]]
+
 
 ### Patricia trie
 

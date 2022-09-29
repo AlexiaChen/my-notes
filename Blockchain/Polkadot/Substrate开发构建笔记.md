@@ -42,7 +42,7 @@ substrate有官方的pallets商城，可以复用别人开发好的pallet [Home 
 
 ## 构建流程
 
-在《架构》[Architecture | Substrate_ Docs](https://docs.substrate.io/fundamentals/architecture/) 中，你了解到Substrate节点由一个外层节点host和一个runtime执行环境组成。这些节点组件通过runtime API调用和host函数调用相互通信。在本节中，你将了解更多关于Substrate runtime如何被编译成平台Native可执行文件和存储在区块链上的WebAssembly（Wasm）二进制文件。在你看到二进制文件是如何被编译的内部工作后，你将了解更多关于为什么有两个二进制文件，它们何时被使用，以及如果你需要，你如何改变执行策略。
+在 [[Substrate学习笔记#Substrate架构]] 中，你了解到Substrate节点由一个外层节点host和一个runtime执行环境组成。这些节点组件通过runtime API调用和host函数调用相互通信。在本节中，你将了解更多关于Substrate runtime如何被编译成平台Native可执行文件和存储在区块链上的WebAssembly（Wasm）二进制文件。在你看到二进制文件是如何被编译的内部工作后，你将了解更多关于为什么有两个二进制文件，它们何时被使用，以及如果你需要，你如何改变执行策略。
 
 ### 编译一个optimized artifact
 
@@ -1052,6 +1052,45 @@ frame_support::ensure!(param < T::MaxVal::get(), Error::<T>::InvalidParameter);
 
 ## 随机
 
+随机性在计算机科学和其他领域有许多应用。例如，它被用于在一些治理系统中选择理事，进行统计或科学分析，进行加密操作，以及博彩和赌博。许多需要随机性的应用已经在区块链网络上找到了应用指出。这篇文章描述了随机性是如何在Substrate runtime中产生和使用的。
+
+### 确定性随机
+
+在传统的非区块链计算中，需要随机性的应用程序可以选择使用从硬件中提取的真实随机值，或者使用实际上是确定的、但由于加密技术而无法预测的伪随机值。
+
+在区块链上运行的应用程序受到更严格的限制，因为网络中的所有当局必须同意任何链上的值，包括注入的任何随机性数据。由于这种约束，直接使用真正的随机性是不可能的。
+
+幸运的是，像可验证随机函数(VRF) https://en.wikipedia.org/wiki/Verifiable_random_function 这样的密码学基础的进步和多方随机性计算的发展，使得需要随机性的应用仍然可以在区块链上使用。
+
+### substrate的随机trait
+
+Substrate提供了一个名为`Randomness`的trait https://paritytech.github.io/substrate/master/frame_support/traits/trait.Randomness.html ，它编码了生成随机性的逻辑和消耗随机性的逻辑之间的接口。这个trait允许这两块逻辑被独立地实现。
+
+#### 消费随机性
+
+开发者在编写一个需要随机性的pallet时，不需要担心提供随机性的问题。相反，pallet可以简单地要求一个实现该trait的随机性源。randomness trait提供了两种获得随机性的方法。
+
+第一个方法叫做`random_seed`。它不需要任何参数，并给出一个原始的随机性。在一个块中多次调用这个方法，每次都会返回相同的值。因此，不建议直接使用这个方法。
+
+第二个方法叫做`random`。它接收一个作为上下文标识符的字节数，并返回一个对该上下文来说独一无二的结果，并且在底层随机性源允许的范围内独立于其他上下文。
+
+#### 生成随机性
+
+有许多不同的方法来实现`Randomness` trait，每一种方法都代表了性能、复杂性和安全性之间的不同权衡。Substrate提供了两种实现，如果开发者想做出不同的权衡，他们可以提供自己的实现。
+
+Substrate提供的第一个实现是随机性集体翻转pallet [pallet_randomness_collective_flip - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_randomness_collective_flip/index.html) 。这个托盘是基于集体掷硬币的。它具有相当高的性能，但不是很安全。这个pallet应该只在测试消耗随机性的pallet时使用，而不是在生产中使用。
+
+第二个实现是`BABE pallet` [pallet_babe - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/pallet_babe/index.html) ，它使用可验证的随机函数(VRF)。这个pallet提供了生产级的随机性，并在Polkadot中使用。选择这个随机性源决定了你的区块链使用Babe共识。
+
+### 安全属性
+
+`Randomness` trait为Substrate runtime中的随机性源提供了一个方便而有用的抽象。但该特性本身并没有做出任何安全保证。runtime开发者必须确保所使用的随机性源满足所有消耗其随机性的pallet的安全要求。
+
+### 其他
+
+- [Incorporate randomness | Substrate_ Docs](https://docs.substrate.io/reference/how-to-guides/pallet-design/incorporate-randomness/)
+
+
 ## Chain Spec
 
 在Substrate中，chain spec是描述基于Substrate的区块链网络的信息集合。例如，chain spec确定了一个区块链节点所连接的网络，它最初与之通信的其他节点，以及节点为产生区块必须同意的初始状态。
@@ -1215,7 +1254,188 @@ proposal.dispatch(system::RawOrigin::None.into())
 
 ## 应用开发
 
+在substrate区块链上运行的大多数应用程序需要某种形式的前端或面向用户的界面--如浏览器、桌面、移动或硬件客户端--使用户或其他程序能够访问和修改区块链存储的数据。例如，你可以开发一个基于浏览器的应用程序，用于互动游戏，或者开发一个特定的硬件应用程序来实现硬件钱包。根据你的需要，存在不同的库来构建这些类型的应用程序。本文解释了查询Substrate节点和使用其暴露的metadata的过程，以帮助你了解在创建前端客户端应用程序和使用客户端特定库时如何使用metadata。
+
+### Metadata系统
+
+substrate节点提供一个RPC调用，`state_getMetadata`，它返回当前runtime中所有类型的完整描述。客户端应用程序使用元数据与节点交互，解析响应，并格式化发送到节点的消息的payload。这个元数据包括关于一个pallet的存储项、交易、事件、错误和常量的信息。当前的元数据版本（V14）与之前的版本有很大不同，因为它包含了更丰富的类型信息。如果一个runtime包括一个具有自定义类型的pallet，那么类型信息将作为元数据的一部分返回。Polkadot使用V14元数据，从runtime spec版本9110 [Polkascan · Explorer](https://explorer.polkascan.io/polkadot/runtime/9110) 的块号7229126开始[Subscan | Polkadot Block Detail: 7229126](https://polkadot.subscan.io/block/7229126) ，Kusama从runtime spec版本9111 [Polkascan · Explorer](https://explorer.polkascan.io/kusama/runtime/9111) 的块号9625129开始 [Subscan | Kusama Block Detail: 9625129](https://kusama.subscan.io/block/9625129) 。这对于打算与使用旧版元数据的runtime进行交互的开发者来说是非常有用的。请参考这份文件，了解从V13到V14的迁移指南。  [Migration guide for Substrate Metadata V14 (github.com)](https://gist.github.com/ascjones/0d81a4c44e84cacd9f714cd34a6de823)
+
+当前的元数据模式使用`scale-info` crate [scale_info - Rust (docs.rs)](https://docs.rs/scale-info/latest/scale_info/) 来获取runtime中的pallet的类型信息，当你编译一个节点时。  
+  
+目前的元数据实现需要前端API使用SCALE编解码库 [Type encoding (SCALE) | Substrate_ Docs](https://docs.substrate.io/reference/scale-codec/) 来编码和解码RPC payload以发送和接收交易。下面的步骤总结了元数据是如何生成、暴露以及用于从runtiime进行和接收调用(calls)。  
+
+- 可调用的pallet函数，以及类型、参数和文档都由runtime公开暴露出来。
+- `frame-metadata` crate描述了关于如何与runtime通信的信息的结构。这些信息的形式是由`scale-info`提供的类型注册表，以及关于哪些pallet存在的信息（以及注册表中每个pallet的相关类型）。
+- `scale-info` crate被用来标注整个runtime的类型，并使得建立一个runtime类型注册表成为可能。这些类型信息足够详细，我们可以用它来找出如何正确地对给定类型进行SCALE编码或解码的一些值。
+- `frame-metadata`中描述的结构被填充了来自runtime的信息，然后这被SCALE编码并通过`state_getMetadata` RPC调用提供。
+- 自定义RPC APIs使用元数据接口，并提供方法来调用runtime。需要一个SCALE编解码库来编码和解码进出API的调用和数据。
+
+每个substrate链都存储了它们所使用的metadata系统的版本号，这使得应用程序知道如何处理某个区块所暴露的元数据变得非常有用。如前所述，最新的元数据版本（V14）为一个链能够生成的元数据提供了一个重要的增强。但是，如果一个应用程序想要与用比V14更早的版本创建的区块进行交互呢？那么，这将需要设置一个遵循旧的metadata系统的前端界面，据此，自定义类型将需要被识别，并作为前端代码的一部分手动包含。如果你需要的话，可以学习如何使用desub工具 [paritytech/desub: Decode Substrate with Backwards-Compatible Metadata (github.com)](https://github.com/paritytech/desub) 来完成这个任务。  
+  
+捆绑在元数据中的类型信息使应用程序有能力与不同链上的节点进行通信，每个链上的节点可能各自暴露不同的调用、事件、类型和存储。它还允许库(libraries)生成与给定的Substrate节点通信所需的几乎所有代码，使`subxt`等库有可能生成特定于目标链的前端接口。  [paritytech/subxt: Submit extrinsics (transactions) to a substrate node via RPC (github.com)](https://github.com/paritytech/subxt)
+  
+有了这个系统，任何runtime都可以被查询到其可用的runtime调用、类型和参数。  
+元数据还暴露了一个类型将如何被解码，使外部应用程序更容易检索和处理这些信息。  
+  
+### Metadata格式
+
+查询`state_getMetadata` RPC函数将返回一个SCALE编码的字节向量，该向量使用`frame-metadata`和`parity-scale-codec`库进行解码。
+
+由`state_getMetadata` RPC返回的hex blob取决于元数据的版本，但是通常会有以下结构。
+
+- 一个硬编码的magic number，0x6d657461，它代表纯文本中的 "meta"。
+- 一个32位的整数，代表正在使用的元数据格式的版本，例如`14`或十六进制的`0x0e`。
+- 十六进制编码的类型和元数据信息。在V14中，这部分包含一个类型信息的注册表（由`scale-info` crate生成）。在以前的版本中，这部分包含pallet的数量，然后是每个pallet暴露的元数据。
+
+下面是一个使用V14 metadata系统的runtime的元数据解码的浓缩版本（使用subxt生成 [subxt | Substrate_ Docs](https://docs.substrate.io/reference/command-line-tools/subxt/) ）。
+
+```json
+[
+  1635018093, // the magic number
+  {
+    "V14": {
+      // the metadata version
+      "types": {
+        // type information
+        "types": []
+      },
+      "pallets": [
+        // metadata exposes by pallets
+      ],
+      "extrinsic": {
+        // the format of an extrinsic  and its signed extensions
+        "ty": 111,
+        "version": 4, // the transaction version used to encode and decode an extrinsic
+        "signed_extensions": []
+      },
+      "ty": 125 // the type ID for the system pallet
+    }
+  }
+]
+```
+
+如上所述，整数`1635018093`是一个 "magic number"，用纯文本表示 "meta"。元数据的其余部分有两个部分：pallets和extrinsic。pallets部分包含关于runtime的pallets的信息，而extrinsic部分描述了runtime使用的extrinsics的版本。不同的extrinsic版本可能有不同的格式，特别是在考虑签名交易时。[[Substrate学习笔记#已签名交易]]
+
+#### Pallets
+
+这里有一个在metadata返回的json中一个浓缩版的pallets数组的单个元素的样例:
+
+```json
+{
+  "name": "System", // name of the pallet, the System pallet for example
+  "storage": {
+    // storage entries
+  },
+  "calls": [
+    // index for this pallet's call types
+  ],
+  "event": [
+    // index for this pallet's event types
+  ],
+  "constants": [
+    // pallet constants
+  ],
+  "error": [
+    // index for this pallet's error types
+  ],
+  "index": 0 // the index of the pallet in the runtime
+}
+```
+
+每个元素都包含它所代表的pallet的名称，以及一个存储对象、调用数组、事件数组和错误数组。如果调用或事件是空的，它们将被表示为空，如果常量或错误是空的，它们将被表示为一个空数组。
+
+数组中每个元素的类型索引只是u32整数，用于访问该项目的类型信息。例如，`system pallet`中的调用的类型ID是145。查询类型ID将给你提供system pallet的可用调用信息，包括每个调用的文档。对于每个字段，你可以访问以下的类型信息和元数据。
+
+- 存储元数据 [PalletStorageMetadata in frame_metadata::v14 - Rust (docs.rs)](https://docs.rs/frame-metadata/latest/frame_metadata/v14/struct.PalletStorageMetadata.html) ：为区块链客户端提供查询storage RPC [StateApiServer in sc_rpc::state - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/state/trait.StateApiServer.html#tymethod.storage) 以获得特定存储项的信息所需的信息。
+- 调用元数据 [PalletCallMetadata in frame_metadata::v14 - Rust (docs.rs)](https://docs.rs/frame-metadata/latest/frame_metadata/v14/struct.PalletCallMetadata.html) ：包括`#[pallet]`宏所定义的runtime调用的信息，包括调用名称、参数和文档。
+- 事件元数据 [PalletEventMetadata in frame_metadata::v14 - Rust (docs.rs)](https://docs.rs/frame-metadata/latest/frame_metadata/v14/struct.PalletEventMetadata.html) ：提供`#[pallet::event]`宏生成的元数据，包括pallet事件的名称、参数和文档。
+- 常量元数据：提供`#[pallet::constant]`宏生成的元数据，包括常量的名称、类型和十六进制编码的值。
+- 错误元数据 [PalletErrorMetadata in frame_metadata::v14 - Rust (docs.rs)](https://docs.rs/frame-metadata/latest/frame_metadata/v14/struct.PalletErrorMetadata.html) ：提供由`#[pallet::error]`宏生成的元数据，包括该pallet中每个错误类型的名称和文档。
+
+请注意，所使用的IDs在一段时间内并不稳定：它们很可能会从一个版本跳转到下一个版本，这意味着开发者应该避免依赖固定的类型ID来证明他们的应用程序的未来。（也就是说这个ID不固定，未来会变）
+
+#### Extrinsic
+
+Extrinsic metadata [ExtrinsicMetadata in frame_metadata::v14 - Rust (docs.rs)](https://docs.rs/frame-metadata/latest/frame_metadata/v14/struct.ExtrinsicMetadata.html) 是由runtime产生的，并提供了关于交易如何格式化的有用信息。返回的解码元数据包含交易版本和签名扩展，看起来像这样。
+
+```json
+      "extrinsic": {
+        "ty": 111,
+        "version": 4,
+        "signed_extensions": [
+          {
+            "identifier": "CheckSpecVersion",
+            "ty": 117,
+            "additional_signed": 4
+          },
+          {
+            "identifier": "CheckTxVersion",
+            "ty": 118,
+            "additional_signed": 4
+          },
+          {
+            "identifier": "CheckGenesis",
+            "ty": 119,
+            "additional_signed": 9
+          },
+          {
+            "identifier": "CheckMortality",
+            "ty": 120,
+            "additional_signed": 9
+          },
+          {
+            "identifier": "CheckNonce",
+            "ty": 122,
+            "additional_signed": 34
+          },
+          {
+            "identifier": "CheckWeight",
+            "ty": 123,
+            "additional_signed": 34
+          },
+          {
+            "identifier": "ChargeTransactionPayment",
+            "ty": 124,
+            "additional_signed": 34
+          }
+        ]
+      }
+```
+
+类型系统是复合的，这意味着每个类型的ID都包含对某些类型的引用，或者对另一个类型的ID的引用，从而可以访问相关的原始类型。例如，我们可以编码的一个类型是`BitVec<Order, Store>`类型：为了正确解码，我们需要知道使用的`Order`和`Store`类型是什么，这可以使用解码后的JSON中的 "path "来访问该类型ID。
+
+### RPC APIs
+
+Substrate带有以下API来与节点进行交互。
+
+- AuthorApi [AuthorApiServer in sc_rpc::author - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/author/trait.AuthorApiServer.html) 。一个用于对全节点(full node)进行调用的API，包括编写extrinsic和验证会话密钥。
+- ChainApi [ChainApiServer in sc_rpc::chain - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/chain/trait.ChainApiServer.html)。一个用于检索块头和区块finality信息的API。
+- OffchainApi [OffchainApiServer in sc_rpc::offchain - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/offchain/trait.OffchainApiServer.html) 。一个为offchain worker进行RPC调用的API。
+- StateApi [StateApiServer in sc_rpc::state - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/state/trait.StateApiServer.html) 。用于查询链上状态信息的API，如runtime版本、存储项和证明。
+- SystemApi [SystemApiServer in sc_rpc::system - Rust (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/system/trait.SystemApiServer.html) : 检索网络状态信息的API，如连接的P2P对端Peers和节点角色。
+
+### 连接到一个节点
+
+查询一个Substrate节点可以通过使用超文本传输协议（HTTP）或基于WebSocket（WS）的JSON-RPC客户端来完成。WS（在大多数应用中使用）的主要优点是，一个单一的连接可以重复用于许多进出节点的消息(全双工通信)，而典型的HTTP连接一次只允许来自客户端的单一消息，然后响应。出于这个原因，如果你想订阅一些可能导致多个消息返回给客户端的RPC端点，你必须使用websocket连接而不是HTTP连接。通过HTTP连接通常用于在offchain woker中获取数据--在链下操作中了解更多信息。[[Substrate学习笔记#链下操作]]
+
+连接到Substrate节点的另一种方式（仍在试验中）是使用`Substrate Connect`，它允许应用程序生成自己的轻型客户端并直接连接到暴露的JSON-RPC端点。这些应用程序将依靠浏览器内的本地内存来建立与轻型客户端的连接。
+
+### 开始构建
+
+Parity维护以下建立在JSON-RPC API之上的库，用于与Substrate节点进行交互。
+
+- subxt [paritytech/subxt: Submit extrinsics (transactions) to a substrate node via RPC (github.com)](https://github.com/paritytech/subxt) 提供了一种为特定链构建的静态前端创建接口的方法。
+Polkadot JS API [polkadot{.js}](https://polkadot.js.org/) 提供了一个库，为任何Substrate构建的区块链构建动态接口。
+Substrate Connect [paritytech/substrate-connect: Run Wasm Light Clients of any Substrate based chain directly in your browser. (github.com)](https://github.com/paritytech/substrate-connect) 提供了一个库和一个浏览器扩展，用于构建直接与为其目标链创建的浏览器内轻客户端连接的应用程序。作为一个使用Polkadot JS API的库，Connect对于需要连接到多个链的应用程序非常有用，在同一应用程序与多个链互动时，为终端用户提供单一一致的体验。
+
+### 前端使用场景
+
+![[d922567170347a412bd7dcefec40fd7.png]]
+
 ## 构建一个确定性的runtime
+
+TODO
 
 ## 升级Runtime
 
+TODO
