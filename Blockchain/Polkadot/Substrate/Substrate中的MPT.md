@@ -69,6 +69,34 @@ Substrate还提供child trie这样的数据结构，它也是一个MPT。Substra
 在区块13中，只有node-4的值从04变为40，其哈希也跟着改变，而其它节点的数据并没有变化，所以新的区块根节点可以复用原有节点，仅仅更新发生变化的节点。假设区块13已经具有最终性，那么区块12中的node-4就可以删除掉。Substrate默认的区块生成算法是BABE或者Aura，而最终性是通过GRANDPA来决定的，在网络稳定的情况下，仅保留一定数量的最新区块是可行的。
 
 
+#### Substrate的状态裁剪和同步模式
+
+类似于在 [[ETH之状态裁剪#一些社区的回答更新]] 提到的，Substrate也有类似以太坊的fast sync。
+下面来总结一下跟状态有关的命令行。
+
+- 轻客户端模式
+
+	`--light` 这个是实验性质的参数，让节点以轻客户端模式运行 [[Substrate学习笔记#轻客户端节点]]
+
+- 状态修剪相关的命令
+    - `--unsafe-pruning`, 强制节点以不安全的修剪设置启动。当作为Validator运行时，强烈建议禁用默认的状态修剪（即Archive）。除非设置了这个选项，否则如果修剪功能被启用，节点将拒绝作为Validator启动。相当于Validator要保证全部状态都有。
+    - `--pruning <pruning-mode>` 指定保留最大的区块状状态数量（保留最近的N个区块状态），或者以archive保留所有区块状状态。如果节点作为Validator运行，默认是保留所有区块的状态。如果节点不作为Validator运行，只保留最后的256个区块的状态。
+
+- sync模式的相关命令
+    - `--sync <sync-mode>` 指定区块链同步模式 有效值是`Full`，`Full`用于下载和验证完整的区块链历史；`Fast`，仅下载区块和最新状态；`FastUnsaf`，下载最新状态，但跳过下载state proof。默认值是`Full`。
+
+另外在，一个社区的同步模式的解释 [What kinds of sync mechanisms does Substrate implement? - Substrate and Polkadot Stack Exchange](https://substrate.stackexchange.com/questions/334/what-kinds-of-sync-mechanisms-does-substrate-implement)
+
+> 回答是2022年2月份的
+
+> Light Sync- 仅仅下载区块头，因此有关于涉及交易的状态转换(STF)也不会被执行，这里跟[[ETH之状态裁剪#^6cda4c]] 所提到的light有点不一样，ETH的light是，会获得最新的当前状态。
+> 
+> Full sync- "常规 "的同步，区块头和区块体按顺序从创世块下载，交易被执行（所以状态存储被保持）。相当于 [[ETH之状态裁剪#^6cda4c]] 提到的full sync一致，交易被执行，意味着MPT也要被重新计算并做验证，更加耗时。
+> 
+> Light state sync- 只下载区块头，但一旦链被同步，它就会下载最佳区块的整个状态（而不是从创世区块开始一个区块一个区块地执行区块中的状态转移STF）。相当于下载到最新的被确认的块的区块头以后，就去请求这个区块头里面的state root，获取整个state trie。这里才与[[ETH之状态裁剪#^6cda4c]] 提到的light sync描述的一致
+> 
+> Warp sync- 最初下载最好的被确认的区块和这个区块的整个状态（相当于以开始就下载best chain最新被确认的区块以及区块的整个state trie），以及从创世块到最好的被确认的区块的所有的validator set的转换的finality proof（目前来自GRANDPA）。在最初的warp sync完成后（因此节点已经准备好导入(同步)最新的区块），历史前序区块可以在后台慢慢下载。这个其实相当于是ETH的fast sync的优化版本，实质是一样的 [[ETH之状态裁剪#^062e17]] ,这个warp sync也不会执行交易的状态转移STF，MPT也不会被在同步的时候被重新计算。
+
 #### 其他资料
 
 - Deep into Substrate Storage

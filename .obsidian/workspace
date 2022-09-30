@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "T",
+                "query": "轻客户端",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -113,15 +113,15 @@
   },
   "active": "88feb3029933b849",
   "lastOpenFiles": [
-    "Blockchain/ETH/状态存储/ETH之MPT.md",
+    "Blockchain/Polkadot/Substrate/Substrate中的MPT.md",
     "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
+    "Blockchain/Polkadot/Substrate/未命名.md",
+    "Blockchain/Polkadot/Substrate/Substrate学习笔记.md",
+    "Blockchain/ETH/状态存储/ETH之MPT.md",
+    "Blockchain/ETH/EVM学习笔记.md",
+    "Temp-Notes/Moonbeam EVM机制迁移到Aptos的初步调研报告.md",
     "Blockchain/ETH/状态存储/Temp.md",
     "Attachments/Pasted image 20220929155940.png",
-    "Blockchain/Temp.md",
-    "Blockchain/Solona学习笔记.md",
-    "Blockchain/Move学习笔记.md",
-    "Blockchain/Merkle Tree和其证明.md",
-    "Blockchain/Polkadot/Substrate教程.md",
-    "Blockchain/Polkadot/XCM格式详解.md"
+    "Blockchain/Temp.md"
   ]
 }

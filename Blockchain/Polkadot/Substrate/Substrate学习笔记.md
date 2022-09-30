@@ -220,7 +220,7 @@ Substrate runtime被设计为编译为WebAssembly（Wasm）字节代码。这一
 
 ### 轻客户端节点
 
-轻客户端或轻节点是Substrate节点的简化版本，只提供runtime和当前最新状态。轻节点可以让用户能够使用浏览器、浏览器扩展、移动设备或桌面计算机直接连接到Substrate runtime。通过轻型客户端节点，你可以使用用Rust、JavaScript或其他语言编写的RPC endpoints来连接到WebAssembly runtime，以读取区块头，提交交易，并查看交易的结果。
+轻客户端或轻节点是Substrate节点的简化版本，只提供runtime和当前最新状态。轻节点可以让用户能够使用浏览器、浏览器扩展、移动设备或桌面计算机直接连接到Substrate runtime。通过轻型客户端节点，你可以使用用Rust、JavaScript或其他语言编写的RPC endpoints来连接到WebAssembly runtime，以读取区块头，提交交易，并查看交易的结果。 ^0b135b
 
 
 ## 区块链网络
@@ -244,7 +244,7 @@ Substrate runtime被设计为编译为WebAssembly（Wasm）字节代码。这一
 
 - 全节点
 - 归档节点
-- 轻客户端节点
+- 轻客户端节点 ^f85233
 
 #### 全节点(full node)
 
