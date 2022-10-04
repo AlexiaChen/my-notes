@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
+            "file": "Blockchain/ETH/ETH之LMD-GHOST共识.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
+                "file": "Blockchain/ETH/ETH之LMD-GHOST共识.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
+                "file": "Blockchain/ETH/ETH之LMD-GHOST共识.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -113,15 +113,15 @@
   },
   "active": "88feb3029933b849",
   "lastOpenFiles": [
-    "Blockchain/Polkadot/Substrate/Substrate中的MPT.md",
-    "Blockchain/ETH/状态存储/ETH之状态裁剪.md",
-    "Blockchain/Polkadot/Substrate/未命名.md",
-    "Blockchain/Polkadot/Substrate/Substrate学习笔记.md",
-    "Blockchain/ETH/状态存储/ETH之MPT.md",
-    "Blockchain/ETH/EVM学习笔记.md",
-    "Temp-Notes/Moonbeam EVM机制迁移到Aptos的初步调研报告.md",
-    "Blockchain/ETH/状态存储/Temp.md",
-    "Attachments/Pasted image 20220929155940.png",
-    "Blockchain/Temp.md"
+    "Blockchain/Polkadot/Polkadot学习笔记.md",
+    "Blockchain/ETH/ETH之LMD-GHOST共识.md",
+    "Back-end/系统设计.md",
+    "Back-end/拜占庭容错和其实战性PBFT解决方案.md",
+    "Blockchain/ETH/ETH之Casper FFG共识.md",
+    "Back-end/数据库与分布式.md",
+    "Blockchain/ETH/区块链扩容之zkRollups.md",
+    "Blockchain/ETH/区块链扩容之Optimistic Rollups.md",
+    "Blockchain/ETH/区块链扩容之状态通道.md",
+    "Blockchain/ETH/区块链扩容技术之Plasma.md"
   ]
 }

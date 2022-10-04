@@ -352,11 +352,15 @@ Substrate中实现Grandpa在这里，它是Substrate Frame的一部分 [substrat
 
 ##### 分叉选择
 
+^539900
+
 将BABE和GRANDPA结合起来，Polkadot的分叉选择就变得很清楚了。BABE必须总是建立在已经被GRANDPA最终确定的链上。当在最终确定的头之后有分叉时，BABE通过建立在拥有最多primary区块的链上提供概率上的最终性。
 
 ![[Pasted image 20220824111910.png]]
 
 在上图中，黑色区块是finality的，而黄色区块不是。标有 "1 "的区块是primary区块；标有 "2 "的区块是次级(secondary)区块。尽管最上面的链是最新完成的区块上最长的链，但它并不符合条件，因为在评估时它的primary块比下面的primary块少。
+
+其实以太坊也有类似的分叉选择算法LMD-GHOST [[ETH之LMD-GHOST共识]]
 
 ##### PBFT/Tendermint
 

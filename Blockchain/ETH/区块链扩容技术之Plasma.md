@@ -1,3 +1,5 @@
+### Plasma图文解释
+
 这个plasma就是现代区块链的扩容先驱技术了。向先行者致敬。
 
 ![[Pasted image 20220917145545.png]]
@@ -65,3 +67,8 @@ plasma的最大弱点是与状态通道一样的：它们都依赖于明确的�
 Plasma甚至在处理那些可以在没有用户明确同意的情况下改变余额的应用时也很吃力（例如支付利息）。
 
 这些因素是在plasma中建立一个完整的EVM环境是不可能的主要原因。因此，在 社区吸取plasma的经验，建立了一个更好的环境。我们称之为 "rollup "的东西。
+
+### Plasma文字版解释
+
+[Plasma chains | ethereum.org](https://ethereum.org/en/developers/docs/scaling/plasma/)
+

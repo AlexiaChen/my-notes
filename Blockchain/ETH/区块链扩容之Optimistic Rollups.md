@@ -1,3 +1,5 @@
+### 图文解释
+
 Optimistic Rollup是当今区块链最重要的扩容技术之一。
 
 ![[Pasted image 20220917152113.png]]
@@ -92,3 +94,7 @@ Rollups可以运行一个EVM。
 ...但我们可以做得更好，不是吗？如果我们不是 "Optimistic"，而是想立即解决事情呢？
 
 基于零知识的验证是可能的吗？下面就会提到一个终极目标 zk-Rollups。
+
+### 文字解释
+
+[Optimistic Rollups | ethereum.org](https://ethereum.org/en/developers/docs/scaling/optimistic-rollups/)

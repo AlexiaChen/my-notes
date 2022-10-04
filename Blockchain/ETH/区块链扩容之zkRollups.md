@@ -1,3 +1,5 @@
+### 图文解释
+
 这就是ETH扩展达到100k txn每秒的指南，这真正让ETH变成了世界计算机。这是区块链扩容技术的未来。
 
 ![[Pasted image 20220917155515.png]]
@@ -59,3 +61,8 @@ ZK-proof的引入在数学上带来了批次有效的确定性；确认链的加
 如果你退一步看一下 ETH扩容的演变。你会看到一个主题：卸载执行，同时将结算锚定在ETH主网上。
 
 从状态通道（单一用途，目的）到ZK-rollups（持久的状态，通用，即时结算）。都是要把交易的执行放到L2网络，不在ETH主网。
+
+### 文字解释
+
+[Zero-Knowledge rollups | ethereum.org](https://ethereum.org/en/developers/docs/scaling/zk-rollups)
+
