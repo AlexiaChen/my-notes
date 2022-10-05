@@ -94,3 +94,50 @@ localhostForwarding=<bool> # Boolean specifying if ports bound to wildcard or lo
 - https://blog.simonpeterdebbarma.com/2020-04-memory-and-wsl/
 - https://github.com/microsoft/WSL/issues/4166
 - https://github.com/microsoft/WSL/issues/5389
+
+
+#### WSL用了export再import导入到一个特定目录无法指定Linux默认用户的问题
+
+如果没有经过标题的操作，运行以下命令就可以了:
+
+```bash
+<DistroName> config --set-default-user [username] 
+```
+但是，经过导出导入后，默认登陆进去是root用户，我想换回来我自己的用户。发现以上方法不行了。
+
+还好找到了WSL官方的这个[issue](https://github.com/Microsoft/WSL/issues/3974)。
+
+步骤：
+
+- 写一个PowerShell函数：
+
+```powershell
+ Function WSL-SetDefaultUser ($distro, $user) { Get-ItemProperty Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Lxss\*\ DistributionName | Where-Object -Property DistributionName -eq $distro | Set-ItemProperty -Name DefaultUid -Value ((wsl -d $distro -u $user -e id -u) | Out-String); };
+```
+
+- 再通过PowerShell调用这个函数:
+
+```powershell
+ WSL-SetDefaultUser <DistroName> <username>
+```
+
+这个方法比较麻烦，发现还操作注册表了，对用户暴露了过多细节，这只是临时方案，希望微软以后改进。比如这样:
+
+```powershell
+wsl <DistroName> --set-default-user <username>
+```
+
+#### 升级到windows11后，WSL2无网络连接问题
+
+发现开了v2ray代理翻不了墙了，apt update测试了下，我去，没网络连接了，所以DNS用不了，以前好好的。Orz。
+
+通过这个issue 解决了 https://github.com/microsoft/WSL/issues/6404#issuecomment-963960301
+
+修改`/etc/wsl.conf` 文件的配置:
+
+```conf
+[network]
+generateResolvConf = true
+```
+
+然后运行 `wsl --shutdown` 重启WSL2就可以了。windows 11真是小问题不断啊。

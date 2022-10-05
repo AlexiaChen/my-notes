@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Blockchain/ETH/ETH之LMD-GHOST共识.md",
+            "file": "Tools/学习方法论-慢即是快-快即是慢.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "轻客户端",
+                "query": "k8s",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/ETH/ETH之LMD-GHOST共识.md",
+                "file": "Tools/学习方法论-慢即是快-快即是慢.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/ETH/ETH之LMD-GHOST共识.md",
+                "file": "Tools/学习方法论-慢即是快-快即是慢.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -113,15 +113,15 @@
   },
   "active": "88feb3029933b849",
   "lastOpenFiles": [
-    "Blockchain/Polkadot/Polkadot学习笔记.md",
-    "Blockchain/ETH/ETH之LMD-GHOST共识.md",
-    "Back-end/系统设计.md",
-    "Back-end/拜占庭容错和其实战性PBFT解决方案.md",
-    "Blockchain/ETH/ETH之Casper FFG共识.md",
-    "Back-end/数据库与分布式.md",
-    "Blockchain/ETH/区块链扩容之zkRollups.md",
-    "Blockchain/ETH/区块链扩容之Optimistic Rollups.md",
-    "Blockchain/ETH/区块链扩容之状态通道.md",
-    "Blockchain/ETH/区块链扩容技术之Plasma.md"
+    "SoftwareEngineering/并不是每个人都可以build system的.md",
+    "Math/做工程或者科研对数学的正确态度.md",
+    "PL/Functional-Programming/谈谈函数式编程.md",
+    "Back-end/Security/防止数据删除被恢复的可能.md",
+    "Crypto/ZKP/DoraHack搞了一期ZKP的文本讲座.md",
+    "Back-end/Windows/windows10上把Legacy换成UEFI启动模式.md",
+    "PL/Golang/golang中用json decoder产生的大量内存消耗.md",
+    "PL/Golang/记解决一件奇怪的线上golang的OOM问题.md",
+    "Back-end/WSL2/WSL2.md",
+    "Back-end/Container/Docker学习笔记.md"
   ]
 }
