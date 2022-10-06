@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Tools/学习方法论-慢即是快-快即是慢.md",
+            "file": "Crypto/ZKP/零知识证明-from-zero-to-hero.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Tools/学习方法论-慢即是快-快即是慢.md",
+                "file": "Crypto/ZKP/零知识证明-from-zero-to-hero.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Tools/学习方法论-慢即是快-快即是慢.md",
+                "file": "Crypto/ZKP/零知识证明-from-zero-to-hero.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -113,15 +113,15 @@
   },
   "active": "88feb3029933b849",
   "lastOpenFiles": [
-    "SoftwareEngineering/并不是每个人都可以build system的.md",
-    "Math/做工程或者科研对数学的正确态度.md",
-    "PL/Functional-Programming/谈谈函数式编程.md",
-    "Back-end/Security/防止数据删除被恢复的可能.md",
-    "Crypto/ZKP/DoraHack搞了一期ZKP的文本讲座.md",
-    "Back-end/Windows/windows10上把Legacy换成UEFI启动模式.md",
-    "PL/Golang/golang中用json decoder产生的大量内存消耗.md",
-    "PL/Golang/记解决一件奇怪的线上golang的OOM问题.md",
-    "Back-end/WSL2/WSL2.md",
-    "Back-end/Container/Docker学习笔记.md"
+    "Crypto/零知识证明学习笔记.md",
+    "Back-end/DistributedSystem/CAP理论.md",
+    "Crypto/DigitalSignature/BLS数字签名.md",
+    "Back-end/DistributedSystem/数据库与分布式.md",
+    "Back-end/DistributedSystem/分布式算法.md",
+    "Crypto/ZKP/使用ZKP技术对抗虚假信息.md",
+    "Blockchain/Bridge/zkBridge-用ZKP技术来桥接多链宇宙.md",
+    "AI/一个简单的机器学习模型-一行一行解释.md",
+    "AI/机器学习.md",
+    "Blockchain/Temp.md"
   ]
 }

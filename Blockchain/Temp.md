@@ -4,3 +4,5 @@
 [Introduction to Eclipse: Customizable, Modular Rollups Using the… — Eclipse Labs (mirror.xyz)](https://mirror.xyz/neelsalami.eth/rvhK5mEcFTOjyu_DFsqS2cYR7U6Fjvbw3nf8tI-pr-Q)
 
 
+应用链的历史，优缺点，未来发展空间 [Application-Specific Blockchains: The Past, Present, and Future | by Dmitriy Berenzon | 1kxnetwork | Oct, 2022 | Medium](https://medium.com/1kxnetwork/application-specific-blockchains-9a36511c832)
+
