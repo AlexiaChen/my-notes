@@ -317,6 +317,8 @@ Builders：[privacy-scaling-explorations](https://github.com/privacy-scaling-exp
 
 #### Type 2(完全等效于EVM)
 
+^dcd755
+
 类型 2 ZK-EVM 力求完全等同于 EVM，但不完全等同于以太坊。也就是说，它们「从内部」看起来与以太坊完全一样，但它们在外部存在一些差异，特别是在块结构和状态树等数据结构上。
 
 优点：VM 级别的完美等价，你将无法按原样使用以太坊执行客户端，但你可以通过一些修改来使用它们，并且您仍然可以使用 EVM 调试工具和大多数其他开发人员基础设施。

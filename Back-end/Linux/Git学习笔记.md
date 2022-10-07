@@ -5,3 +5,9 @@
 git remote set-url origin new.git.url/here
 ```
 
+git修剪commit 
+
+[How to delete the old git history? - Stack Overflow](https://stackoverflow.com/questions/41953300/how-to-delete-the-old-git-history)
+
+[git filter branch - How do I remove the old history from a git repository? - Stack Overflow](https://stackoverflow.com/questions/4515580/how-do-i-remove-the-old-history-from-a-git-repository)
+
