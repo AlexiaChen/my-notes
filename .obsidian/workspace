@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Blockchain/ETH/Layer2/zk-Rollups/L2指南之Starkware.md",
+            "file": "Blockchain/ETH/Consensus/ETH之区块提议.md",
             "mode": "source",
             "source": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "git",
+                "query": "subxt",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/ETH/Layer2/zk-Rollups/L2指南之Starkware.md",
+                "file": "Blockchain/ETH/Consensus/ETH之区块提议.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,7 +97,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/ETH/Layer2/zk-Rollups/L2指南之Starkware.md",
+                "file": "Blockchain/ETH/Consensus/ETH之区块提议.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -113,15 +113,15 @@
   },
   "active": "c1c339535cae55a2",
   "lastOpenFiles": [
-    "Blockchain/ETH/Layer2/L2完全指南.md",
-    "Blockchain/ETH/Layer2/zk-Rollups/L2指南之Starkware.md",
-    "Blockchain/ETH/Layer2/zk-Rollups/L2指南之Loopring.md",
-    "Blockchain/ETH/Layer2/zk-Rollups/L2指南之Aztec-Network.md",
-    "Blockchain/ETH/Layer2/zk-Rollups/L2指南之zkSpace.md",
-    "Blockchain/ETH/Layer2/zk-Rollups/L2指南之Scroll.md",
-    "Blockchain/ETH/Layer2/zk-Rollups/L2指南之zkSync.md",
-    "Blockchain/ETH/Layer2/Optimstic-Rollups/L2指南之Metis.md",
-    "Blockchain/ETH/Layer2/Optimstic-Rollups/L2指南之Arbitrum.md",
-    "Blockchain/ETH/Layer2/Optimstic-Rollups/L2指南之Boba-Network.md"
+    "Blockchain/ETH/Consensus/ETH之共识规范.md",
+    "Blockchain/ETH/Consensus/ETH之时间-Slots和Epochs.md",
+    "Blockchain/ETH/Consensus/ETH之共识系统.md",
+    "Blockchain/ETH/Consensus/ETH之随机性和RANDAO.md",
+    "Blockchain/ETH/以太坊-预言机和chainlink-Web3的通信层.md",
+    "Blockchain/ETH/ETH之MEV.md",
+    "Blockchain/ETH/Consensus/ETH路线图之Proposer-Builder分割.md",
+    "Blockchain/ETH/Consensus/ETH之区块提议.md",
+    "Blockchain/ETH/Consensus/ETH之证明Attestation.md",
+    "Tools/如何找免费论文.md"
   ]
 }

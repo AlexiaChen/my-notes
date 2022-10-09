@@ -1,5 +1,25 @@
 # pRuntime节点源码分析
 
+
+## 运行本地开发调试环境
+
+```bash
+./scripts/run/build.sh
+./scripts/run/build-pruntime.sh
+```
+
+```bash
+./scripts/run/clear-pruntime.sh
+# run the following commands in 3 terminal windows or tmux panes
+./scripts/run/node.sh
+./scripts/run/pruntime.sh
+./scripts/run/pherry.sh
+```
+
+Now you have full node at `ws://localhost:19944`, and pruntime at `http://localhost:18000`
+
+
+
 ## 概览
 
 从cargo的依赖上看，pruntime就是主要由rust的rocket web框架开发出来的RPC服务器。区块链
