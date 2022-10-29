@@ -141,3 +141,16 @@ generateResolvConf = true
 ```
 
 然后运行 `wsl --shutdown` 重启WSL2就可以了。windows 11真是小问题不断啊。
+
+
+#### WSL2突然在windows 11上无法打开GUI应用
+
+用管理员权限运行Powershell, 在PS中输入:
+
+```ps
+wsl --update
+wsl --shutdown
+wsl --shutdown <linux-distribution>
+```
+
+重新进入WSL2的Linux系统，就可以工作了 。[Linux GUI was not working in wsl2 · Issue #7250 · microsoft/WSL (github.com)](https://github.com/microsoft/WSL/issues/7250)

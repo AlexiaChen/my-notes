@@ -9,3 +9,4 @@
 
 [Move语言 8.26 编辑中 (notion.site)](https://three-recorder-52a.notion.site/Move-8-26-a119d7b565164b88be690565b3ca3781)
 
+[The Move Prover: A Practical Guide | OtterSec (osec.io)](https://osec.io/blog/tutorials/2022-09-16-move-prover/)
