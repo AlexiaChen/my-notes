@@ -8,7 +8,7 @@
 
 假设我们已经部署了一个非常简单的合约，名为 "Deployed"，允许用户设置一个变量。
 
-```sol
+```d
 pragma solidity ^0.6.12;
 contract Deployed {
     uint public a = 1;
@@ -23,7 +23,7 @@ contract Deployed {
 
 而我们想在以后部署另一个名为 "Existing"的合同，以改变 "Deployed "合同中 "a "的变量。
 
-```sol
+```d
 pragma solidity ^0.6.12;
 contract Deployed {
     
@@ -58,7 +58,7 @@ contract Existing  {
 
 这很简单，而且实际上是与Deployed合同进行交互的推荐方式。然而，如果我们没有Deployed合同的ABI呢？我们仍然可以调用Deployed合同的 "setA "函数。
 
-```sol
+```d
 pragma solidity ^0.4.18;
 contract ExistingWithoutABI  {
     
@@ -78,7 +78,7 @@ contract ExistingWithoutABI  {
 
 函数签名的长度为4个字节，生成它的公式是用keccak256函数进行Hash，像这样
 
-```sol
+```d
 bytes4(keccak256(“setA(uint256)”))
 ```
 
@@ -86,7 +86,7 @@ bytes4(keccak256(“setA(uint256)”))
 
 如果我们想从setA中获得返回值怎么办？不幸的是，除非我们使用 solidity 的汇编代码 [Inline Assembly — Solidity 0.8.18 documentation (soliditylang.org)](https://docs.soliditylang.org/en/develop/assembly.html) ，否则没有办法做到这一点。你准备好了吗？
 
-```sol
+```d
 pragma solidity ^0.4.18;
 contract ExistingWithoutABI  {
     
@@ -142,7 +142,7 @@ solidity的汇编代码以 "汇编 "关键字开始，并以{}包裹。我希望
 
 记住，一般来说在同一个sol文件中的不同的contract关键字描述的合约，会分开部署到不同的地址，其实就是编译器把他们拆分开了。下面演示，通过interface接口来调用对接口实现的合约。也就是把具体的合约地址，转换为interface的类型，这个就是合约的多态性。
 
-```sol
+```d
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
@@ -174,7 +174,7 @@ contract MyContract {
 
 ```
 
-```sol
+```d
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
@@ -239,7 +239,7 @@ DELEGATECALL是一个新的操作码，是对CALLCODE的错误修复，CALLCODE�
 
 当D对E做CALLCODE/deletegatecall时，E的代码在D的上下文中运行（所以E能访问D的storage）。因此，设想E的代码在D中。
 
-```sol
+```d
 contract D {
   uint public n;
   address public sender;

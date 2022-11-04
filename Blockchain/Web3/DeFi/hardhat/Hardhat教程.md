@@ -707,3 +707,52 @@ module.exports = {
 在交易之前，你必须将Metamask的网络改为Goerli。其他测试网的Faucet资料在这里 [Networks | ethereum.org](https://ethereum.org/en/developers/docs/networks/#ethereum-testnets) 
 
 最后运行 npx hardhat run scripts/deploy.js --network goerli 
+
+## 合约的Verify和Publish
+
+如果了解合约的开发和发布，大家就可以在etherscan上通过搜索合约地址，就可以看到对应的合约源码，如果没有标题上的这步骤，就看不到，只是一堆字节码。所以这个是怎么办到的呢？
+
+[Verify & Publish Contract Source Code | Etherscan](https://etherscan.io/verifyContract)
+
+### 在etherscan上verify 合约
+
+要在Etherscan上更新代币信息，必须对代币的代币合约地址进行验证。这是为了确保合约代码正是部署在区块链上的内容，同时也允许公众审计和阅读合同。Etherscan确保所有的代币合约必须经过验证，才能用合约owner提交的信息进行更新。
+
+如果您是合约owner，并希望验证您的合约owner，请按照以下步骤进行。
+
+- 验证和发布
+
+在合约地址下，在 "transcation "标签旁边，你将能够找到 "code "标签。然后点击 "verify and publish"。
+
+![[Pasted image 20221029121701.png]]
+
+- 验证合约代码
+
+对于Truffle部署的合同，合同所有者可以使用Etherscan新的Beta源代码合约验证器，它支持验证合同代码页面上方的 "run "选项。
+
+![[Pasted image 20221029121752.png]]
+
+输入了所需的信息，合约的名称，编译器版本，优化选项，并输入了完整的合约代码。合约代码应该像部署的那样，在一个文件中，平铺直叙(Flatten)，所有的导入都要删除。
+
+构造函数参数和其他库也可以在同一页面的底部输入。
+
+![[Pasted image 20221029121849.png]]
+
+在点击VERIFY and publish按钮之前，请完成reCAPTCHA，合同应该得到验证。
+
+- 验证合约详情
+
+![[Pasted image 20221029121935.png]]
+
+当合同被验证后，"代码 "页面将被填入合同的详细信息。该合约的源代码现在可以在Etherscan上公开获得。
+
+详情也可以参考 ChainLink的博客 [How To Verify a Smart Contract on Etherscan | Chainlink Blog](https://blog.chain.link/how-to-verify-a-smart-contract-on-etherscan/)
+
+如果用Hardhat开发，可以使用hardhat的ethersca插件做到，详情请看 [Verifying your contracts | Ethereum development environment for professionals by Nomic Foundation (hardhat.org)](https://hardhat.org/hardhat-runner/docs/guides/verifying)
+
+[hardhat-etherscan | Ethereum development environment for professionals by Nomic Foundation](https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-etherscan)
+
+如果用ETHerscan来verify和publish，那么选择一个工具 [paulrberg/multisol: CLI application for verifying Solidity contracts on Etherscan (github.com)](https://github.com/paulrberg/multisol) ，这个工具相当于flatten，把一个合约打包在一个目录下，到时候在etherscan上上传合约代码的时候，就上传这个目录下的合约代码就行了。
+
+还有就是目前我的hardhat verify不能正在工作，即使挂了翻墙代理也不行，解决不了问题，所以还是用multisol这个工具把打包的合约上传合约到Remix IDE里面编译，记住编译器的版本，很重要，选择 multi-part，和MIT协议  上传合约。如果碰到有constructor的合约，verify需要传递参数，需要把你的部署的constructor的input参数记住下来，用abi-hashex来编码 [ABI Encoding Service Online for Solidity Smart Contracts by HashEx](https://abi.hashex.org/) 然后就可以verify和publish成功了。用Remix也可以用来发布合约到goerli等测试网和正式网，只要在enviroment中选择inject provider metamask就行，确保你的账号里面有钱。
+

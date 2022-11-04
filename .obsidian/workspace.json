@@ -37,7 +37,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
+                "file": "Blockchain/ETH/Solidity/可升级合约.md",
                 "mode": "source",
                 "source": false
               }
@@ -121,7 +121,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Web3/DeFi/truffle/解决Truffle compile报错.md",
+                "file": "Blockchain/Web3/DeFi/解决Truffle compile报错.md",
                 "mode": "source",
                 "source": false
               }
@@ -181,7 +181,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "console.log",
+                "query": "TODO",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -190,8 +190,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -211,7 +210,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
+                "file": "Blockchain/ETH/Solidity/可升级合约.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -239,7 +238,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
+                "file": "Blockchain/ETH/Solidity/可升级合约.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -293,17 +292,17 @@
       }
     ]
   },
-  "active": "9c0e30b949bbc20b",
+  "active": "37dc58cfac316a81",
   "lastOpenFiles": [
-    "Blockchain/Web3/DeFi/hardhat/Hardhat network.md",
-    "Blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
-    "Blockchain/Web3/DeFi/流动性挖矿(Liquidity Mining).md",
-    "Blockchain/ETH/Solidity/可升级合约.md",
-    "Blockchain/Web3/DeFi/LP代币是怎样工作的.md",
-    "Blockchain/Web3/DeFi/sushiswap/Kashi借贷.md",
-    "Blockchain/ETH/Solidity/solidity合约架构分析工具.md",
-    "Blockchain/Web3/DeFi/truffle/解决Truffle compile报错.md",
-    "202210260841-Scream借贷调研.md",
-    "Blockchain/Web3/DeFi/Compound/Compound白皮书.md"
+    "Blockchain/ETH/Solidity/Solidity学习笔记.md",
+    "Blockchain/ETH/Consensus/ETH之PoS共识.md",
+    "Blockchain/ETH/ETH之MEV.md",
+    "Back-end/Container/Docker学习笔记.md",
+    "Back-end/DistributedSystem/CAP理论.md",
+    "Blockchain/Web3/DeFi/Compound/Compound协议规范.md",
+    "Blockchain/Polkadot/Substrate/Substrate教程.md",
+    "Blockchain/Polkadot/Phala/code-tour/phala源码分析.md",
+    "Back-end/Container/k8s.md",
+    "Back-end/OperatingSystem/Green Threads解释.md"
   ]
 }

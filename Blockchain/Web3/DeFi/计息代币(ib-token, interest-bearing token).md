@@ -128,8 +128,6 @@ https://docs.abracadabra.money/intro/lending-markets#market-parameters
 
 杠杆的工作流程
 
-TODO
-
 ### 在Abracadabra上Leveraging一个position
 
 #### 交易
@@ -301,11 +299,11 @@ sSPELL表示staked SPELL代币。通过点击屏幕上方的STAKE按钮，用户
 
 ### 多链桥的功能
 
-TODO
+
 
 ### Swap
 
-TODO
+
 
 ## 清算(liquidation)
 
