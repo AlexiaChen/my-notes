@@ -37,7 +37,31 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/ETH/Solidity/可升级合约.md",
+                "file": "Math/Temp.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "72574cfd48e98c7a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "SoftwareEngineering/如何编写一份设计文档.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "130f0d7669e3fce2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
                 "mode": "source",
                 "source": false
               }
@@ -152,7 +176,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -210,7 +234,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/ETH/Solidity/可升级合约.md",
+                "file": "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -238,7 +262,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/ETH/Solidity/可升级合约.md",
+                "file": "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -252,57 +276,17 @@
     "width": 300,
     "collapsed": true
   },
-  "ribbon": {
-    "mostRecentAction": ""
-  },
-  "floating": {
-    "id": "b9c75ce183e50dbd",
-    "type": "floating",
-    "children": [
-      {
-        "id": "a63d39b2a4e66c89",
-        "type": "window",
-        "children": [
-          {
-            "id": "01096919dd459bf3",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "6d307b6463d4e8d7",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Blockchain/ETH/Solidity/solidity合约架构分析工具.md",
-                    "mode": "source",
-                    "source": false
-                  }
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": 2880,
-        "y": 0,
-        "width": 960,
-        "height": 1032,
-        "maximize": false,
-        "zoom": 0
-      }
-    ]
-  },
-  "active": "37dc58cfac316a81",
+  "active": "130f0d7669e3fce2",
   "lastOpenFiles": [
+    "Attachments/Pasted image 20221107105201.png",
+    "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
+    "SoftwareEngineering/如何编写一份设计文档.md",
+    "Blockchain/ETH/Solidity/solidity合约架构分析工具.md",
+    "Math/Temp.md",
+    "Blockchain/ETH/Solidity/可升级合约.md",
     "Blockchain/ETH/Solidity/Solidity学习笔记.md",
     "Blockchain/ETH/Consensus/ETH之PoS共识.md",
     "Blockchain/ETH/ETH之MEV.md",
-    "Back-end/Container/Docker学习笔记.md",
-    "Back-end/DistributedSystem/CAP理论.md",
-    "Blockchain/Web3/DeFi/Compound/Compound协议规范.md",
-    "Blockchain/Polkadot/Substrate/Substrate教程.md",
-    "Blockchain/Polkadot/Phala/code-tour/phala源码分析.md",
-    "Back-end/Container/k8s.md",
-    "Back-end/OperatingSystem/Green Threads解释.md"
+    "Back-end/Container/Docker学习笔记.md"
   ]
 }
