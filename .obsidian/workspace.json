@@ -20,18 +20,6 @@
             }
           },
           {
-            "id": "24ae78c05a2348d5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Blockchain/Web3/DeFi/流动性挖矿(Liquidity Mining).md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "9c0e30b949bbc20b",
             "type": "leaf",
             "state": {
@@ -44,24 +32,12 @@
             }
           },
           {
-            "id": "72574cfd48e98c7a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "SoftwareEngineering/如何编写一份设计文档.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "130f0d7669e3fce2",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
+                "file": "Blockchain/ETH/Solidity/Solidity学习笔记.md",
                 "mode": "source",
                 "source": false
               }
@@ -104,66 +80,6 @@
             }
           },
           {
-            "id": "5c61999a7602ae65",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Crypto/ECC/椭圆曲线密码学之可信设置.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "85cb618ab340d5df",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "e32dde2f8aac9868",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Blockchain/Web3/DeFi/Compound/Compound白皮书.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "c4985abe6e0cfe35",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Blockchain/Web3/DeFi/解决Truffle compile报错.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "6ccf4662a79e710b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Crypto/Basic/Diffie-Hellman秘钥交换.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "b73f7dddbf236faf",
             "type": "leaf",
             "state": {
@@ -174,9 +90,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "3d23512d7ab8185f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Blockchain/ETH/Solidity/以太坊合约编写最佳安全实践.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ],
-        "currentTab": 4
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -234,7 +162,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
+                "file": "Blockchain/ETH/Solidity/以太坊合约编写最佳安全实践.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -262,7 +190,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
+                "file": "Blockchain/ETH/Solidity/以太坊合约编写最佳安全实践.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -276,17 +204,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "130f0d7669e3fce2",
+  "active": "3d23512d7ab8185f",
   "lastOpenFiles": [
-    "Attachments/Pasted image 20221107105201.png",
-    "Blockchain/ETH/Solidity/如何编写一个安全的合约小游戏.md",
-    "SoftwareEngineering/如何编写一份设计文档.md",
-    "Blockchain/ETH/Solidity/solidity合约架构分析工具.md",
+    "Crypto/ECC/椭圆曲线科普.md",
+    "Crypto/Basic/多项式编码.md",
+    "Crypto/Basic/Diffie-Hellman秘钥交换.md",
+    "Crypto/ECC/椭圆曲线密码学的实战指南.md",
+    "Blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
+    "Blockchain/Web3/DeFi/LP代币是怎样工作的.md",
+    "Blockchain/Web3/DeFi/流动性挖矿(Liquidity Mining).md",
     "Math/Temp.md",
-    "Blockchain/ETH/Solidity/可升级合约.md",
-    "Blockchain/ETH/Solidity/Solidity学习笔记.md",
-    "Blockchain/ETH/Consensus/ETH之PoS共识.md",
-    "Blockchain/ETH/ETH之MEV.md",
-    "Back-end/Container/Docker学习笔记.md"
+    "SoftwareEngineering/如何编写一份设计文档.md",
+    "Blockchain/ETH/Solidity/Solidity学习笔记.md"
   ]
 }
