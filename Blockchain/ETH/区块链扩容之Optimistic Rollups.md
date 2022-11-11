@@ -56,7 +56,7 @@ rollups是解决plasma的数据可用性问题的方法
 
 rollup operator向合约发布一批交易（包括以前的和新的state root）。
 
-合约检查所提交的上一个state root是否与它的当前state root的副本相匹配，如果是，则将合同的state root切换到所提供的state root。
+合约检查所提交的上一个state root是否与它的当前state root的副本相匹配，如果是，则将合约的state root切换到所提供的state root。
 
 ![[Pasted image 20220917153641.png]]
 

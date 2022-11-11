@@ -52,7 +52,7 @@ Error: Transaction reverted: function selector was not recognized and there's no
 
 #### 自动化错误消息
 
-Hardhat Network 总是知道你的交易或调用失败的原因，它使用这些信息来使你的合同调试更容易。
+Hardhat Network 总是知道你的交易或调用失败的原因，它使用这些信息来使你的合约调试更容易。
 
 当交易无故失败时，Hardhat Network会在以下情况下创建一个清晰的错误信息。
 
@@ -61,7 +61,7 @@ Hardhat Network 总是知道你的交易或调用失败的原因，它使用这�
 - 在没有fallback函数的情况下调用一个不存在的函数
 - 调用一个参数不正确的函数
 - 调用一个没有返回正确数据量的external函数
-- 在一个非合同账户上调用一个external函数
+- 在一个非合约账户上调用一个external函数
 - 由于参数的原因，无法执行external调用（例如，试图发送过多的ETH）
 - 调用一个没有DELEGATECALL的库
 - 不正确地调用一个预编译的合约

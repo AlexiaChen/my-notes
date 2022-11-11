@@ -169,7 +169,7 @@ contract Token {
 }
 ```
 
-> \*.sol 用于 Solidity 文件。我们建议将文件名与它所包含的合同相匹配，这也是一种常见的做法。
+> \*.sol 用于 Solidity 文件。我们建议将文件名与它所包含的合约相匹配，这也是一种常见的做法。
 
 
 ### 编译合约
@@ -243,7 +243,7 @@ const { ethers } = require("hardhat");
 
 在ContractFactory上调用deploy()将开始部署，并返回一个解析为Contract的Promise。这是为你的每个智能合约功能提供方法的对象。
 
-一旦合同被部署，我们可以在hardhatToken上调用我们的合约方法。在这里，我们通过调用合约的balanceOf()方法获得所有者账户的余额。
+一旦合约被部署，我们可以在hardhatToken上调用我们的合约方法。在这里，我们通过调用合约的balanceOf()方法获得所有者账户的余额。
 
 回想一下，部署Token的账户会得到它的全部supply。默认情况下，ContractFactory和Contract实例连接到第一个Signer。这意味着所有者变量中的账户执行了部署，而balanceOf()应该返回整个供应量。
 
@@ -594,7 +594,7 @@ function transfer(address to, uint256 amount) external {
   
 在软件层面，部署到测试网与部署到主网是一样的。唯一的区别是你连接到哪个网络。让我们看看使用ethers.js部署合约的代码是什么样子的。  
   
-使用的主要概念是Signer、ContractFactory和Contract，我们在测试部分解释过。与测试相比，没有什么新的东西需要做，因为当你测试你的合同时，你实际上是在向你的开发网络进行部署。这使得代码非常相似，甚至是相同的。  
+使用的主要概念是Signer、ContractFactory和Contract，我们在测试部分解释过。与测试相比，没有什么新的东西需要做，因为当你测试你的合约时，你实际上是在向你的开发网络进行部署。这使得代码非常相似，甚至是相同的。  
   
 让我们在项目根目录下创建一个新的目录scripts，并在该目录下的deploy.js文件中粘贴以下内容。 
 
@@ -716,7 +716,7 @@ module.exports = {
 
 ### 在etherscan上verify 合约
 
-要在Etherscan上更新代币信息，必须对代币的代币合约地址进行验证。这是为了确保合约代码正是部署在区块链上的内容，同时也允许公众审计和阅读合同。Etherscan确保所有的代币合约必须经过验证，才能用合约owner提交的信息进行更新。
+要在Etherscan上更新代币信息，必须对代币的代币合约地址进行验证。这是为了确保合约代码正是部署在区块链上的内容，同时也允许公众审计和阅读合约。Etherscan确保所有的代币合约必须经过验证，才能用合约owner提交的信息进行更新。
 
 如果您是合约owner，并希望验证您的合约owner，请按照以下步骤进行。
 
@@ -728,7 +728,7 @@ module.exports = {
 
 - 验证合约代码
 
-对于Truffle部署的合同，合同所有者可以使用Etherscan新的Beta源代码合约验证器，它支持验证合同代码页面上方的 "run "选项。
+对于Truffle部署的合约，合约所有者可以使用Etherscan新的Beta源代码合约验证器，它支持验证合约代码页面上方的 "run "选项。
 
 ![[Pasted image 20221029121752.png]]
 
@@ -738,13 +738,13 @@ module.exports = {
 
 ![[Pasted image 20221029121849.png]]
 
-在点击VERIFY and publish按钮之前，请完成reCAPTCHA，合同应该得到验证。
+在点击VERIFY and publish按钮之前，请完成reCAPTCHA，合约应该得到验证。
 
 - 验证合约详情
 
 ![[Pasted image 20221029121935.png]]
 
-当合同被验证后，"代码 "页面将被填入合同的详细信息。该合约的源代码现在可以在Etherscan上公开获得。
+当合约被验证后，"代码 "页面将被填入合约的详细信息。该合约的源代码现在可以在Etherscan上公开获得。
 
 详情也可以参考 ChainLink的博客 [How To Verify a Smart Contract on Etherscan | Chainlink Blog](https://blog.chain.link/how-to-verify-a-smart-contract-on-etherscan/)
 

@@ -1190,7 +1190,7 @@ StorageValue,
 };
 ```
 
-- 增加一行，从合同pallet中导入默认的合同权重。例如。
+- 增加一行，从合约pallet中导入默认的合约权重。例如。
 
 ```rust
 pub use frame_system::Call as SystemCall;
@@ -1288,7 +1288,7 @@ construct_runtime!(
 
 一些pallet，包括合约pallet，暴露了自定义的runtime API和RPC端点。你不需要启用合约pallet上的RPC调用来在链上使用它。然而，为Contracts pallet暴露API和端点是非常有用的，因为这样做可以让你执行以下任务。
 
-- 从链外读取合同状态。
+- 从链外读取合约状态。
 - 在不进行交易的情况下，对节点存储进行调用。
 
 要暴露合约的RPC API。
@@ -2224,7 +2224,7 @@ pub struct MyContract {
 
 substrate智能合约支持大多数Rust常见的数据类型，包括布尔、无符号和有符号整数、字符串、元组和数组。这些数据类型使用Parity scale codec 进行编码和解码 [paritytech/parity-scale-codec: Lightweight, efficient, binary serialization and deserialization codec (github.com)](https://github.com/paritytech/parity-scale-codec) ，以便在网络上高效传输。
 
-除了可以使用scale codec的普通Rust类型外，ink！语言还支持Substrate-specific类型，如`AccountId`、`Balance`和`Hash`，就像它们是primitives类型一样。下面的代码说明了如何为这个合同存储一个`AccountId`和`Balance`。
+除了可以使用scale codec的普通Rust类型外，ink！语言还支持Substrate-specific类型，如`AccountId`、`Balance`和`Hash`，就像它们是primitives类型一样。下面的代码说明了如何为这个合约存储一个`AccountId`和`Balance`。
 
 ```rust
 // We are importing the default ink! types
@@ -4020,7 +4020,7 @@ substrate-contracts-node --dev
 
 ### Oudated contracts in local storage
 
-Contracts UI使用它自己的local storage来跟踪你所部署的合约。如果你使用Contracts UI部署了一个合同，然后为你的节点清除链数据，你会被提示重置你的local storage。在你为Contracts UI重置local storage后，重复你在清除节点前执行的任何步骤，并重新部署你以前上传的任何合约。
+Contracts UI使用它自己的local storage来跟踪你所部署的合约。如果你使用Contracts UI部署了一个合约，然后为你的节点清除链数据，你会被提示重置你的local storage。在你为Contracts UI重置local storage后，重复你在清除节点前执行的任何步骤，并重新部署你以前上传的任何合约。
 
 相当于这个contracts UI利用了浏览器的功能。[Substrate Contracts UI](https://contracts-ui.substrate.io/)
 

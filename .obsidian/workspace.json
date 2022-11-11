@@ -133,7 +133,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "TODO",
+                "query": "合约",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -142,7 +142,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -204,17 +205,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "3d23512d7ab8185f",
+  "active": "1042266280941d51",
   "lastOpenFiles": [
+    "Blockchain/Web3/DeFi/流动性挖矿(Liquidity Mining).md",
+    "Blockchain/ETH/Solidity/以太坊合约编写最佳安全实践.md",
     "Crypto/ECC/椭圆曲线科普.md",
     "Crypto/Basic/多项式编码.md",
     "Crypto/Basic/Diffie-Hellman秘钥交换.md",
     "Crypto/ECC/椭圆曲线密码学的实战指南.md",
     "Blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
     "Blockchain/Web3/DeFi/LP代币是怎样工作的.md",
-    "Blockchain/Web3/DeFi/流动性挖矿(Liquidity Mining).md",
     "Math/Temp.md",
-    "SoftwareEngineering/如何编写一份设计文档.md",
-    "Blockchain/ETH/Solidity/Solidity学习笔记.md"
+    "SoftwareEngineering/如何编写一份设计文档.md"
   ]
 }

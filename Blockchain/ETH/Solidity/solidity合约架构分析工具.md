@@ -21,7 +21,7 @@ surya graph contracts/**/*.sol | dot -Tpng > MyContract.png
 
 ![[Pasted image 20221019161530.png]]
 
-有一个新的标志（-s/-simple），它使命令图只显示合同调用图，而不是函数调用图。这对high-level的分析是非常有用的。
+有一个新的标志（-s/-simple），它使命令图只显示合约调用图，而不是函数调用图。这对high-level的分析是非常有用的。
 
 接受的标志
 
@@ -104,7 +104,7 @@ surya dependencies Exchange Exchange.sol
 
 ## 生成Markd报告
 
-mdreport命令创建了一个Markdown描述报告，其中的表格包含了关于系统的文件、合同及其功能的信息。和describe很像，但输出到一个格式良好的Markdown文件。
+mdreport命令创建了一个Markdown描述报告，其中的表格包含了关于系统的文件、合约及其功能的信息。和describe很像，但输出到一个格式良好的Markdown文件。
 
 ```bash
 surya mdreport report_outfile.md MyContract.sol
@@ -144,7 +144,7 @@ npm ls sol2uml -g
 ```
 ## 使用UML类图
 
-要生成contracts文件夹及其子文件夹下的所有合同的示意图  
+要生成contracts文件夹及其子文件夹下的所有合约的示意图  
 
 ```bash
 sol2uml class ./contracts
@@ -169,7 +169,7 @@ sol2uml class path/to/contracts/root/folder -o ./outputFile.svg
 ```
 
 
-要在一个单一的Solidity文件中生成所有合同的图表，将png格式的输出文件放到输出文件./someFile.png中  
+要在一个单一的Solidity文件中生成所有合约的图表，将png格式的输出文件放到输出文件./someFile.png中  
 
 ```bash
 sol2uml class path/to/contracts/root/folder/solidity/file.sol -f png -o ./someFile.png 

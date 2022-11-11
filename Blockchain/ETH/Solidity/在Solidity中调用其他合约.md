@@ -2,9 +2,9 @@
 # 在solidity中调用另一个合约的函数
 
 
-当我们编写智能合约时，我们可以以这样的方式编写它，即它们可以与现有部署的合约进行互动。这个功能非常强大，因为它允许代码重用，即像对待库一样对待部署的合同。在这个领域已经做了很多努力，但在编写时仍有争议。例如，如果重复使用的合同有问题，会发生什么情况（就像发生在[Parity Multisig Hacked. Again. Yesterday, Parity Multisig Wallet was… | by Anthony Akentiev | Chain.Cloud company blog | Medium](https://medium.com/chain-cloud-company-blog/parity-multisig-hack-again-b46771eaa838)）？
+当我们编写智能合约时，我们可以以这样的方式编写它，即它们可以与现有部署的合约进行互动。这个功能非常强大，因为它允许代码重用，即像对待库一样对待部署的合约。在这个领域已经做了很多努力，但在编写时仍有争议。例如，如果重复使用的合约有问题，会发生什么情况（就像发生在[Parity Multisig Hacked. Again. Yesterday, Parity Multisig Wallet was… | by Anthony Akentiev | Chain.Cloud company blog | Medium](https://medium.com/chain-cloud-company-blog/parity-multisig-hack-again-b46771eaa838)）？
 
-在这篇文章中，我不是在争论部署的合约的不可更改性，或者我们是否应该或不应该与部署的合约互动。相反，我将专注于不同的技术来调用部署的合同的功能。我可以看到它的一些用例，我将把它留给读者来实现他们相信的东西。
+在这篇文章中，我不是在争论部署的合约的不可更改性，或者我们是否应该或不应该与部署的合约互动。相反，我将专注于不同的技术来调用部署的合约的功能。我可以看到它的一些用例，我将把它留给读者来实现他们相信的东西。
 
 假设我们已经部署了一个非常简单的合约，名为 "Deployed"，允许用户设置一个变量。
 
@@ -21,7 +21,7 @@ contract Deployed {
 }
 ```
 
-而我们想在以后部署另一个名为 "Existing"的合同，以改变 "Deployed "合同中 "a "的变量。
+而我们想在以后部署另一个名为 "Existing"的合约，以改变 "Deployed "合约中 "a "的变量。
 
 ```d
 pragma solidity ^0.6.12;
@@ -54,9 +54,9 @@ contract Existing  {
 
 以上就是通过线上的合约地址，把地址强制转换为Deployed的合约类型，来调用，当然，这个合约类型你需要在Existing合约的上方声明，不然solidity编译器不知道Deployed合约的类型是什么。
 
-我们不需要 "Deployed "合同的完整实现，而只需要ABI所要求的函数签名。既然我们有 "Deployed "合同的地址，我们可以用这个地址初始化 "Existing "合同，并相应地使用现有的setA和getA函数与 "Deployed "合同交互。
+我们不需要 "Deployed "合约的完整实现，而只需要ABI所要求的函数签名。既然我们有 "Deployed "合约的地址，我们可以用这个地址初始化 "Existing "合约，并相应地使用现有的setA和getA函数与 "Deployed "合约交互。
 
-这很简单，而且实际上是与Deployed合同进行交互的推荐方式。然而，如果我们没有Deployed合同的ABI呢？我们仍然可以调用Deployed合同的 "setA "函数。
+这很简单，而且实际上是与Deployed合约进行交互的推荐方式。然而，如果我们没有Deployed合约的ABI呢？我们仍然可以调用Deployed合约的 "setA "函数。
 
 ```d
 pragma solidity ^0.4.18;
@@ -82,7 +82,7 @@ contract ExistingWithoutABI  {
 bytes4(keccak256(“setA(uint256)”))
 ```
 
-我们可以在调用方法中向setA传递一个值。然而，由于call（以及delegatecall）方法只是将值传递给合同地址，而不会得到任何返回值，所以除非我们检查出 "Delegate "合同的状态，否则它不知道setA是否正确完成了它的工作。
+我们可以在调用方法中向setA传递一个值。然而，由于call（以及delegatecall）方法只是将值传递给合约地址，而不会得到任何返回值，所以除非我们检查出 "Delegate "合约的状态，否则它不知道setA是否正确完成了它的工作。
 
 如果我们想从setA中获得返回值怎么办？不幸的是，除非我们使用 solidity 的汇编代码 [Inline Assembly — Solidity 0.8.18 documentation (soliditylang.org)](https://docs.soliditylang.org/en/develop/assembly.html) ，否则没有办法做到这一点。你准备好了吗？
 
@@ -212,10 +212,10 @@ contract MyContract {
 
 对于address.call的这种形式来说，有两种，一种是call，另一种是delegatecall，delegatecall是callcode的bug修复版本，所以callcode一般是过时失效了。那么这两个调用具体有什么不同呢？
 
-在Solidity中，有几种方法来委托合同之间的调用。一个部署的合约总是驻留在一个地址上，Solidity中的这个地址-对象提供了三种方法来调用其他合约。
+在Solidity中，有几种方法来委托合约之间的调用。一个部署的合约总是驻留在一个地址上，Solidity中的这个地址-对象提供了三种方法来调用其他合约。
 
-call - 执行另一个合同的代码
-delegatecall - 执行另一个合同的代码，但被callee合同有caller合同的状态（存储）。
+call - 执行另一个合约的代码
+delegatecall - 执行另一个合约的代码，但被callee合约有caller合约的状态（存储）。
 callcode - (deprecated)
 
 也可以像这样为一个调用提供gas和ETH代币。
@@ -227,7 +227,7 @@ delegatecall方法是对callcode的错误修正，它没有保留msg.sender和ms
 
 当然，从一个给定的地址调用合约上的函数存在固有的安全风险，这种调用合约的方式破坏了 Solidity 的类型安全。因此，call、callcode和delegatecall应该只作为最后手段使用。一般都通过ABI的方式把地址强制转换类型去调用。
 
-DELEGATECALL基本上是说，我是一个合同，我允许（委托）你对我的storage做任何你想做的事情。DELEGATECALL对caller合约（就是发起delegatecall的合约）来说是一个安全风险，它需要相信接收合约会善待caller合约的存储。
+DELEGATECALL基本上是说，我是一个合约，我允许（委托）你对我的storage做任何你想做的事情。DELEGATECALL对caller合约（就是发起delegatecall的合约）来说是一个安全风险，它需要相信接收合约会善待caller合约的存储。
 
 DELEGATECALL是一个新的操作码，是对CALLCODE的错误修复，CALLCODE没有保留msg.sender和msg.value。如果Alice调用Bob，后者对Charlie进行DELEGATECALL，那么DELEGATECALL中的msg.sender就是Alice（而如果使用CALLCODE，msg.sender就是Bob）。
 
