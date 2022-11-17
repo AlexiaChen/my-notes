@@ -1252,6 +1252,130 @@ proposal.dispatch(system::RawOrigin::None.into())
 
 ## RPCs
 
+远程程序调用，或称RPC，是外部程序--例如浏览器或前端应用程序--与Substrate节点通信的一种方式。它们被用于检查存储值、提交交易以及查询当前的共识机构。Substrate自带了几个默认的RPC [JSON-RPC | polkadot{.js}](https://polkadot.js.org/docs/substrate/rpc/) 。在许多情况下，为你的节点添加自定义的RPC是有用的。
+
+### RPC扩展构建器
+
+为了将一个自定义的RPC客户端连接到一个Substrate节点，你必须提供一个被称为RPC扩展构建器的函数。这个函数接受一个参数，用于说明节点是否应该接受或拒绝不安全的RPC调用，并返回一个节点需要的IoHandler [Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/node_rpc/type.IoHandler.html) ，以创建一个JSON RPC。要了解更多的情况，可以通过查看RpcExtensionBuilder特性API文档来阅读。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_service/trait.RpcExtensionBuilder.html) 
+
+### RPC类型
+
+RPC可以是一个节点的共识机制的接口，也可以是与任何外部用户提交交易到区块链的接口。在所有情况下，考虑RPC暴露了哪些端点是很重要的。
+
+启动一个节点，并运行这个命令来查看你的节点的RPC APIs的完整列表。
+
+```bash
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "rpc_methods"}' http://localhost:9933/
+```
+
+#### 公有RPCs
+
+substrate节点提供以下命令行选项，允许你公开暴露RPC接口。
+
+```bash
+--ws-external
+--rpc-external
+--unsafe-ws-external
+--unsafe-rpc-external
+```
+
+默认情况下，如果你试图暴露一个RPC接口并同时运行一个validator节点，该节点将拒绝启动。--`unsafe-*`标志允许你抑制这一安全措施。暴露RPC接口会打开一个巨大的攻击面，必须仔细审查。
+
+有相当多的RPC方法可以用来控制节点的行为，但你应该避免暴露。例如，你不应该暴露以下的RPC方法。
+
+- `author_submitExtrinsic` - 允许提交交易到本地池。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/author/trait.AuthorApi.html#tymethod.submit_extrinsic) 
+- `author_insertKey` - 允许插入私人钥匙到本地钥匙库。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc_api/author/trait.AuthorApi.html#tymethod.insert_key) 
+- `author_rotateKeys` - 会话密钥旋转。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc_api/author/trait.AuthorApi.html#tymethod.rotate_keys) 
+- `author_removeExtrinsic` - 从池中删除和禁止外在的交易。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc_api/author/trait.AuthorApi.html#tymethod.remove_extrinsic) 
+- `system_addReservedPeer` - 添加保留节点。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc_api/system/trait.SystemApi.html#tymethod.system_add_reserved_peer) 
+- `system_removeReservedPeer` - 删除保留节点。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc_api/system/trait.SystemApi.html#tymethod.system_remove_reserved_peer) 
+
+你也应该避免暴露那些可能需要很长时间才能执行的RPC方法，这些方法可能会阻断客户端的同步。例如，你应该避免使用以下RPC方法。
+
+- `storage_keys_paged` - 获得状态中所有具有特定前缀和支持分页的键。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc_api/state/trait.StateApi.html#tymethod.storage_keys_paged) 
+- `state_getPairs` - 获得状态中所有具有特定前缀的键以及它们的值。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc_api/state/trait.StateApi.html#tymethod.storage_pairs) 
+
+这些RPC是通过使用`#[rpc(name = "rpc_method")]`宏来声明的，其中`rpc_method`是函数的名称，例如`author_submitExtrinsic`对应`submit_extrinsic`。[Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/sc_rpc/author/trait.AuthorApi.html#tymethod.submit_extrinsic) 
+
+如果请求来自不受信任的用户，过滤掉这些调用是非常关键的。做到这一点的方法是通过一个JSON-RPC [Glossary | Substrate_ Docs](https://docs.substrate.io/reference/glossary/#json-rpc) 代理，它能够检查调用并只传递允许的API集。
+
+### RCPs for remote_externalities
+
+在`remote_externalities`的背景下，存在一种使用RPC的特殊类型。`rpc_api` [Page not found · GitHub Pages (paritytech.github.io)](https://paritytech.github.io/substrate/master/remote_externalities/rpc_api/index.html) 允许你对Substrate节点进行一次性的RPC调用，这对于使用`try-runtime` [try-runtime | Substrate_ Docs](https://docs.substrate.io/reference/command-line-tools/try-runtime/) 等工具进行测试非常有用。
+
+### Endpoints
+
+当启动任何Substrate节点时，这两个端点对你来说是可用的。
+
+- HTTP端点：http://localhost:9933/
+- Websocket端点：ws://localhost:9944/
+
+大多数Substrate前端库和工具使用更强大的WebSocket端点与区块链互动。通过WebSocket，你可以订阅链上的状态，如事件，并在你的区块链发生变化时接收推送通知。
+
+要调用`Metadata`端点，请在运行中的节点旁边运行此命令。
+
+```bash
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "state_getMetadata"}' http://localhost:9933/
+```
+
+该命令的返回值不是人类可读的格式。为此，它需要使用类型编码（SCALE）。[Type encoding (SCALE) | Substrate_ Docs](https://docs.substrate.io/reference/scale-codec/) 
+
+每个存储项（storage item）都有一个与之相关的相对存储key，用于查询存储。[[#Runtime存储]]  这就是RPC端点知道在哪里寻找的方法。
+
+### 例子
+
+`state_getMetadata`
+
+RPC request:
+
+```js
+function get_metadata_request(endpoint) {
+  let request = new Request(endpoint, {
+    method: "POST",
+    body: JSON.stringify({
+      id: 1,
+      jsonrpc: "2.0",
+      method: "state_getMetadata",
+    }),
+    headers: { "Content-Type": "application/json" },
+  });
+  return request;
+}
+```
+
+navie text decoding
+
+```js
+function decode_metadata(metadata) {
+  return new TextDecoder().decode(util.hexToU8a(metadata));
+}
+```
+
+`state_getStorage`
+
+```json
+Request:   {"id":1,"jsonrpc":"2.0","method":"state_getStorage",["{storage_key}"]}
+```
+
+其中storage_key是一个由pallet名称、function和键（可选）生成的参数。
+
+```js
+function get_runtime_storage_parameter_with_key(module_name, function_name, key) {
+  // We use xxhash 128 for strings the runtime developer can control
+  let module_hash = util_crypto.xxhashAsU8a(module_name, 128);
+  let function_hash = util_crypto.xxhashAsU8a(function_name, 128);
+
+  // We use blake2 256 for strings the end user can control
+  let key_hash = util_crypto.blake2AsU8a(keyToBytes(key));
+
+  // Special syntax to concatenate Uint8Array
+  let final_key = new Uint8Array([...module_hash, ...function_hash, ...key_hash]);
+
+  // Return a hex string
+  return util.u8aToHex(final_key);
+}
+```
+
 ## 应用开发
 
 在substrate区块链上运行的大多数应用程序需要某种形式的前端或面向用户的界面--如浏览器、桌面、移动或硬件客户端--使用户或其他程序能够访问和修改区块链存储的数据。例如，你可以开发一个基于浏览器的应用程序，用于互动游戏，或者开发一个特定的硬件应用程序来实现硬件钱包。根据你的需要，存在不同的库来构建这些类型的应用程序。本文解释了查询Substrate节点和使用其暴露的metadata的过程，以帮助你了解在创建前端客户端应用程序和使用客户端特定库时如何使用metadata。
