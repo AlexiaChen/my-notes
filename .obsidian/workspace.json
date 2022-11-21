@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Cosmos/IBC介绍.md",
+                "file": "Blockchain/Cosmos/CosmosSDK系列教程.md",
                 "mode": "source",
                 "source": false
               }
@@ -126,7 +126,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/Cosmos/IBC介绍.md",
+                "file": "Blockchain/Cosmos/CosmosSDK系列教程.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -154,7 +154,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/Cosmos/IBC介绍.md",
+                "file": "Blockchain/Cosmos/CosmosSDK系列教程.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }

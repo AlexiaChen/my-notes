@@ -1675,7 +1675,25 @@ app.mm.SetOrderInitGenesis(
 
 ## IBC的相关工具
 
+主要是这三个工具，MapOfZones， Mintscan，IOBScan。
 
+你将看到三个非常有用的IBC网络的可视化工具。它们包括网络中的链（hubs和zones）、连接、通道和交易等信息。
+
+在浏览概述时，建议尝试一下所有可以发现的东西：只要点击一下，看看会发生什么。
+
+这些类型的工具有助于保持对整个IBC网络的概述，但也可以帮助诸如中继器的选择，因为它们提供了一个关于中继的基本指标的概述。
+
+#### MapOfZones
+
+[Map of zones - Cosmos network explorer](https://mapofzones.com/home?columnKey=ibcVolume&period=24h)
+
+#### Mintscan
+
+https://hub.mintscan.io/   与MapOfZones定位一样，都是cosmos网络浏览器。
+
+#### IOBScan
+
+[IOBScan - IOB - Home](https://ibc.iobscan.io/home)  也是一个浏览器，可以看到转账，代币，网络，通道(channels)， 中继者(relayers)
 
 ## IBC的协议规范以及实现文档
 
