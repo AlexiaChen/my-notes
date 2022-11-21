@@ -1128,33 +1128,364 @@ BaseApp提供了三种主要状态。两个是易失(volatile)的，一个是持
 
 有一个单一的`CommitMultiStor`e，被称为主状态或根状态。`BaseApp`使用一种叫做分支的机制从这个主状态派生出两个易失状态，这个分支由`CacheWrap`函数执行。
 
-> 我的理解就是，持久状态就是整个链的固化的DB里面的世界状态，易失的状态就是变化的世界状态，还没被commit到DB中的临时状态。
+> 我的理解就是，持久状态就是整个链的固化的DB里面的世界状态，易失的状态就是变化的世界状态，还没被commit到DB中的临时状态。而这个分支就类似于于git中的fork branch的概念，等修改完了，再合并到master branch上
 
 ###### InitChain状态更新
 
-
+两个不稳定的状态`checkState`和`deliverState`是在`InitChain`期间通过对根`CommitMultiStore`的分支设置的。任何后续的读和写都发生在`CommitMultiStore`的分支版本上。所有对分支存储的读取都是缓存的，以避免不必要的往返于主状态。
 
 ###### CheckTx 状态更新
 
+`CheckState`是基于root store的最后一次提交的状态，用于`CheckTx`期间的任何读和写。在这里，你只执行`AnteHandle`r，并为交易中的每个消息验证一个服务路由器的存在。
+
+注意，当你执行`AnteHandler`时，你将已经分支的`checkState`分支化。这有一个副作用，如果`AnteHandler`失败了，状态转换将不会反映在`checkState`中。`checkState`只有在成功时才会更新。
+
 ###### BeginBlock 状态更新
+
+在`BeginBlock`期间，`deliverState`被设置为在随后的`DeliverTx` ABCI消息中使用。`deliverState`是基于根存储的最后一次提交的状态，并且是分叉的。
+
+请注意，`deliverState`在`Commit`时被设置为`nil`。
 
 ###### DeliverTx状态更新
 
+`DeliverTx`的状态流与`CheckTx`几乎相同，只是状态转换发生在`deliverState`上，交易中的消息被执行。与`CheckTx`类似，状态转换发生在一个双分支状态，`deliverState`上。成功的消息执行的结果是向`deliverState`提交写内容。
+
+如果消息执行失败，来自`AnteHandler`的状态转换将被持久化。
+
 ###### Commit状态更新
+
+所有在`deliverState`中发生的状态转换最终在`Commit`过程中被写入到根`CommitMultiStore`中，这又被提交到磁盘中，并产生一个新的应用的root hash。这些状态转换现在被认为是最终的（不会被回滚）。`checkState`最终被设置为新提交的状态，`deliverState`被设置为nil，以便在`BeginBlock`中被重置。
 
 ###### ParamStore
 
+在`InitChain`期间，`RequestInitChain`提供`ConsensusParams`，其中包含与区块执行有关的参数，如最大gas和大小，此外还有证据参数。如果这些参数是非空的，它们会被设置在`BaseApp`的`ParamStore`中。`ParamStore`是由`x/params`模块子空间在幕后管理的。这使得参数可以通过链上治理进行调整。
+
 ##### 服务路由器
+
+当应用程序收到消息和查询时，它们必须被适当地路由以进行处理。路由是通过`BaseApp`完成的，`BaseApp`拥有一个用于消息的`msgServiceRouter`和一个用于查询的`grpcQueryRouter`。
 
 ###### Msg服务路由器
 
+> 关于BaseApp的更多信息再这里 [cosmos-sdk/00-baseapp.md at main · cosmos/cosmos-sdk (github.com)](https://github.com/cosmos/cosmos-sdk/blob/main/docs/docs/core/00-baseapp.md) 
+
+BaseApp实现的主要ABCI消息是`CheckTx`  [cosmos-sdk/00-baseapp.md at main · cosmos/cosmos-sdk (github.com)](https://github.com/cosmos/cosmos-sdk/blob/main/docs/docs/core/00-baseapp.md#checktx) 和`DeliverTx`  [cosmos-sdk/00-baseapp.md at main · cosmos/cosmos-sdk (github.com)](https://github.com/cosmos/cosmos-sdk/blob/main/docs/docs/core/00-baseapp.md#delivertx) 。
+
+其他正在实现的ABCI消息处理程序有。
+
+- `InitChain`
+- `BeginBlock`
+- `EndBlock`
+- `Commit`
+- `Info`
+- `Query`
 
 #### 查询
 
+> 在本节中，你将发现查询，这是模块处理的两个主要对象之一。
+
+查询是对信息的请求，由应用程序的终端用户通过接口提出，并由一个全节点(full node)处理。可用的信息包括:
+
+- 关于网络的信息。
+- 有关应用程序本身的信息。
+- 关于应用状态的信息。
+
+查询不需要共识来处理，因为它们不触发状态转换。因此，查询可以完全由一个全节点独立处理。
+
+> 关于查询的生命周期，查询是怎样被创建的，被处理的，怎样回应的都在这里 [Query Lifecycle | Cosmos SDK](https://docs.cosmos.network/main/basics/query-lifecycle.html) 
+
 #### 事件
+
+事件是一个包含有关应用程序执行的信息的对象。事件被区块浏览器和钱包等服务提供商用来跟踪各种信息和索引交易的执行。
+
+在Cosmos SDK中，事件被实现为ABCI `event`类型的一个别名，其形式为`{eventType}.{attributeKey}={attributeValue}`。
+
+事件允许应用开发者附加额外的信息。这意味着交易可能会被使用事件进行查询。
+
+```protobuf
+// Events allow application developers to attach additional information to
+// ResponseBeginBlock, ResponseEndBlock, ResponseCheckTx, and ResponseDeliverTx.
+// Later, transactions may be queried using these events.
+message Event {
+  string                  type       = 1;
+  repeated EventAttribute attributes = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.jsontag)  = "attributes,omitempty"
+  ];
+}
+```
+
+##### 结构
+
+前面有两个元素很突出。
+
+- 一个`type`来对事件进行高层次的分类。例如，Cosmos SDK使用`message`类型以`Msg`来过滤事件。
+- 一个`attributes`列表，它是提供分类事件更多信息的key-value对。例如，我们可以使用`message.action={some_action}`、`message.module={some_module}`或`message.sender={a_sender}`作为`message`类型的键值对来过滤事件。
+
+> 请确保在每个属性值周围添加`'`（单引号），以便将属性值解析为字符串。
+
+事件、其类型和属性在每个模块的`/types/events.go`文件中定义。每个模块还在`spec/xx_events.md`中记录了其事件。
+
+事件被返回到底层共识引擎，以响应以下ABCI消息。
+
+- `BeginBlock`
+- `EndBlock`
+- `CheckTx`
+- `DeliverTx`
+
+事件是由一个叫做`EventManager`的抽象来管理的。事件是通过`EventManager`从模块的Protobuf `Msg`服务中触发的。这个抽象需要进一步探索。
+
+##### EventManager
+
+`Eventmanager`跟踪一个交易的整个执行流程的事件列表，或`BeginBlock`/`EndBlock`。`EventManager`实现了一个围绕事件对象slice的简单包装，它可以被发射出来并提供有用的方法。对于Cosmos SDK模块和应用开发者来说，最常用的方法是`EmitEvent`。
+
+模块开发者应该通过`EventManager#EmitEvent`在每个消息处理程序和每个通过`Context`访问的`BeginBlock`或`EndBlock`处理程序中处理事件发射。事件发射通常遵循这种模式。
+
+```go
+func (em *EventManager) EmitEvent(event Event) {
+    em.events = em.events.AppendEvent(event)
+}
+```
+
+每个模块的处理函数也应该为上下文设置一个新的`EventManager`，以隔离每个消息的发射事件。
+
+```go
+func NewHandler(keeper Keeper) sdk.Handler {
+    return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+        ctx = ctx.WithEventManager(sdk.NewEventManager())
+        switch msg := msg.(type) {
+            // event types
+        }
+    ...
+    }
+}
+```
+
+##### 订阅事件
+
+你可以使用Tendermint的WebSocket [Subscribing to events via Websocket | Tendermint Core](https://docs.tendermint.com/v0.34/tendermint-core/subscription.html) ，通过调用 `subscribe` RPC方法来订阅事件。
+
+你可以订阅的主要`eventCategories`是。
+
+- `NewBlock`：包含在`BeginBlock`和`EndBlock`期间触发的事件。
+- `Tx`：包含在`DeliverTx`期间触发的事件，交易处理。
+- `ValidatorSetUpdates`：包含块的validators集合的更新。
+
+> 事件分类的所有列表可以在这里看到 [types package - github.com/tendermint/tendermint/types - Go Packages](https://pkg.go.dev/github.com/tendermint/tendermint/types?utm_source=godoc#pkg-constants) 
+
+你可以对事件类型和属性值进行过滤。例如，一个转账交易触发了一个类型为`Transfer`的事件，其属性为`Sender`和`Recipient`，在`bank`模块的`events.go`文件中定义。
 
 #### 上下文(Context)
 
+> Context是交易执行的环境，是runtime所有相关信息的总和。在这里，你会发现transaction context的详细含义，并进一步了解共同构成execution context的重要元素。
+
+交易在一个上下文中执行。上下文包括关于应用程序的当前状态、区块和交易的信息。
+
+上下文被表示为数据结构，它携带着关于应用程序当前状态的信息，并打算从函数传递到函数。上下文提供了对分支存储(就是之前讲解store的时候提到的分支)的访问，即整个状态的安全分支，以及有用的对象和信息，如`gasMeter`、块高度和共识参数。
+
+> Cosmos SDK上下文是一个自定义的数据结构，包含Go的stdlib上下文作为其基础。它的定义中有许多额外的类型，是Cosmos SDK特有的。
+
+上下文是交易处理的组成部分，因为它允许模块轻松访问其在multistore中的各自存储，并检索交易上下文，如块头和燃气表（gas meter）。
+
+##### 上下文属性
+
+上下文有以下属性。
+
+- `Context`：基本类型是一个Go Context。
+- `Multistore`：每个应用程序的`BaseApp`都包含一个`CommitMultiStore`，它在创建上下文时被提供。调用`KVStore()`和`TransientStore()`方法允许模块使用其独特的`StoreKeys`来获取各自的`KVStores`。
+- ABCI Header：header是一个ABCI类型。它携带了关于区块链状态的重要信息，如区块高度和当前区块的提议者(proposer)。
+- chain ID：一个区块所涉及的区块链的唯一识别号。
+- transaction bytes：使用上下文处理交易的`[]byte`表示。
+
+> 每个交易在其整个生命周期中被Cosmos SDK和共识引擎（例如Tendermint）的不同部分所处理，其中一些对交易类型没有任何了解。因此，交易被编入一个通用的`[]byte`类型，使用某种编码格式，如`Amino`。
+
+- Logger：来自Tendermint库的logger。在这里了解更多关于日志的信息  [tendermint/logger.go at master · tendermint/tendermint (github.com)](https://github.com/tendermint/tendermint/blob/master/libs/log/logger.go) 。模块调用此方法来创建他们独特的模块专用的logger。
+- `VoteInfo`：一个ABCI类型的`VoteInfo`列表，其中包括validator的名字和一个表示他们是否已经签署该区块的布尔值。
+- Gas meters：具体来说，是当前正在处理的交易的`gasMeter`，使用上下文，以及它所属的整个块的`blockGasMeter`。
+
+> 用户指定他们希望为其交易的执行支付多少费用。这些gas meters记录了到目前为止交易或区块中已经使用了多少gas。如果燃气表（gas meter）用完了，执行就会停止。
+
+- CheckTx mode：一个布尔值，表示交易应以`CheckTx`或`DeliverTx`模式处理。
+- Min gas price：一个节点愿意采取的最低gas价，以将交易纳入其区块。这个价格是由每个节点单独配置的本地值，因此不应该在导致状态转换的序列中的任何函数中使用。
+- Consensus params：ABCI类型的共识参数，它指定了区块链的某些限制，如区块的最大gas。
+- Event manager：允许任何能够访问上下文的调用者发出事件。模块可以通过定义各种类型和属性，或使用`types/`中的通用定义来定义模块特定的事件。客户端可以订阅或查询这些事件。这些事件通过`DeliverTx`、`BeginBlock`和`EndBlock`收集，并返回给Tendermint做索引。
+
+##### Golang的Context包
+
+上下文是一个不可改变的数据结构，它在API和进程中携带请求范围的数据。上下文的设计也是为了实现并发，并在goroutines中使用。[context package - context - Go Packages](https://pkg.go.dev/context) 
+
+上下文的目的是不可改变的：它们不应该被编辑。惯例是使用`With`函数从其父代创建一个子代上下文。Golang Context Package 文档指导开发者明确地传递一个context `ctx`   [context package - context - Go Packages](https://pkg.go.dev/context) 作为进程的第一个参数。
+
+##### Store分支
+
+上下文包含一个`MultiStore`，它允许使用`CacheMultiStore`进行分支和缓存功能。`CacheMultiStore`中的查询被缓存起来，以避免未来的往返旅行。
+
+每个`KVStore`都在一个安全和隔离的短暂存储中进行分支。进程可以自由地向`CacheMultiStore`写入变化。如果一个状态转换序列的执行没有问题，存储分支可以在序列结束时提交给底层存储，如果出了问题，也可以不考虑它。
+
+##### Context的使用模式
+
+上下文的使用模式如下。
+
+- 进程从其父进程接收一个上下文`ctx`，它提供了执行进程所需的信息。
+- `ctx.ms`是一个分支存储，这意味着multistore的一个分支，以便进程在执行时可以对状态进行更改，而不改变原始`ctx.ms`。这对于保护底层multistore是很有用的，以防在执行过程中的某个时刻需要恢复这些变化。
+- 进程在执行过程中可以从`ctx`中读和写。它可以调用一个子进程，并根据需要将`ctx`传递给它们。
+- 当一个子进程返回时，它检查结果是成功还是失败。如果失败，不需要做什么--分支`ctx`被简单地丢弃。如果成功，对`CacheMultiStore`的修改可以通过`Write()`提交到原来的`ctx.ms`。
+
+##### 流程
+
+在对交易中的任何消息调用`runMsgs`之前，`app.cacheTxContext()`被用来对上下文和multistore储进行分支和缓存。
+
+- 对于`runMsgCtx`，在`runMsgs`中使用带有分支存储的上下文，以返回结果。
+- 如果进程在`checkTxMode`中运行，就不需要写变化。结果会立即返回。
+- 如果进程在`deliverTxMode`中运行，并且结果表明成功地运行了所有的消息，分叉的multistore被写回原始的地方。
+
 #### 迁移
 
+> 你是否曾想过在Cosmos SDK中是如何进行升级的？在本节中，你将了解到Cosmos SDK的迁移是如何进行的。
+> 
+> 区块链可以通过一个可预测的过程进行升级，可靠地避免了分叉。发现Cosmos的综合流程，包括治理、数据迁移、节点升级等，以确保升级顺利进行，不影响服务。
+
+在Cosmos区块链上运行的Cosmos SDK应用程序可以以有序的、链上的方式进行升级。
+
+> 升级区块链和区块链应用程序是众所周知的困难和风险。Cosmos SDK解决了常见的风险和挑战。
+
+
+一般来说，当区块链升级时，所有节点同时升级并在同一区块高度上升级是至关重要的。这在一个无序的环境中很难实现。如果节点不协调，那么区块链将 "分叉 "成两个具有共同历史的区块链：一个遵守新规则的链，一个遵守旧规则的链。这两条链一般不可能在未来达成共同的共识或合并。
+
+> 所以在substrate中，对pallet的修改，就是升级runtime，runtime编译成WASM，做到的链上无分叉的升级，对开发者是透明的，不需要一般的solo chain那样用高度作为升级的新规则逻辑进行隔离
+
+> 在没有软件支持升级的情况下，升级一个实时链（正在运行中的链）是有风险的，因为所有的validators都需要在同一个块的高度暂停它们的状态机，并在恢复之前应用升级。如果这一点做得不对，可能会出现状态不一致的情况，这很难恢复。
+
+> 以太坊等EVM链上的智能合约是不可改变的软件。根据定义，它们很难或不可能改变。基于模块化的各种策略可以模拟升级智能合约的效果，但所有已知的方法都有固有的局限性，特别是重新组织静态数据的困难、不可能或令人望而却步的成本。这对可行的升级类型造成了很大的限制。
+
+为特定应用构建的Cosmos SDK区块链可以在不分叉的情况下进行升级(看来于substrate类似)。如果新版本的区块链应用程序使用的数据布局与链上现有的不同，现有的数据可以在新版本的应用程序上线之前被重新组织。数据迁移由开发者定义，并在节点恢复服务前快速、经济地在每个节点上运行。
+
+> 感觉也是类似substrate的无分叉升级，但是其好像不是对开发者无感知的，要开发者来定义数据迁移，好像还要暂停节点？
+
+##### 流程概览
+
+###### 计划
+
+一个 "plan "是一个升级过程，将在未来的一个特定区块高度发生。它包括一个在升级开始时执行的`SideCar`进程，该进程命名该计划并指定执行的区块高度。
+
+> 对计划的接受或拒绝是通过正常的治理过程来管理的。一个 "取消建议 "可以被提交并通过，阻止计划的执行。取消的条件是，在升级发生之前，知道某个计划是一个糟糕的想法。
+
+计划中的`Info`启动了`SideCar`进程。
+
+```go
+type Plan struct {
+  Name   string
+  Height int64
+  Info   string
+}
+```
+
+###### `Sidecar` 进程
+
+`SideCar`是一个二进制文件，节点可以运行它来处理Cosmos二进制文件之外的进程。这可以包括一些步骤，如从 repo中的某个提交中下载和编译软件。
+
+###### `UpgradeHandler`
+
+一个`UpgradeHandler`可以在`SideCar`过程结束和二进制文件被升级后执行。它关注在正常处理恢复之前可能需要的链上活动。升级处理程序可以触发`StoreLoader`。
+
+###### `StoreLoader`
+
+`StoreLoader`为新的二进制文件的使用准备链上状态。这可能包括重新组织现有的数据。节点不会恢复正常操作，直到storeloader返回，处理程序完成其工作。
+
+###### 提议(Proposal)
+
+治理采用投票表决并通过或拒绝的提案。升级提案的形式是接受或拒绝一个通过治理准备和提交的计划。提案可以在执行前用取消提案撤回。
+
+##### 优势
+
+协调的升级出席了升级区块链应用程序和区块链平台的挑战性过程。
+
+这种形式的协调升级的主要优点是。
+
+- 避免分叉：所有validators在预先确定的区块高度一起移动。
+- 二进制文件的顺利升级：新的软件以自动化的方式被采用。
+- 重组数据存储：静止的数据可以根据需要被进程重组，不受区块gas限制等因素限制。
+
+##### 升级带来的影响
+
+区块链在通过计划的区块高度上暂停。这就启动了升级过程。升级过程本身可能包括切换到一个下载和安装相对较小的新二进制文件，也可能包括一个广泛的数据重组过程。在这两种情况下，validators都会停止处理区块，直到它完成这个过程。
+
+当处理程序对升级的完整程度感到满意时，validators就会恢复对块的处理。从用户的角度来看，这似乎是一个暂停，随着新版本的出现而恢复。
+
+> 区块链居然会暂停，这里不会有问题吗？就是因为升级下载或重组数据，节点一段时间内不出块了，对用户带来的感知太大了
+
+##### 特定应用
+
+`SideCar`、handler和storeloader是特定的应用。在每个区块，Cosmos SDK检查在处理区块交易之前应该执行的计划。如果没有，那么处理就会照常进行。如果一个计划被安排运行，那么Cosmos SDK就会暂停正常处理并加载`SideCar`。当`SideCa`r完成后，它加载handler和可选的storeloader。
+
+应用开发者根据他们的应用和使用情况来构建这些组件的实现。
+
+更详细的升级流程请看 [Upgrade Overview | Cosmos SDK](https://docs.cosmos.network/v0.46/modules/upgrade/) 
+
+##### Cosmovisor
+
+Cosmovisor是一个工具，节点操作员(node operator,也可以理解为节点运维人员)可以用它来自动化上述的链上过程。
+
+- Cosmovisor作为Cosmos SDK应用二进制文件的一个小包装运行。
+- Cosmovisor观察任何批准的升级建议。
+- 如果需要，Cosmovisor可以下载并运行新的二进制文件。
+- 当链到达升级块时，Cosmovisor也会处理存储升级。
+
+关于Cosmovisor更多的请看 [Cosmovisor | Cosmos SDK](https://docs.cosmos.network/main/tooling/cosmovisor) 
+
 #### 桥
+
+##### The Gravity Bridge
+
+重力桥   [Home | Gravity Bridge](https://www.gravitybridge.net/) 是Althea目前正在进行的一个项目，目标是促进ERC-20代币转移到基于Cosmos的区块链上，和返回ERC20代币到非cosmos链上。
+
+> 引力桥允许将Cosmos的力量与Ethereum的资产价值相结合的新颖应用。
+
+开发人员可以使用Cosmos链进行昂贵或不可能用以太坊智能合约进行的计算。开发人员可以接受以太坊ERC-20代币作为支付，或围绕以太坊代币建立整个Cosmos应用。
+
+##### 它是怎样工作的
+
+桥由几个部分组成。  
+  
+- `Gravity.sol`：以太坊区块链上的一个以太坊智能合约。  
+- Cosmos Gravity module：一个旨在运行于Cosmos Hub上的Cosmos模块。  
+- Orchestrator：一个运行在Cosmos validator上的程序，它监控以太坊链，并将以太坊上发生的事件以消息形式提交给Cosmos。  
+- 中继器(relayers)：一个节点网络，为赚取代表Cosmos validator发送交易的费用而竞争。  
+
+代币在以太坊方面通过向`Gravity.sol`智能合约发送被锁定。这就会发出一个事件，运行Orchestrator的validator可以观察到。当validator的法定人数同意代币在以太坊上被锁定，包括必要的确认区块，就会选择一个relayers向Cosmos Gravity模块发送指令，该模块发行新的代币。这是非稀释性的--它不会增加流通支持，因为同等数量的代币被锁定在以太坊一侧。  
+  
+为了将代币从Cosmos Hub转移到Ethereum区块链，Cosmos网络上的代币被销毁，并从`Gravity.sol`智能合约中释放同等数量的代币（它们之前被存入了）。  
+  
+> 也是mint burn模式的跨链，Gravity模块mint出同等数量的被以太坊锁定住的代币，来代表那边的数额
+
+> cosmos gravity bridge的设计是为了在cosmos hub上运行。它的重点是最大限度地提高设计的简单性和效率。该桥可以将源自以太坊的ERC-20资产转移到基于Cosmos的链上，并返回到以太坊。交易是分批进行的，转移是净值化的。这创造了规模效率，降低了每次转移的交易成本。
+
+##### 关键的设计组件: 相信完整性(trust in integrity)
+
+签署欺诈性的validators集更新和交易批次，目的是为了以太坊智能合约，在Cosmos链上会受到slashing的惩罚。如果Cosmos链是值得信赖的，只要它在一定的参数范围内运行，你就可以信任它所操作的gravity bridge。
+
+
+> slashing是为了惩罚validators。当validator损失了一定比例的stake代币时，代币被slash作为惩罚。因此，对validators的惩罚可以包括（但不限于）。
+> 
+    - 烧掉validator的部分股权。
+> - 在确定的时间段内取消他们参与投票的许可。
+
+通往cosmos链的桥梁，其可信度来自于与之相联系的cosmos链的信任程度。Peg-zone validators必须保持一个受信任的以太坊节点。这是强制性的。这消除了所有的信任和博弈论问题，这些问题通常在涉及独立中继器时出现。这再一次极大地简化了设计。
+
+> 验证validators组的投票是Gravity必须执行的最昂贵的链上操作。现有的桥对于小到8个签名者的签名集来说，会产生超过一倍的gas成本。
+
+##### 可操作参数确保安全
+
+该桥需要在Ethereum智能合约上通过调用`updateValset`方法进行validators集的更新，至少在每个Cosmos解绑期（unbonding period 通常每两周一次）进行一次。为什么必须这样做？如果没有每个解约期的更新，以太坊智能合约存储的validators集可能包含欺诈/恶意的validators，然后这些validators不能因为行为不当而被slash。
+
+
+> Cosmos全节点不验证来自Ethereum的事件，因为事件被验证到Cosmos链的状态，纯粹是基于当前validators集的签名。
+
+如果validators代表超过2/3的股权，即使在以太坊上没有相应的事件，事件也可以被添加到状态中。在这种情况下，Cosmos和Ethereum链的观察者将需要对该问题 "发出警报"。这个功能是内置在中继器中的。
+
+关于该桥更多的信息请看：
+
+- [Announcing the Cosmos Gravity Bridge (althea.net)](https://blog.althea.net/gravity-bridge/)
+- [cosmos/gravity-bridge: A CosmosSDK application for moving assets on and off of EVM based, POW chains (github.com)](https://github.com/cosmos/gravity-bridge/)
+- [PeggyJV/gravity-bridge: A CosmosSDK application for moving assets on and off of EVM based, POW chains (github.com)](https://github.com/PeggyJV/gravity-bridge/)
+- [Gravity-Bridge/Gravity-Bridge: The official repository of the Gravity Bridge Blockchain (github.com)](https://github.com/gravity-bridge/gravity-bridge)
+

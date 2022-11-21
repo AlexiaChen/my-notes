@@ -20,36 +20,12 @@
             }
           },
           {
-            "id": "60abd2f644186121",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Blockchain/Web3/DeFi/uniswap/UniswapV2是怎样工作的.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "9e2f34a6bb2a199d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Cosmos/cosmos的核心概念.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "3992f8c4f093063d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Crypto/ECC/椭圆曲线密码学的实战指南.md",
+                "file": "Blockchain/Cosmos/IBC介绍.md",
                 "mode": "source",
                 "source": false
               }
@@ -92,7 +68,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -150,7 +126,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blockchain/Cosmos/cosmos的核心概念.md",
+                "file": "Blockchain/Cosmos/IBC介绍.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -178,7 +154,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blockchain/Cosmos/cosmos的核心概念.md",
+                "file": "Blockchain/Cosmos/IBC介绍.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -194,15 +170,15 @@
   },
   "active": "9e2f34a6bb2a199d",
   "lastOpenFiles": [
+    "Blockchain/Cosmos/cosmos的核心概念.md",
+    "Blockchain/Cosmos/IBC介绍.md",
+    "Blockchain/Cosmos/什么是cosmos.md",
+    "Crypto/ECC/椭圆曲线密码学的实战指南.md",
+    "Blockchain/Web3/DeFi/DeFi学习笔记.md",
+    "Blockchain/Web3/DeFi/uniswap/UniswapV2是怎样工作的.md",
     "Blockchain/Web3/DeFi/Compound/Compound的cTokens.md",
     "Blockchain/Polkadot/Substrate/Substrate开发构建笔记.md",
-    "Blockchain/Cosmos/什么是cosmos.md",
-    "Blockchain/Cosmos/cosmos的核心概念.md",
     "Blockchain/Cosmos/CosmosSDK系列教程.md",
-    "Math/Temp.md",
-    "Blockchain/Temp.md",
-    "Blockchain/Cosmos/IBC介绍.md",
-    "Blockchain/Polkadot/Substrate/Substrate学习笔记.md",
-    "Blockchain/Web3/DeFi/Compound/Compound协议源码解析.md"
+    "Math/Temp.md"
   ]
 }

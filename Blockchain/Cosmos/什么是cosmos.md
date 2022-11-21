@@ -254,3 +254,7 @@ CosmWasm的设计使你的代码与底层链的细节无关。它只需要一个
 #### 获得ATOM和抵押它
 
 [Getting ATOM and Staking It | Developer Portal (cosmos.network)](https://tutorials.cosmos.network/academy/1-what-is-cosmos/3-atom-staking.html) 
+
+#### cosmos VS polkadot
+
+因为cosmos和polkadot大体上的哲学目标一致，都是连接各个区块链，形成可互操作性，所以这里有一个对比 [Polkadot vs Cosmos - Miscellaneous - Cosmos Hub Forum](https://forum.cosmos.network/t/polkadot-vs-cosmos/1397/4) 
