@@ -251,6 +251,23 @@ grep -i "killed process" /var/log/messages
 cmd_line > outputfile 2>&1 &
 ```
 
+下面这个是既保留控制台的输出，同时也定向到日志文件里。而上面那个是只定向到文件里
+
+```bash
+cmd_line 2>&1 | tee node.log &
+```
+
 References:
 
 - https://unix.stackexchange.com/questions/74520/can-i-redirect-output-to-a-log-file-and-background-a-process-at-the-same-time
+
+#### 找到特定进程中的环境变量
+
+```bash
+ps -ef | grep <name>
+
+cat /proc/<pid>/environ | tr '\0' '\n'
+# or
+strings /proc/<pid>/environ
+
+```

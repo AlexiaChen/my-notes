@@ -681,12 +681,6 @@ Genesis transaction written to "/home/mathxh/.simapp/config/gentx/gentx-edc6225a
 ./simd collect-gentxs
 ```
 
-会输出以下:
-
-```json
-
-```
-
 
 #### 创建区块（也就是运行区块链）
 
@@ -1307,19 +1301,840 @@ gaiad query block 5901208 --node https://rpc.cosmos.network:443
 
 #### 一些例子
 
+从事开发直观和连贯的用户界面的开发人员需要在浏览器级别完成某些事情：
 
+- 帮助用户创建未签名的 Cosmos SDK 交易。
+- 让用户用他们的钱包签署一个未签名的交易。
+- 帮助用户将已签名的交易提交到 Cosmos SDK 端点。
+- 使用旧版 REST 端点从 Cosmos Hub 或自定义模块查询状态。
+- 使用 gRPC 端点从 Cosmos Hub 或自定义模块查询状态。
+- 帮助用户在单个交易中提交多条消息。
+
+后端系统通常是整体设计的有用组件：
+
+- 出于性能原因缓存复杂状态。
+- 最大限度地减少基本匿名浏览的客户端要求。
+- 监控区块链的变化并通知客户。
+- 提供 API 端点和 WebSocket。
+
+开发人员需要一个工具包来完成解决这些基本问题的事情：
+
+- 当助记词已知时签署交易。
+- 在私钥已知时签署交易。
+- 将多条消息分组到一个交易中。
+- 在 Keplr 等钱包的帮助下请求用户签名。
+- 查询区块链状态。
+- 监听 Cosmos SDK 模块发出的事件。
+
+CosmJS 协助完成这些任务以及更多。
+
+CosmJS 的模块化结构允许开发人员只导入需要的部分，这有助于减少下载payload。由于该库是独立的，因此它与 Vue、React 和 Express 等流行的 JavaScript 框架兼容。
 
 #### 包
 
+CosmJS 是一个库，由 @cosmjs 命名空间 [npm (npmjs.com)](https://www.npmjs.com/org/cosmjs) 中的许多较小的 npm 包组成，即所谓的“monorepo”。
+
+通常人们只需要 `stargate` 和 `encoding` 包，因为它们包含与 Cosmos SDK 链 0.40 及更高版本交互的主要功能。
+
+其中，这里有一些示例包：
+
+![[Pasted image 20221124163049.png]]
+
+
 #### 模块化
+
+我们为这个 monorepo 中的模块化和干净的依赖树感到自豪。 这确保了我们这边的软件质量，并让用户准确地选择他们需要的东西，并且只选择他们需要的东西。 下图显示了所有内容是如何组合在一起的（每个项目都是一个 npm 包；右边依赖于左边）：
+
+![[Pasted image 20221124163139.png]]
+
+在下一节中我们会上手操作。
+
+- [HackAtom HCMC Workshop - CosmWasm/CosmJS: from zero to hero - YouTube](https://www.youtube.com/watch?v=VTjiC4wcd7k)
+- [cosmos/cosmjs: The Swiss Army knife to power JavaScript based client solutions ranging from Web apps/explorers over browser extensions to server-side clients like faucets/scrapers. (github.com)](https://github.com/cosmos/CosmJS) 
 
 ### 你的第一次CosmJS行动
 
+```bash
+git clone git@github.com:b9lab/cosmjs-sandbox.git
+cd cosmjs-sandbox
+npm install
+```
+
+然后你就可以看到这个项目下没有任何一个ts/js源文件，所以添加一个`experiment.ts`的源文件，加入以下代码:
+
+```ts
+const runAll = async(): Promise<void> => {
+    console.log("TODO")
+}
+runAll()
+```
+
+编译运行:
+
+```bash
+npm run experiment
+```
+
+你就会发现输出了`TODO`。
+
+#### 测试网准备
+
+Cosmos 生态系统有许多测试网在运行。 Cosmos Hub 目前正在运行一个公共测试网（[testnets/public at master · cosmos/testnets (github.com)](https://github.com/cosmos/testnets/tree/master/public) ，用于您正在连接并运行脚本的 Theta 升级。 您需要连接到公共节点，以便查询信息和广播交易。 可用节点之一是：
+
+```txt
+RPC: https://rpc.sentry-01.theta-testnet.polypore.xyz
+```
+
+您需要一个测试网上的钱包地址，并且您必须创建一个 24 字的助记词才能这样做。 CosmJS 可以为您生成一个。 使用以下脚本创建一个新文件 `generate_mnemonic.ts`：[cosmjs-sandbox/generate_mnemonic.ts at 723d2a9d0b08f3208164fb414d578188f7a71eaa · b9lab/cosmjs-sandbox (github.com)](https://github.com/b9lab/cosmjs-sandbox/blob/723d2a9/generate_mnemonic.ts#L1-L10) 
+
+```ts
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing"
+
+const generateKey = async (): Promise<void> => {
+    const wallet: DirectSecp256k1HdWallet = await DirectSecp256k1HdWallet.generate(24)
+    process.stdout.write(wallet.mnemonic)
+    const accounts = await wallet.getAccounts()
+    console.error("Mnemonic with 1st account:", accounts[0].address)
+}
+
+generateKey()
+
+```
+
+生成一个叫Alice的秘钥对:
+
+```bash
+npx ts-node generate_mnemonic.ts > testnet.alice.mnemonic.key
+```
+
+上面写入的文件是暂存助记词。
+
+输出:
+
+```txt
+Mnemonic with 1st account: cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y
+```
+
+> 如果上面运行失败，那么请升级nodejs版本 [How to Update Node.js to Latest Version {Linux, Windows, and MacOS} (phoenixnap.com)](https://phoenixnap.com/kb/update-node-js-version) 
+
+这节的全部代码在这里 [b9lab/cosmjs-sandbox at file-preparation (github.com)](https://github.com/b9lab/cosmjs-sandbox/tree/file-preparation) 
+
+#### 添加你的导入
+
+你需要一个小而简单的区块链接口，一个最终可能有用户的接口。 好的做法是在必要之前不要请求用户地址（例如，当用户单击相关按钮时）。 因此，在 `experiment.ts` 中，您首先使用只读客户端。 在文件顶部导入它：
+
+```ts
+import { StargateClient } from "@cosmjs/stargate"
+```
+
+#### 定义你的连接
+
+接下来你该告诉你的客户端如何连接之前的RPC节点:
+
+```ts
+const rpc = "rpc.sentry-01.theta-testnet.polypore.xyz:26657"
+```
+
+在`runAll`函数中初始化连接和马上检查是否连接到了正确的地方:
+
+```ts
+const runAll = async(): Promise<void> => {
+    const client = await StargateClient.connect(rpc)
+    console.log("With client, chain id:", await client.getChainId(), ", height:", await client.getHeight())
+}
+```
+
+运行 `npm run experiment`， 输出:
+
+```txt
+With client, chain id: theta-testnet-001 , height: 13288982
+```
+
+#### 获取余额
+
+通常您还无法访问您的用户地址。 但是，对于本练习，您需要知道 Alice 有多少代币，因此在 `runAll` 中添加一个临时的新命令：
+
+```ts
+console.log(
+    "Alice balances:",
+    await client.getAllBalances("cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y"), // <-- replace with your generated address
+)
+```
+
+运行后，你会发现Alice的地址下的所有代币的余额都是空的，那是必然的，你生成一个新的地址，一般不会有钱在里面。
+
+如果您刚刚创建了这个帐户，Alice 的余额为零。 Alice 需要代币才能发送交易并参与网络。 测试网的一个常见做法是公开水龙头（在限制范围内免费向您发送测试代币的服务）。
+
+Cosmos Hub Testnet Faucet有一个专用的 Discord 频道 https://discord.com/channels/669268347736686612/953697793476821092/958291295741313024 ，您可以在其中为每个 Discord 用户每天索取一次代币。
+
+通过在频道中输入以下命令，转到faucet频道并为 Alice 请求代币：
+
+```bash
+$request cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y theta
+```
+
+[Transaction Details | Testnet Block Explorer (polypore.xyz)](https://explorer.theta-testnet.polypore.xyz/transactions/465156F8512B25CB806AF59EE36ACBC84779066BFE331DC954E819BA98BAC0B8) 这里是请求代币的交易
+
+这下，你再次运行`npm run experiment` 就会输出:
+
+```json
+Alice balances: [ { denom: 'uatom', amount: '10000000' } ]
+```
+
+`uatom` 是测试网上不可分割的代币单元(类似于以太坊上的wei，polkadot上的Plank)。 它是微型 ATOM 或 µ-ATOM 的缩写。所以这里发了0.001 ATOM。 所以确认后，您可以注释掉余额查询。
+
+#### 获取水龙头(faucet)地址
+
+作为练习，您希望Alice将一些代币发送回Faucet，因此您需要它的地址。 您可以从Faucet机器人请求它，但也可以使用 experiment.ts 中的交易哈希来获取它。
+
+首先，您需要获得交易。
+
+在顶部添加必要的导入：
+
+```ts
+import { IndexedTx, StargateClient } from "@cosmjs/stargate"
+```
+
+```ts
+const faucetTx: IndexedTx = (await client.getTx(
+    "465156F8512B25CB806AF59EE36ACBC84779066BFE331DC954E819BA98BAC0B8",
+))!
+```
+
+以上的代码就获取了水龙头发送的交易了
+
+#### 反序列化交易
+
+可以这样输出交易:
+
+```ts
+console.log("Faucet Tx:", faucetTx)
+```
+
+```json
+Faucet Tx: {  
+height: 13289139,  
+hash: '465156F8512B25CB806AF59EE36ACBC84779066BFE331DC954E819BA98BAC0B8',  
+code: 0,  
+rawLog: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1ykt8lw8  
+6us7d93de4gqr4pg0z3ujse6vjjtx3y"},{"key":"amount","value":"10000000uatom"}]},{"type":"coin_spent","att  
+ributes":[{"key":"spender","value":"cosmos15aptdqmm7ddgtcrjvc5hs988rlrkze40l4q0he"},{"key":"amount","v  
+alue":"10000000uatom"}]},{"type":"message","attributes":[{"key":"action","value":"/cosmos.bank.v1beta1  
+.MsgSend"},{"key":"sender","value":"cosmos15aptdqmm7ddgtcrjvc5hs988rlrkze40l4q0he"},{"key":"module","v  
+alue":"bank"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1ykt8lw86us7d93de4g  
+qr4pg0z3ujse6vjjtx3y"},{"key":"sender","value":"cosmos15aptdqmm7ddgtcrjvc5hs988rlrkze40l4q0he"},{"key"  
+:"amount","value":"10000000uatom"}]}]}]',  
+tx: Uint8Array(323) [  
+10, 148, 1, 10, 145, 1, 10, 28, 47, 99, 111, 115,  
+109, 111, 115, 46, 98, 97, 110, 107, 46, 118, 49, 98,  
+101, 116, 97, 49, 46, 77, 115, 103, 83, 101, 110, 100,  
+18, 113, 10, 45, 99, 111, 115, 109, 111, 115, 49, 53,  
+97, 112, 116, 100, 113, 109, 109, 55, 100, 100, 103, 116,  
+99, 114, 106, 118, 99, 53, 104, 115, 57, 56, 56, 114,  
+108, 114, 107, 122, 101, 52, 48, 108, 52, 113, 48, 104,  
+101, 18, 45, 99, 111, 115, 109, 111, 115, 49, 121, 107,  
+116, 56, 108, 119,  
+... 223 more items  
+],  
+gasUsed: 76728,  
+gasWanted: 200000  
+}
+```
+
+但是，这样输出对人可读性不是那么好，所以需要反序列化:
+
+```ts
+import { Tx } from "cosmjs-types/cosmos/tx/v1beta1/tx"
+
+const decodedTx: Tx = Tx.decode(faucetTx.tx)
+console.log("DecodedTx:", decodedTx)
+console.log("Decoded messages:", decodedTx.body!.messages)
+
+```
+
+```json
+DecodedTx: {  
+signatures: [  
+Uint8Array(64) [  
+23, 12, 13, 119, 226, 105, 171, 112, 56, 161, 29,  
+195, 109, 239, 214, 228, 43, 131, 234, 79, 247, 163,  
+155, 206, 2, 102, 238, 87, 117, 50, 116, 51, 113,  
+156, 39, 112, 227, 190, 230, 101, 239, 235, 205, 8,  
+15, 41, 211, 55, 37, 144, 1, 177, 26, 255, 97,  
+210, 91, 110, 57, 28, 208, 9, 81, 49  
+]  
+],  
+body: {  
+memo: '',  
+timeoutHeight: Long { low: 0, high: 0, unsigned: true },  
+messages: [ [Object] ],  
+extensionOptions: [],  
+nonCriticalExtensionOptions: []  
+},  
+authInfo: {  
+signerInfos: [ [Object] ],  
+fee: { gasLimit: [Long], payer: '', granter: '', amount: [Array] }  
+}  
+}  
+Decoded messages: [  
+{  
+typeUrl: '/cosmos.bank.v1beta1.MsgSend',  
+value: Uint8Array(113) [  
+10, 45, 99, 111, 115, 109, 111, 115, 49, 53, 97, 112,  
+116, 100, 113, 109, 109, 55, 100, 100, 103, 116, 99, 114,  
+106, 118, 99, 53, 104, 115, 57, 56, 56, 114, 108, 114,  
+107, 122, 101, 52, 48, 108, 52, 113, 48, 104, 101, 18,  
+45, 99, 111, 115, 109, 111, 115, 49, 121, 107, 116, 56,  
+108, 119, 56, 54, 117, 115, 55, 100, 57, 51, 100, 101,  
+52, 103, 113, 114, 52, 112, 103, 48, 122, 51, 117, 106,  
+115, 101, 54, 118, 106, 106, 116, 120, 51, 121, 26, 17,  
+10, 5, 117, 97,  
+... 13 more items  
+]  
+}  
+]
+```
+
+反序列化交易并没有完全反序列化它包含的任何消息，也没有完全反序列化它们的值，这又是一个 `Uint8Array`。 交易反序列化器知道如何正确解码任何交易，但它不知道如何对消息执行相同的操作。 消息实际上可以是任何类型，并且每种类型都有自己的反序列化器。 这不是 `Tx.decode` 交易反序列化器函数所知道的。因为消息可以自定义格式。是一个二进制data字段。
+
+#### 这个长字符串是什么
+
+请注意 `typeUrl: "/cosmos.bank.v1beta1.MsgSend"` 字符串。 这来自 Protobuf 定义，是以下各项的混合：
+
+最初声明 `MsgSend` 的包：[cosmos-sdk/tx.proto at 3a1027c74b15ad78270dbe68b777280bde393576 · cosmos/cosmos-sdk (github.com)](https://github.com/cosmos/cosmos-sdk/blob/3a1027c/proto/cosmos/bank/v1beta1/tx.proto#L2)  而消息本身的名字 `MsgSend`在这里 [cosmos-sdk/tx.proto at 3a1027c74b15ad78270dbe68b777280bde393576 · cosmos/cosmos-sdk (github.com)](https://github.com/cosmos/cosmos-sdk/blob/3a1027c/proto/cosmos/bank/v1beta1/tx.proto#L22) 
+
+您在解码消息中看到的这个 `typeUrl` 字符串是在`value`数组下序列化的消息类型的规范标识符。 有许多不同的消息类型，每一种都来自 Cosmos SDK 的不同模块或基础层，您可以在此处找到它们的概述 [Docs · cosmos/cosmos-sdk (buf.build)](https://buf.build/cosmos/cosmos-sdk) 。
+
+区块链客户端本身知道如何序列化或反序列化它只是因为这个`“/cosmos.bank.v1beta1.MsgSend”`字符串被传递了。 使用此 `typeUrl`，区块链客户端和 CosmJS 能够选择正确的反序列化器。 这个对象在 `cosmjs-types` 中也被命名为 `MsgSend`。 但在本教程中，您手动选择了反序列化器。
+
+> 要了解如何为您自己的区块链项目制作您自己的类型，请前往创建  自定义 CosmJS 接口。[[#创建自定义的CosmJS接口]]
+
+#### 反序列化消息
+
+下面就是手动选择消息的反序列化器。现在您知道交易中的唯一消息是 `MsgSend`，您需要反序列化它。 首先在顶部添加必要的导入：
+
+```ts
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx"
+
+
+const sendMessage: MsgSend = MsgSend.decode(decodedTx.body!.messages[0].value)
+console.log("Sent message:", sendMessage)
+
+```
+
+然后`npm run experiment`
+
+```json
+Sent message: {  
+fromAddress: 'cosmos15aptdqmm7ddgtcrjvc5hs988rlrkze40l4q0he',  
+toAddress: 'cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y',  
+amount: [ { denom: 'uatom', amount: '10000000' } ]  
+}
+```
+
+所以水龙头的地址在sendMessage里面。
+
+```ts
+const faucet: string = sendMessage.fromAddress
+console.log("Faucet balances:", await client.getAllBalances(faucet))
+```
+
+```json
+Faucet balances: [ { denom: 'uatom', amount: '852330414566' } ]
+```
+
+> 还有一种获得水龙头地址的方法
+> 
+> 您可以通过其他方式自行处理数据，而不是使用 `Tx` 和 `MsgSend` 导入附带的解码函数。 如果您想进行更多试验，请手动解析 `rawLog`，而不是像之前建议的那样反序列化交易。
+> 
+> 请注意 `Tx` 和 `rawLog` 之间的概念差异。 `Tx` 或 `MsgSend` 对象是当交易包含在块中时发生的计算的输入。 `rawLog` 是上述计算的结果输出，其内容取决于执行交易时区块链代码发出的内容。
+> 
+> 从 `IndexedTx` 中，您可以看到有一个 `rawLog`  [cosmjs/stargateclient.ts at 13ce43c1220c9d94e5d8c444bfc74d7e72d7e254 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/13ce43c/packages/stargate/src/stargateclient.ts#L64) ，它恰好是一个字符串化的 JSON。
+
+```ts
+const rawLog = JSON.parse(faucetTx.rawLog)
+console.log("Raw log:", JSON.stringify(rawLog, null, 4))
+
+const faucet_another: string = rawLog[0].events
+    .find((eventEl: any) => eventEl.type === "coin_spent")
+    .attributes.find((attribute: any) => attribute.key === "spender").value
+
+    console.log("Faucet balances in another way:", await client.getAllBalances(faucet_another))
+```
+
+> 虽然这是从交易消息中提取特定值的完全有效的方法，但不推荐这样做。 导入消息类型的好处是您不必手动挖掘您希望在应用程序中使用的每个 `Tx` 的原始日志。
+
+#### 准备一个签名客户端
+
+如果您查看 `StargateClient`  [cosmjs/stargateclient.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/stargate/src/stargateclient.ts#L139) 中的方法，您会发现它只包含查询类型的方法，没有用于发送交易的方法。
+
+现在，为了让Alice发送交易，她需要能够签署交易。 为了能够签署交易，她需要访问她的私钥或助记词。 或者更确切地说，她需要一个可以访问这些的客户端。 这就是 `SigningStargateClient`  [cosmjs/signingstargateclient.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/stargate/src/signingstargateclient.ts#L147) 的用武之地。方便的是，`SigningStargateClient` 继承自 `StargateClient`。
+
+更新您的导入行：
+
+```ts
+import { IndexedTx, SigningStargateClient, StargateClient } from "@cosmjs/stargate"
+```
+
+当您使用 `connectWithSigner`  [cosmjs/signingstargateclient.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/stargate/src/signingstargateclient.ts#L156) 方法实例化 `SigningStargateClient` 时，您需要向其传递一个`Signer` [cosmjs/signingstargateclient.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/stargate/src/signingstargateclient.ts#L158) 。 在这种情况下，请使用 `OfflineDirectSigner`  [cosmjs/signer.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/proto-signing/src/signer.ts#L21-L24)  接口。
+
+
+> 推荐的消息编码方式是使用 `OfflineDirectSigner`，它使用 Protobuf。 然而，诸如 Ledger 之类的硬件钱包不支持这一点，并且仍然需要遗留的 Amino 编码器。 如果您的应用需要 Amino 支持，您必须使用 `OfflineAminoSigner`。
+> 
+> 在此处阅读有关编码的更多信息 [Encoding | Cosmos SDK](https://docs.cosmos.network/main/core/encoding.html) 。
+
+signer需要访问 Alice 的私钥，有几种方法可以实现这一点。 在这个例子中，使用Alice保存的助记词。 要在您的代码中将助记符作为文本加载，您需要导入：
+
+```ts
+import { readFile } from "fs/promises"
+```
+
+有多种可用的 `OfflineDirectSigner` 实现。 由于其 `fromMnemonic`  [cosmjs/directsecp256k1hdwallet.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/proto-signing/src/directsecp256k1hdwallet.ts#L140-L141) 方法，`DirectSecp256k1HdWallet` [cosmjs/directsecp256k1hdwallet.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/proto-signing/src/directsecp256k1hdwallet.ts#L133) 实现与我们最为相关。 添加导入：
+
+```ts
+import { DirectSecp256k1HdWallet, OfflineDirectSigner } from "@cosmjs/proto-signing"
+
+const getAliceSignerFromMnemonic = async (): Promise<OfflineDirectSigner> => {
+    return DirectSecp256k1HdWallet.fromMnemonic((await readFile("./testnet.alice.mnemonic.key")).toString(), {
+        prefix: "cosmos",
+    })
+}
+ 
+ const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic()
+    const alice = (await aliceSigner.getAccounts())[0].address
+    console.log("Alice's address from signer", alice)
+    const signingClient = await SigningStargateClient.connectWithSigner(rpc, aliceSigner)
+    console.log(
+        "With signing client, chain id:",
+        await signingClient.getChainId(),
+        ", height:",
+        await signingClient.getHeight()
+    )
+```
+
+```txt
+Alice's address from signer cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y  
+With signing client, chain id: theta-testnet-001 , height: 13292751
+```
+
+
+#### 发送代币
+
+```ts
+console.log("Gas fee:", decodedTx.authInfo!.fee!.amount)
+    console.log("Gas limit:", decodedTx.authInfo!.fee!.gasLimit.toString(10))
+    console.log("Alice balance before:", await client.getAllBalances(alice))
+    console.log("Faucet balance before:", await client.getAllBalances(faucet))
+    const result = await signingClient.sendTokens(alice, faucet, [{ denom: "uatom", amount: "100000" }], {
+        amount: [{ denom: "uatom", amount: "500" }],
+        gas: "200000",
+    })
+    console.log("Transfer result:", result)
+    console.log("Alice balance after:", await client.getAllBalances(alice))
+    console.log("Faucet balance after:", await client.getAllBalances(faucet))
+```
+
+> 您已连接到公开运行的测试网。 因此，您依赖于其他人来让区块链运行在开放且公开可用的 RPC 端口和水龙头上。 如果您想尝试连接到您自己的本地运行的区块链怎么办？
+
+`experiment.ts`的全部代码:
+
+```ts
+import { readFile } from "fs/promises"
+import { DirectSecp256k1HdWallet, OfflineDirectSigner } from "@cosmjs/proto-signing"
+import { IndexedTx, SigningStargateClient, StargateClient } from "@cosmjs/stargate"
+import { Tx } from "cosmjs-types/cosmos/tx/v1beta1/tx"
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx"
+
+
+
+const rpc = "rpc.sentry-01.theta-testnet.polypore.xyz:26657"
+
+const getAliceSignerFromMnemonic = async (): Promise<OfflineDirectSigner> => {
+    return DirectSecp256k1HdWallet.fromMnemonic((await readFile("./testnet.alice.mnemonic.key")).toString(), {
+        prefix: "cosmos",
+    })
+}
+
+const runAll = async(): Promise<void> => {
+    console.log("TODO")
+    const client = await StargateClient.connect(rpc)
+    console.log("With client, chain id:", await client.getChainId(), ", height:", await client.getHeight())
+
+    console.log(
+        "Alice balances:",
+        await client.getAllBalances("cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y"), // <-- replace with your generated address
+    )
+    const faucetTx: IndexedTx = (await client.getTx(
+        "465156F8512B25CB806AF59EE36ACBC84779066BFE331DC954E819BA98BAC0B8",
+    ))!
+
+    console.log("Faucet Tx:", faucetTx)
+
+    const decodedTx: Tx = Tx.decode(faucetTx.tx)
+    console.log("DecodedTx:", decodedTx)
+    console.log("Decoded messages:", decodedTx.body!.messages)
+
+    const sendMessage: MsgSend = MsgSend.decode(decodedTx.body!.messages[0].value)
+    console.log("Sent message:", sendMessage)
+
+    const faucet: string = sendMessage.fromAddress
+    console.log("Faucet balances:", await client.getAllBalances(faucet))
+
+    const rawLog = JSON.parse(faucetTx.rawLog)
+    console.log("Raw log:", JSON.stringify(rawLog, null, 4))
+
+    const faucet_another: string = rawLog[0].events
+    .find((eventEl: any) => eventEl.type === "coin_spent")
+    .attributes.find((attribute: any) => attribute.key === "spender").value
+
+    console.log("Faucet balances in another way:", await client.getAllBalances(faucet_another))
+
+    const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic()
+    const alice = (await aliceSigner.getAccounts())[0].address
+    console.log("Alice's address from signer", alice)
+    const signingClient = await SigningStargateClient.connectWithSigner(rpc, aliceSigner)
+    console.log(
+        "With signing client, chain id:",
+        await signingClient.getChainId(),
+        ", height:",
+        await signingClient.getHeight()
+    )
+
+    console.log("Gas fee:", decodedTx.authInfo!.fee!.amount)
+    console.log("Gas limit:", decodedTx.authInfo!.fee!.gasLimit.toString(10))
+    console.log("Alice balance before:", await client.getAllBalances(alice))
+    console.log("Faucet balance before:", await client.getAllBalances(faucet))
+    const result = await signingClient.sendTokens(alice, faucet, [{ denom: "uatom", amount: "100000" }], {
+        amount: [{ denom: "uatom", amount: "500" }],
+        gas: "200000",
+    })
+    console.log("Transfer result:", result)
+    console.log("Alice balance after:", await client.getAllBalances(alice))
+    console.log("Faucet balance after:", await client.getAllBalances(faucet))
+}
+
+
+runAll()
+
+```
+
+```json
+Alice's address from signer cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y  
+With signing client, chain id: theta-testnet-001 , height: 13292795  
+Gas fee: [ { denom: 'uatom', amount: '1000' } ]  
+Gas limit: 200000  
+Alice balance before: [ { denom: 'uatom', amount: '10000000' } ]  
+Faucet balance before: [ { denom: 'uatom', amount: '852330414566' } ]  
+Transfer result: {  
+code: 0,  
+height: 13292796,  
+rawLog: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos15aptdqm  
+m7ddgtcrjvc5hs988rlrkze40l4q0he"},{"key":"amount","value":"100000uatom"}]},{"type":"coin_spent","attri  
+butes":[{"key":"spender","value":"cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y"},{"key":"amount","val  
+ue":"100000uatom"}]},{"type":"message","attributes":[{"key":"action","value":"/cosmos.bank.v1beta1.Msg  
+Send"},{"key":"sender","value":"cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y"},{"key":"module","value  
+":"bank"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos15aptdqmm7ddgtcrjvc5hs9  
+88rlrkze40l4q0he"},{"key":"sender","value":"cosmos1ykt8lw86us7d93de4gqr4pg0z3ujse6vjjtx3y"},{"key":"am  
+ount","value":"100000uatom"}]}]}]',  
+transactionHash: '582AADA2C70E5F5C317F65F34E24A405773DB51CC5B123C54C502462DBBC9805',  
+gasUsed: 74190,  
+gasWanted: 200000  
+}  
+Alice balance after: [ { denom: 'uatom', amount: '9899500' } ]  
+Faucet balance after: [ { denom: 'uatom', amount: '852330514566' } ]
+```
+
+#### 本地启动一个链
+
+也就是通过`CosmJS` 连接本地用`simapp` 启动的链。创建两个账户 Alice和Bob。运行`simd`：
+
+```bash
+./build/simd init demo
+# chain id test-chain-joEf8H
+./build/simd keys add alice
+./build/simd keys add bob
+./build/simd start
+```
+
+端口 `26657` 是使用 SDK 构建的 RPC 端点的默认端口，除非在` ~/.simapp/config/config.toml `中另有配置。 `127.0.0.1:26657` 是您稍后需要添加到脚本中的 URL。
+
+然后在sanbox中添加`experiment-local.ts`的脚本文件。
+
+#### 准备你的秘钥
+
+虽然你有 Alice 的地址，但你可能没有她的助记词或私钥。 私钥存储在操作系统的密钥环后端中。 出于本练习的目的，提取它——通常这是不安全的操作：
+
+```bash
+./build/simd keys export alice --unsafe --unarmored-hex
+```
+
+您将获得一个 64 位长的十六进制值。 将其复制并粘贴到 `cosmjs-sandbox` 文件夹中的新 `simd.alice.private.key` 文件中。 .gitignore 之前已经配置为忽略它，从而降低了风险。
+
+#### 更新你的脚本
+
+```ts
+const rpc = "http://127.0.0.1:26657"
+// replace bob's address
+const faucet: string = "cosmos1umpxwaezmad426nt7dx3xzv5u0u7wjc0kj7ple"
+```
+
+接下来，您需要替换创建 Alice 的签名者的函数，因为您使用的是私钥而不是助记词，所以 `DirectSecp256k1HdWallet` 自带的 `fromMnemonic` 方法不起作用。 `DirectSecp256k1Wallet`自带的`fromKey` [cosmjs/directsecp256k1wallet.ts at 0f0c9d8a754cbf01e17acf51d3f2dbdeaae60757 · cosmos/cosmjs (github.com)](https://github.com/cosmos/cosmjs/blob/0f0c9d8/packages/proto-signing/src/directsecp256k1wallet.ts#L21) 方法是这次比较合适的选择。
+
+调整import：
+
+```ts
+import { DirectSecp256k1Wallet, OfflineDirectSigner } from "@cosmjs/proto-signing"
+```
+
+在 `DirectSecp256k1Wallet` 中，`fromKey` 工厂函数需要一个 `Uint8Array`。 幸运的是，CosmJS 包含一个将十六进制字符串转换为 Uint8Array 的实用程序。 导入它：
+
+```ts
+import { fromHex } from "@cosmjs/encoding"
+```
+
+```ts
+const getAliceSignerFromPriKey = async(): Promise<OfflineDirectSigner> => {
+    return DirectSecp256k1Wallet.fromKey(
+        fromHex((await readFile("./simd.alice.private.key")).toString()),
+        "cosmos",
+    )
+}
+```
+
+```ts
+const aliceSigner: OfflineDirectSigner = await getAliceSignerFromPriKey()
+```
+
+然后运行`npm run experiment-local` ，记住在此之前要运行`./simd start` 确保本地的区块链运行，将Alice的代币转到bob的地址上。
+
+```txt
+With signing client, chain id: test-chain-joEf8H , height: 52  
+Alice balance before: [ { denom: 'stake', amount: '30000000' } ]  
+Faucet balance before: []  
+Transfer result: {  
+code: 0,  
+height: 53,  
+rawLog: '[{"msg_index":0,"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"  
+cosmos133k4rczl05g9wust8fw4a6l6t4hy8clkuzamuv"},{"key":"amount","value":"100000stake"}]},{"type":"coin  
+_spent","attributes":[{"key":"spender","value":"cosmos1gcqf8cp925wsk7h6muyxxcuphrrjsm6y3jryrg"},{"key"  
+:"amount","value":"100000stake"}]},{"type":"message","attributes":[{"key":"action","value":"/cosmos.ba  
+nk.v1beta1.MsgSend"},{"key":"sender","value":"cosmos1gcqf8cp925wsk7h6muyxxcuphrrjsm6y3jryrg"},{"key":"  
+module","value":"bank"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos133k4rczl  
+05g9wust8fw4a6l6t4hy8clkuzamuv"},{"key":"sender","value":"cosmos1gcqf8cp925wsk7h6muyxxcuphrrjsm6y3jryr  
+g"},{"key":"amount","value":"100000stake"}]}]}]',  
+transactionHash: '6AEC6BA2D344694F7C41270AFC2B93A69629B46A7EB5B80715058A0AE83D4D69',  
+gasUsed: 90821,  
+gasWanted: 200000  
+}  
+Alice balance after: [ { denom: 'stake', amount: '29899500' } ]  
+Faucet balance after: [ { denom: 'stake', amount: '100000' } ]
+```
+
+看以上输出，转账成功。
+
+`experiment-local.ts`文件的源码为:
+
+```ts
+import { readFile } from "fs/promises"
+import { fromHex } from "@cosmjs/encoding"
+import { DirectSecp256k1Wallet, OfflineDirectSigner } from "@cosmjs/proto-signing"
+import { SigningStargateClient, StargateClient } from "@cosmjs/stargate"
+
+const rpc = "http://127.0.0.1:26657"
+
+const getAliceSignerFromPriKey = async (): Promise<OfflineDirectSigner> => {
+    return DirectSecp256k1Wallet.fromKey(
+        fromHex((await readFile("./simd.alice.private.key")).toString()),
+        "cosmos"
+    )
+}
+
+const runAll = async (): Promise<void> => {
+    const client = await StargateClient.connect(rpc)
+    console.log("With client, chain id:", await client.getChainId(), ", height:", await client.getHeight())
+    console.log(
+        "Alice balances:",
+        await client.getAllBalances("cosmos17tvd4hcszq7lcxuwzrqkepuau9fye3dal606zf")
+    )
+    const faucet: string = "cosmos133k4rczl05g9wust8fw4a6l6t4hy8clkuzamuv"
+
+    const aliceSigner: OfflineDirectSigner = await getAliceSignerFromPriKey()
+    const alice = (await aliceSigner.getAccounts())[0].address
+    console.log("Alice's address from signer", alice)
+    const signingClient = await SigningStargateClient.connectWithSigner(rpc, aliceSigner)
+    console.log(
+        "With signing client, chain id:",
+        await signingClient.getChainId(),
+        ", height:",
+        await signingClient.getHeight()
+    )
+
+    console.log("Alice balance before:", await client.getAllBalances(alice))
+    console.log("Faucet balance before:", await client.getAllBalances(faucet))
+    const result = await signingClient.sendTokens(alice, faucet, [{ denom: "stake", amount: "100000" }], {
+        amount: [{ denom: "stake", amount: "500" }],
+        gas: "200000",
+    })
+    console.log("Transfer result:", result)
+    console.log("Alice balance after:", await client.getAllBalances(alice))
+    console.log("Faucet balance after:", await client.getAllBalances(faucet))
+}
+
+runAll()
+```
+
 ### 组合复杂的交易
 
-### 学习继承Keplr
+TODO
+
+### 学习集成Keplr
+
+TODO
 
 ### 创建自定义的CosmJS接口
 
+TODO
+
 ## 理解SDK的一些内建模块
 
+主要就是熟悉和用命令行操作cosmosSDK中自带的重要的几个模块。
+
+### 理解Authz模块
+
+authz  [Authz Overview | Cosmos SDK](https://docs.cosmos.network/v0.46/modules/authz/)  模块使一个用户（授予者，the granter）能够授权另一个用户（被授予者，the grantee）代表他们执行消息。 authz 模块不同于负责指定基本交易和帐户类型的 auth  [Auth Overview | Cosmos SDK](https://docs.cosmos.network/v0.46/modules/auth/) (authentication) 模块。
+
+#### 使用authz来授权认证
+
+#### 需求
+
+选择0.46.x
+
+#### 配置
+
+> 如果您以前使用过 `simd`，您的主目录中可能已经有一个 `.simapp` 目录。 要保留以前的数据，请将目录保存到另一个位置或使用 `--home` 标志并在以下说明中为每个命令指定不同的目录。 如果你不想保留以前的数据，删除以前的目录（`rm -rf ~/.simapp`）。
+
+```bash
+simd config chain-id demo
+simd config keyring-backend test
+```
+
+#### Key建立
+
+```bash
+# plunge hundred health electric victory foil marine elite shiver tonight away verify vacuum giant pencil ocean nest pledge okay endless try spirit special start
+simd keys add alice --recover
+# shuffle oppose diagram wire rubber apart blame entire thought firm carry swim old head police panther lyrics road must silly sting dirt hard organ
+simd keys add bob --recover
+```
+以上加入了`--recover` 参数，所以可以定制自己的助记词, 是BIP39助记词。
+
+#### 链的建立
+
+```bash
+simd init test --chain-id demo
+simd add-genesis-account alice 5000000000stake --keyring-backend test
+simd add-genesis-account bob 5000000000stake --keyring-backend test
+simd gentx alice 1000000stake --chain-id demo
+simd collect-gentxs
+```
+
+#### 启动链
+
+```bash
+simd start
+```
+
+#### 提交一个proposal 提案
+
+要演示对治理提案进行投票的授权，您必须首先创建一个治理提案。 以下命令创建一个包含最低保证金的文本提案，它允许治理提案立即进入投票期。 有关命令和标志选项的更多信息，请运行 `simd tx gov submit-proposal --help`。
+
+创建提案
+
+```bash
+# 这个命令0.46.x的版本不支持，需要有一个提案的json文件。0.44.x支持
+simd tx gov submit-proposal --title="Test Authorization" --description="Is Bob authorized to vote?" --type="Text" --deposit="10000000stake" --from alice
+```
+
+查看提案:
+
+```bash
+simd query gov proposal 1
+```
+
+#### 授权认证(grant authorization)
+
+接下来，授予者（ganter）必须向被授予者(grantee)授予授权。
+
+该认证是一种“通用”认证，它以一种消息类型（例如`MsgVote`）作为参数，并允许被授权者无限制地认证代表授权者执行该消息。 其他认证类型 [Concepts | Cosmos SDK](https://docs.cosmos.network/v0.46/modules/authz/01_concepts.html#built-in-authorizations) 包括“send”、“delegate”、“unbond”和“redelegate”，在这种情况下，granter可以设置代币数量限制。 在这种情况下，被授予者可以任意多次投票，直到授予者撤销授权。
+
+创建认证:
+
+```bash
+simd tx authz grant cosmos1khljzagdncfs03x5g6rf9qp5p93z9qgc3w5dwt generic --msg-type /cosmos.gov.v1beta1.MsgVote --from alice
+```
+
+查看认证:
+
+```bash
+simd query authz grants cosmos1jxd2uhx0j6e59306jq3jfqs7rhs7cnhvey4lqh cosmos1khljzagdncfs03x5g6rf9qp5p93z9qgc3w5dwt /cosmos.gov.v1beta1.MsgVote
+```
+
+#### 生成交易
+
+为了让被授予者代表授予者执行消息，被授予者必须首先生成一个未签名的交易，其中交易作者（`--from` 地址）是授予者。
+
+创建未签名交易:
+
+```bash
+simd tx gov vote 1 yes --from cosmos1jxd2uhx0j6e59306jq3jfqs7rhs7cnhvey4lqh --generate-only > tx.json
+```
+
+查看交易:
+
+```bash
+cat tx.json
+```
+
+#### 执行交易
+
+最后，被授权者可以使用 `exec` 命令签署并发送交易。 交易的作者（`--from` 地址）是被授权者。
+
+签名和发送交易:
+
+```bash
+simd tx authz exec tx.json --from bob
+```
+
+查看投票:
+
+```bash
+simd query gov vote 1 cosmos1jxd2uhx0j6e59306jq3jfqs7rhs7cnhvey4lqh
+```
+
+#### 吊销认证
+
+授予者可以使用 revoke 命令撤销对被授予者的认证。
+
+吊销认证:
+
+```bash
+simd tx authz revoke cosmos1khljzagdncfs03x5g6rf9qp5p93z9qgc3w5dwt /cosmos.gov.v1beta1.MsgVote --from alice
+```
+
+查看认证:
+
+```bash
+simd query authz grants cosmos1jxd2uhx0j6e59306jq3jfqs7rhs7cnhvey4lqh cosmos1khljzagdncfs03x5g6rf9qp5p93z9qgc3w5dwt /cosmos.gov.v1beta1.MsgVote
+```
+
+### 理解Feegrant模块
+
+TODO
+
+### 理解Group模块
+
+TODO
+
+### 理解Gov模块
+
+TODO
