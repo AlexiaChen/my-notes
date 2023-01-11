@@ -55,3 +55,13 @@ go tool pprof -inuse_space -cum -svg http://13.57.246.198:6060/debug/pprof/heap 
 go tool pprof http://localhost:6060/debug/pprof/block
 
 go tool pprof http://localhost:6060/debug/pprof/mutex
+
+### golang的安装
+
+```bash
+wget https://studygolang.com/dl/golang/go1.19.4.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.14.3.linux-amd64.tar.gz
+echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.profile
+go version
+go env -w GOPROXY=https://goproxy.cn
+```

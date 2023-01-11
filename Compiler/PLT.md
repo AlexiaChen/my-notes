@@ -37,6 +37,8 @@ Stephen Dolan is one of those amazing people who knows both theory and practice 
 
 
 
+[parsing - When to use a Parser Combinator? When to use a Parser Generator? - Software Engineering Stack Exchange](https://softwareengineering.stackexchange.com/questions/338665/when-to-use-a-parser-combinator-when-to-use-a-parser-generator)
+
 
 
 

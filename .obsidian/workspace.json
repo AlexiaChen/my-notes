@@ -8,91 +8,127 @@
         "type": "tabs",
         "children": [
           {
-            "id": "705a140e7b19975f",
+            "id": "d62997e432996a14",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Web3/DeFi/DeFi学习笔记.md",
+                "file": "Back-end/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-17为什么我只查一行语句也执行这么慢.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "be467e316d5f4446",
+            "id": "15e78b874d4517ec",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Crypto/Basic/多项式编码.md",
+                "file": "Back-end/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-18幻读是什么并且有什么问题.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "b73f7dddbf236faf",
+            "id": "02426ef111ffa277",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Cosmos/CosmosSDK教程.md",
+                "file": "Security/SGX教程/第一部分-理解IntelSGX技术.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "031b4a4c97839139",
+            "id": "b07bd8ee91c0b46e",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Cosmos/IBC/IBC之ICS-20规范-ERC20跨链子协议.md",
+                "file": "Security/SGX教程/第二部分-应用设计.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "64552f69da51beda",
+            "id": "6de6921f5b007c77",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Cosmos/IBC/IBC之ICS-20规范-ERC20跨链子协议.md",
+                "file": "Back-end/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-18幻读是什么并且有什么问题.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "2adbef3ffd86344c",
+            "id": "763aee597bc25bf1",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blockchain/Cosmos/CosmosSDK教程.md",
+                "file": "Back-end/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-19为什么我只改一行语句-锁这么多.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "3f07bcd6178cd9a0",
+            "id": "e2103f2675babf5b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Back-end/Container/Docker学习笔记.md",
+                "file": "Back-end/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-19为什么我只改一行语句-锁这么多.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "30a56d34e9c1dbe3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Back-end/Database/MySQL/MySQL45讲/实践篇-21MySQL是怎么保证数据不丢的.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "d1baa1f6894af40a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Back-end/Database/MySQL/MySQL45讲/实践篇-22MySQL是怎么保证主备一致的.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "4c6a4f5850a72b35",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Back-end/Database/MySQL/MySQL45讲/实践篇-23MySQL是怎样保证高可用的.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
         ],
-        "currentTab": 6
+        "currentTab": 9
       }
     ],
     "direction": "vertical"
@@ -121,7 +157,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "docker",
+                "query": "dune",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -130,8 +166,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -151,7 +186,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Back-end/Container/Docker学习笔记.md",
+                "file": "Back-end/Database/MySQL/MySQL45讲/实践篇-23MySQL是怎样保证高可用的.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -179,7 +214,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Back-end/Container/Docker学习笔记.md",
+                "file": "Back-end/Database/MySQL/MySQL45讲/实践篇-23MySQL是怎样保证高可用的.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -193,17 +228,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "3f07bcd6178cd9a0",
+  "active": "4c6a4f5850a72b35",
   "lastOpenFiles": [
-    "Back-end/Linux/Linux学习笔记.md",
-    "Back-end/Container/Docker学习笔记.md",
-    "Blockchain/Cosmos/cosmosSDK上手练习.md",
-    "Blockchain/ETH/Solidity/solidity合约架构分析工具.md",
-    "Blockchain/Web3/DeFi/hardhat/Hardhat network.md",
-    "Blockchain/Cosmos/CosmosSDK教程.md",
-    "PL/Golang/Golang学习笔记.md",
-    "PL/Golang/记解决一件奇怪的线上golang的OOM问题.md",
-    "PL/Golang/golang中用json decoder产生的大量内存消耗.md",
-    "Security/Intel SGX资料.md"
+    "Back-end/Database/MySQL/MySQL45讲/实践篇-22MySQL是怎么保证主备一致的.md",
+    "Back-end/Database/MySQL/MySQL45讲/实践篇-23MySQL是怎样保证高可用的.md",
+    "Back-end/Database/MySQL/MySQL45讲/实践篇-21MySQL是怎么保证数据不丢的.md",
+    "Attachments/Pasted image 20230111093014.png",
+    "Back-end/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-19为什么我只改一行语句-锁这么多.md",
+    "Back-end/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-答疑文章1-日志和索引相关问题.md",
+    "Compiler/Basic/文法相关.md",
+    "Compiler/PLT.md",
+    "Blockchain/Temp.md",
+    "Blockchain/Web3/Web3 Dapp最佳编程实践指南.md"
   ]
 }

@@ -67,6 +67,9 @@ scp -r dir myserver:
 # 别忘了 . 可以用来指代当前目录
 # 下面命令可以把远程的 ~/dir 目录下载到当前目录里面
 scp -r myserver:dir/ .
+
+# 具体例子，之后你就会在远程的server上的/home/ubuntu目录下看到.irita的dir
+scp -r $HOME/.irita ubuntu@server-ip:/home/ubuntu
 ```
 
 ## 代理
