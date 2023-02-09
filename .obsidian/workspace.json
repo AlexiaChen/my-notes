@@ -270,9 +270,57 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "d945eae527f2a4b4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-38怎么最快地复制一张表.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "526b62a4d80a7c8f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-39grant之后要跟着flush privileges吗.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "f41c476a5b196170",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-40要不要使用分区表.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "e97429c874fdf6e9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ],
-        "currentTab": 21
+        "currentTab": 25
       }
     ],
     "direction": "vertical"
@@ -330,7 +378,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -358,7 +406,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -370,7 +418,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md"
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md"
               }
             }
           }
@@ -394,17 +442,17 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "44f314466c0d0d12",
+  "active": "e97429c874fdf6e9",
   "lastOpenFiles": [
+    "backend/Database/MySQL/MySQL45讲/实践篇-40要不要使用分区表.md",
+    "backend/Database/MySQL/MySQL45讲/实践篇-39grant之后要跟着flush privileges吗.md",
+    "backend/Database/MySQL/MySQL45讲/实践篇-38怎么最快地复制一张表.md",
+    "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-36自增主键为什么不是连续的.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-35InnoDB那么好还要不要使用memory引擎.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-34什么时候使用内部临时表.md",
     "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-15如何正确显示随机消息.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-33为什么临时表可以重名.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-32join语句怎么优化.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-31到底可不可以使用join.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-30我查这么多数据会不会把数据库内存打爆.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-29为什么还有kill不掉的语句.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-28误删数据后除了跑路还能怎么办.md"
+    "backend/Database/MySQL/MySQL45讲/实践篇-32join语句怎么优化.md"
   ]
 }
