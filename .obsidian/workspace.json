@@ -258,9 +258,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "44f314466c0d0d12",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ],
-        "currentTab": 20
+        "currentTab": 21
       }
     ],
     "direction": "vertical"
@@ -318,7 +330,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-36自增主键为什么不是连续的.md",
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -346,7 +358,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-36自增主键为什么不是连续的.md",
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -358,7 +370,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-36自增主键为什么不是连续的.md"
+                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md"
               }
             }
           }
@@ -382,8 +394,9 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "37dc58cfac316a81",
+  "active": "44f314466c0d0d12",
   "lastOpenFiles": [
+    "backend/Database/MySQL/MySQL45讲/实践篇-36自增主键为什么不是连续的.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-35InnoDB那么好还要不要使用memory引擎.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-34什么时候使用内部临时表.md",
     "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-15如何正确显示随机消息.md",
@@ -392,7 +405,6 @@
     "backend/Database/MySQL/MySQL45讲/实践篇-31到底可不可以使用join.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-30我查这么多数据会不会把数据库内存打爆.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-29为什么还有kill不掉的语句.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-28误删数据后除了跑路还能怎么办.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-27如何判断一个数据是不是出问题了.md"
+    "backend/Database/MySQL/MySQL45讲/实践篇-28误删数据后除了跑路还能怎么办.md"
   ]
 }
