@@ -8,288 +8,12 @@
         "type": "tabs",
         "children": [
           {
-            "id": "d62997e432996a14",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-17为什么我只查一行语句也执行这么慢.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "15e78b874d4517ec",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-18幻读是什么并且有什么问题.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "02426ef111ffa277",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "security/SGX教程/第一部分-理解IntelSGX技术.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "b07bd8ee91c0b46e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "security/SGX教程/第二部分-应用设计.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "6de6921f5b007c77",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-18幻读是什么并且有什么问题.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "763aee597bc25bf1",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-19为什么我只改一行语句-锁这么多.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "e2103f2675babf5b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-19为什么我只改一行语句-锁这么多.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "4c6a4f5850a72b35",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "crypto/ZKP/零知识证明-from-zero-to-hero.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "ae775ff16464679e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-24备库为什么会延迟好几个小时.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "1e4a49c4ffa7b49c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-25主库出问题了从库怎么办.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "169a8e4549b0e0ed",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-26读写分离有哪些坑.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "3a07b7992b0a5636",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-27如何判断一个数据是不是出问题了.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "a2b449eb56b63e6b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-28误删数据后除了跑路还能怎么办.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "714ad88ac28cd300",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-29为什么还有kill不掉的语句.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "d320cc65e78bdeb1",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-30我查这么多数据会不会把数据库内存打爆.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "0d1c2e058aaf1948",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-31到底可不可以使用join.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "621536d2c9bb7da1",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-32join语句怎么优化.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "39eaa3b6925c26bd",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-33为什么临时表可以重名.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "fd01ee625131d825",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-34什么时候使用内部临时表.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "a728e15aba94941e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-35InnoDB那么好还要不要使用memory引擎.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "cbfb3528a9ed98ef",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-36自增主键为什么不是连续的.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "44f314466c0d0d12",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "d945eae527f2a4b4",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-38怎么最快地复制一张表.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "526b62a4d80a7c8f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-39grant之后要跟着flush privileges吗.md",
+                "file": "blockchain/ETH/Solidity/solidity合约架构分析工具.md",
                 "mode": "source",
                 "source": false
               }
@@ -301,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-40要不要使用分区表.md",
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md",
                 "mode": "source",
                 "source": false
               }
@@ -313,14 +37,62 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
+                "file": "backend/Database/Kafka.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "6423c3dc4ea8bb35",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MQ/MQ高手/01-为什么需要消息队列.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "c9128cfb27821e23",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MQ/MQ高手/02-如何选择消息队列.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "9009f780b2b551e1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Linux/Linux学习笔记.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "2ddf13c636e97429",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
         ],
-        "currentTab": 25
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -349,7 +121,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "dune",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -378,7 +150,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -406,7 +178,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -418,7 +190,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md"
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md"
               }
             }
           }
@@ -442,17 +214,17 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "e97429c874fdf6e9",
+  "active": "f41c476a5b196170",
   "lastOpenFiles": [
     "backend/Database/MySQL/MySQL45讲/实践篇-40要不要使用分区表.md",
+    "tools/downloads/youtube视频下载.md",
+    "blockchain/ETH/Solidity/solidity合约架构分析工具.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-39grant之后要跟着flush privileges吗.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-38怎么最快地复制一张表.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-37Insert语句的锁为什么那么多.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-36自增主键为什么不是连续的.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-35InnoDB那么好还要不要使用memory引擎.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-34什么时候使用内部临时表.md",
-    "backend/Database/MySQL/MySQL45讲/MySQL45讲-实践篇-15如何正确显示随机消息.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-33为什么临时表可以重名.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-32join语句怎么优化.md"
+    "math/statistics/用Python动手学习统计学-学习笔记.md",
+    "backend/Linux/Linux学习笔记.md",
+    "backend/Linux/SSH学习笔记.md",
+    "backend/Database/MQ/MQ高手/03-消息模型-主题和队列有什么不同.md",
+    "backend/Database/MQ/MQ高手/02-如何选择消息队列.md",
+    "backend/Database/MQ/MQ高手/01-为什么需要消息队列.md"
   ]
 }
