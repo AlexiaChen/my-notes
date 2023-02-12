@@ -483,11 +483,149 @@ iris.groupby("species").mean()
 sns.pairplot(iris, hue="species", palette='gray')
 ```
 
-### 用python模拟抽象
+### 用python模拟抽样
+
+```python
+import pandas as pd
+import numpy as np
+import scipy as sp
+from scipy import stats
+from matplotlib import pyplot as plt
+import seaborn as sns
+sns.set()
+
+%precision 3
+```
+
+- 抽样过程，样本就是随机变量，它的取值会随机变化
+- 简单的模拟抽样与大量数据的模拟抽样
+
+```python
+# 湖中鱼的体长数据，是全量的，假设湖中就5条鱼
+fish_5 = np.array([2,3,4,5,6])
+# 随机抽1条鱼
+np.random.choice(fish_5, size = 1, replace = False)
+# 随机抽3条鱼
+np.random.choice(fish_5, size = 3, replace = False)
+
+big_data = pd.read_csv("path.csv")["length"]
+np.random.choice(big_data, size = 10, replace = False)
+```
+
+- 放回抽样与不放回抽样。把抽出的样本再放回总体再重新抽样叫放回抽样，反之就是不放回，上面的代码`replace = False`就是不放回
+- 计算一组数据的概率密度，并且画出概率密度曲线
+
+```python
+x = [2,3,1,...]
+plt.plot(x,
+		stats.norm.pdf(x = x, loc = sp.mean(x), scale = sp.std(x, ddof = 1),
+		color = 'black'))
+```
+
+- 抽样过程的抽象描述
+
+如果总体分布为正态分布，那么我们可以认为我们的抽样也服从正态分布，可以用函数，生成一组，服从正态分布的随机数
+
+```python
+# 生成样本容量为10的，均值为4，标准差为0.8的，服从正态分布的一组随机数
+sample_norm = stats.norm.rvs(loc = 4, scale = 0.8, size = 10)
+```
+
+- 直方图的无线细分，那么所表现的图形与正态分布的曲线基本等价。当总体容量远大于样本容量，无须进行校正。所以推荐用`norm.rvs`来模拟抽样
+- 假设总体服从正态分布是否恰当
+
+> 严格地说，总体分布不是正态分布，但是，实践上多会假设总体分布是正态分布。通常我们难以对总体进行普查，所以一般都会先绘制样本的直方图，再判断总体是否与所假设的分布差别过大
 
 ### 样本统计量的性质
 
+借助程序在相同的条件下进行无数次抽样。
+
+- 样本分布是样本所服从的概率分布
+
+```python
+import pandas as pd
+import numpy as np
+import scipy as sp
+from scipy import stats
+from matplotlib import pyplot as plt
+import seaborn as sns
+sns.set()
+
+%precision 3
+
+# 实例化一个正态分布
+population = stats.norm(loc = 4, scale = 0.8)
+# 做10000次抽样试验, 每次样本容量是10，计算每个样本均值
+sample_mean_array = np.zeros(10000)
+np.random.seed(1)
+for i in range(0,10000):
+	sample = population.rvs(size = 10)
+	sample_mean_array[i] = sp.mean(sample)
+
+# 样本均值的均值, 其值与总体均值相近
+sp.mean(sample_mean_array)
+# 样本均值的直方图
+sns.distplot(sample_mean_array, color = 'black')
+```
+
+- 样本容量越大，样本均值越接近总体均值
+- 样本容量越大，样本均值越集中在总体均值附近
+
+```python
+# size: 每次抽样的样本容量
+# n_trail: 抽样的次数
+# return: n次抽样的样本均值数组
+def calc_sample_mean(size, n_trail):
+	sample_mean_array = np.zeros(n_trail)
+	np.random.seed(1)
+	for i in range(0,n_trail):
+		sample = population.rvs(size = size)
+		sample_mean_array[i] = sp.mean(sample)
+	return sample_mean_array
+```
+
+ - 样本容量越大，样本均值的标准差就越小，标准差越小就能得到更集中更可信的样本均值。
+ - 标准误差，样本均值的标准差的理论值, 可以看到，样本容量越大，标注误差就越小
+
+$$
+标准误差(Standard Error) = \\
+\frac{\sigma}{\sqrt{N}}
+$$
+
+> 样本均值的标准差必然小于总体的标准差
+
+- 样本方差的均值一般来说是偏离总体方差的，需要采用无偏方差修正，无偏方差的均值可以看作是总体方差
+- 样本容量越大，其无偏方差就越接近总体方差
+- 无偏性，估计量的期望值相当于真正的参数的特性
+- 一致性，样本容量越大，估计量越接近真正的参数的特性
+- 样本均值和样本的无偏方差具有适合作为参数估计量的性质，样本均值和无偏方差都具有无偏性和一致性。
+- 大数定律，样本容量越大，样本均值越接近总体均值
+- 中心极限定理，对于任意总体分布，样本容量越大，随机变量的和的分布越接近正态分布
+
+```python
+# 进行5000次抽样，每次样本容量为10000的，抛硬币实验
+n_size = 10000
+n_trail = 50000
+
+coin = np.array([0,1])
+count_coin = np.zeros(n_trail)
+np.random.seed(1)
+for i range(0, n_trail):
+	count_coin[i] = sp.sum(
+		np.random.choice(coin, size = n_size, replace = True)
+	)
+
+# 绘制直方图，该直方图接近正态分布
+sns.distplot(count_coin, color = 'black')
+```
+
+因为样本均值，需要先求出样本数值的和，再除以样本容量。所以你可以认为样本均值的分布接近正态分布。应当明确的就是，这里的服从正态分布的只是样本值的和。比如，抛硬币，明显总体分布是一个二项分布，那么样本容量无穷大的样本依旧是二项分布。
+
+中心极限定理一般只用于寻找均值等特定的值，当总体部分不服从正态分布时，应该使用广义线性模型。
+
 ### 正态分布及其应用
+
+
 
 ### 参数估计
 
