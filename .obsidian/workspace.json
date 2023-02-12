@@ -121,7 +121,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "四元数",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -214,17 +214,54 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
+  "floating": {
+    "id": "d0b93fa004e0abb4",
+    "type": "floating",
+    "children": [
+      {
+        "id": "d72eed27433990ae",
+        "type": "window",
+        "children": [
+          {
+            "id": "e36e4bbbac931efc",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "bfc3ce793b5f4d0f",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "math/四元数学习笔记.md",
+                    "mode": "source",
+                    "source": false
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": 448,
+        "y": 116,
+        "width": 1024,
+        "height": 800,
+        "maximize": false,
+        "zoom": 0
+      }
+    ]
+  },
   "active": "f41c476a5b196170",
   "lastOpenFiles": [
+    "math/四元数学习笔记.md",
+    "math/statistics/用Python动手学习统计学-学习笔记.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-40要不要使用分区表.md",
     "tools/downloads/youtube视频下载.md",
     "blockchain/ETH/Solidity/solidity合约架构分析工具.md",
     "backend/Database/MySQL/MySQL45讲/实践篇-39grant之后要跟着flush privileges吗.md",
-    "math/statistics/用Python动手学习统计学-学习笔记.md",
     "backend/Linux/Linux学习笔记.md",
     "backend/Linux/SSH学习笔记.md",
     "backend/Database/MQ/MQ高手/03-消息模型-主题和队列有什么不同.md",
-    "backend/Database/MQ/MQ高手/02-如何选择消息队列.md",
-    "backend/Database/MQ/MQ高手/01-为什么需要消息队列.md"
+    "backend/Database/MQ/MQ高手/02-如何选择消息队列.md"
   ]
 }

@@ -296,5 +296,213 @@ print(group.std(ddof = 1))
 group.describe()
 ```
 
+- 协方差，研究两个连续变量之间的关系时，使用的统计量。
+    - 协方差大于0，两个变量是正相关关系
+    - 协方差小于0，两个变量是负相关关系
+    - 协方差等于0，两个变量不相关
+
+$$
+Cov(x,y) = \frac{1}{N}\sum_{i = 1}^{N}(x_i - \mu_x)(y_i - \mu_y)
+$$
+
+$$
+Cov(x,y) = \frac{1}{N - 1}\sum_{i = 1}^{N}(x_i - \mu_x)(y_i - \mu_y)
+$$
+
+其中$\mu_x, \mu_y$是变量x，y的均值，N是样本容量。
+
+- 协方差矩阵，把多个变量的方差和协方差放在一起形成的矩阵
+
+$$
+CovMatrix(x,y) = \\
+\begin{bmatrix} 
+\sigma_{x}^2 & Cov(x,y)  \\
+Cov(x,y) & \sigma_{y}^2 \\
+\end{bmatrix} \\
+$$
+
+下面用python进行协方差计算
+
+```python
+import pandas as pd
+import scipy as sp
+
+%precision 3
+
+cov_data = pd.read_csv("path.csv")
+print(cov_data)
+# 读取列x和y的值
+x = cov_data["x"]
+y = cov_data["y"]
+# 样本容量
+N = len(cov_data)
+# 均值
+mu_x = sp.mean(x)
+mu_y = sp.mean(y)
+# 协方差
+cov = sum((x - mu_x) * (y - mu_y)) / N
+# or
+cov = sum((x - mu_x) * (y - mu_y)) / (N - 1)
+
+# 协方差矩阵
+sp.cov(x,y, ddof = 0)
+# ot
+sp.cov(x,y,ddof  = 1)
+```
+
+- 皮尔逊积矩相关系数(皮尔逊相关系数)， 对于两个变量x，y的相关系数，可以简单看成是协方差的标准化
+
+$$
+\rho_{xy} = \frac{Cov(x,y)}{\sqrt{\sigma_x^2 \sigma_y^2}} = \\
+\frac{Cov(x,y)}{\sigma_x \sigma_y}
+$$
+
+> 皮尔逊相关系数，其实就是把协方差Normalize到最大值为1，最小值为-1之间，不然协方差会难以使用，皮尔逊相关系数是对协方差加以修正。其相关系数的绝对值越大，越说明相关性越高。越接近0，相关性越低
+
+- 相关矩阵，把多个变量的相关系数放在一起得到的矩阵
+
+$$
+Cov(x, y) = \\
+\begin{bmatrix} 
+1 & \rho_{xy}  \\
+\rho_{xy} & 1 \\
+\end{bmatrix} \\
+$$
+
+下面用python来计算
+
+```python
+import pandas as pd
+import scipy as sp
+
+%precision 3
+
+cov_data = pd.read_csv("path.csv")
+print(cov_data)
+# 读取列x和y的值
+x = cov_data["x"]
+y = cov_data["y"]
+# 样本容量
+N = len(cov_data)
+# 均值
+mu_x = sp.mean(x)
+mu_y = sp.mean(y)
+# x,y的方差
+sigma_2_x = sp.var(x, ddof = 1)
+sigma_2_y = sp.var(y, ddof = 1)
+# 计算相关系数
+cov = sum((x - mu_x) * (y - mu_y)) / (N - 1)
+rho = cov / sp.sqrt(sigma_2_x * sigma_2_y)
+# 计算相关矩阵
+sp.corrcoef(x,y)
+```
 
 ### 基于matplotlib和seaborn的数据可视化
+
+只观察数据的统计量难以把握数据特征，因此，数据可视化是数据分析中必要的任务。
+
+```python
+import pandas as pd
+import numpy as np
+
+%precision 3
+
+from matplotlib import pyplot as plt
+
+x = np.array([0,1,2,3,4,5,6,7,8,9])
+y = np.array([2,3,4,3,5,4,6,7,4,8])
+
+# pyplot的折线图
+plt.plot(x, y, color = 'black')
+plt.title("lineplot")
+plt.xlabel("x")
+plt.ylabel("y")
+# 保存图为文件
+plt.savefig("path")
+
+import seaborn as sns
+sns.set()
+
+# 用seaborn给折线图添加背景，让折线图更清晰
+plt.plot(x, y, color = 'black')
+plt.title("lineplot seaborn")
+plt.xlabel("x")
+plt.ylabel("y")
+
+# 直接用seaborn画直方图
+fish_data = np.array([2,3,3,4,4,4,4,5,5,6])
+# 横轴分成5组，纵轴是横轴数据的频数，禁用kde核密度估计
+sns.distplot(fish_data, bins = 5, color = 'black', kde = False)
+
+# 核密度估计是为了解决直方图的一个缺点诞生的，这个缺点就是
+# 直方图的形状会随着组的大小变化而剧烈变动，有时候完全无法体现数据特征
+# 这时候就是一条平滑的曲线与直方图配合，纵轴也变了，直方图的面积相当于概率，总和是1
+sns.distplot(fish_data,  color = 'black')
+
+# csv中有两列，一列是鱼的种类，一列是鱼的体长，是整洁数据
+fish_multi = pd.read_csv("path.csv")
+print(fish_multi)
+# 各类鱼的各种统计量
+fish_multi.groupby("species").describe()
+# 把各类鱼的体长数据分别存到新的变量中
+length_a = fish_multi.query('species = "A"')["length"]
+length_b = fish_multi.query('species = "B"')["length"]
+# 分别画出每个体长变量的直方图，那么鱼A和鱼B的体长数据的直方图就在一起了
+sns.distplot(length_a, bins = 5, color = 'black', kde = False)
+sns.distplot(length_b, bins = 5, color = 'gray', kde = False)
+
+# 直方图主要用于单变量的，多变量的图有其他更高效的图
+# 如果读取的是整洁数据，列名应该与随机变量的名称一致
+
+# 箱形图，箱子中心线段表示中位数，上下底边表示上四分位数和下四分位数，箱子
+# 上下边缘表示数据范围
+sns.boxplot(x = "species", y = "length", data = fish_multi, color = 'gray')
+
+# 小提琴图，与箱型图类似，用核密度估计的结果替换了箱子
+# 图中的平滑曲线就是核密度估计的结果，可以简单理解为小提琴图用横向放置的直方图代替了箱型图
+# 中的箱子
+sns.violinplot(x = "species", y = "length", data = fish_multi, color = 'gray')
+
+# 条形图，各条高度表示均值，条中的黑线叫做误差线，代表均值的置信区间
+sns.barplot(x = "species", y = "length", data = fish_multi, color = 'gray')
+
+# 散点图，用来表示两种定量变量组合起来的数据
+cov_data = pd.read_csv("path.csv")
+# 有两列数据，分别为x和y
+print(cov_data)
+# 这里的散点图会顺便把皮尔逊相关系数给计算出来
+sns.jointplot(x = "x", y = "y", data = cov_data, color = 'black')
+
+# 散点图矩阵，表示两个以上的变量的数据可视化
+# 使用seaborn内置的鸢尾花数据
+iris = sns.load_dataset("iris")
+iris.head(n = 3)
+# 为了观察数据特征，求每种鸢尾花的各数据均值
+iris.groupby("species").mean()
+# 画散点图矩阵,不同种类用不同颜色，矩阵的主对角线是直方图
+sns.pairplot(iris, hue="species", palette='gray')
+```
+
+### 用python模拟抽象
+
+### 样本统计量的性质
+
+### 正态分布及其应用
+
+### 参数估计
+
+### 假设检验
+
+### 均值差的检验
+
+### 列联表的检验
+
+### 检验结果的解读
+
+## 统计模型基础
+
+## 正态线性模型
+
+## 广义线性模型
+
+## 统计学与机器学习
