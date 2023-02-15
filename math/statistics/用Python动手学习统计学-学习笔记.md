@@ -585,7 +585,7 @@ def calc_sample_mean(size, n_trail):
 ```
 
  - 样本容量越大，样本均值的标准差就越小，标准差越小就能得到更集中更可信的样本均值。
- - 标准误差，样本均值的标准差的理论值, 可以看到，样本容量越大，标注误差就越小
+ - 标准误差，样本均值的标准差的理论值, 可以看到，样本容量越大，标注误差就越小。标准误差可以用来估计样本均值与总体均值的差异，标准误差越小，说明样本均值越接近总体均值。除以样本容量的根，是因为这样可以消除样本容量的影响，使得不同大小的样本可以进行比较。如果直接使用标准差，那么样本容量越大，样本均值越稳定，但是这并不反应样本均值与总体均值的差异。
 
 $$
 标准误差(Standard Error) = \\
@@ -603,7 +603,7 @@ $$
 - 中心极限定理，对于任意总体分布，样本容量越大，随机变量的和的分布越接近正态分布
 
 ```python
-# 进行5000次抽样，每次样本容量为10000的，抛硬币实验
+# 进行50000次抽样，每次样本容量为10000的，抛硬币实验
 n_size = 10000
 n_trail = 50000
 
@@ -625,9 +625,135 @@ sns.distplot(count_coin, color = 'black')
 
 ### 正态分布及其应用
 
+```python
+import pandas as pd
+import numpy as np
+import scipy as sp
+from scipy import stats
+from matplotlib import pyplot as plt
+import seaborn as sns
+sns.set()
 
+%precision 3
+```
+
+正态分布的概率密度可以回顾一下 
+
+$$
+N(x | \mu, \sigma^2) = \frac{1}{\sqrt{2 \pi \sigma^2}}e^{-\frac{(x - \mu)^2}{2 \sigma^2}}
+$$
+
+```python
+N = 1 / (sp.sqrt(2 * sp.pi * sigma ** 2)) * sp.exp(- (x - mu) ** 2 / 2 * sigma ** 2)
+
+# or
+# 均值为4，标准差为0.8， x为3的位置时的正态分布的概率密度的值
+stats.norm.pdf(lock\ = 4, scale = 0.8, x = 3)
+
+# or
+norm_dist = stats.norm.pdf(lock\ = 4, scale = 0.8)
+norm_dist.pdf(x = 3)
+```
+
+- 样本小于等于某值的比例，就是求小于等于这个值的数据个数和样本容量的比值
+
+```python
+# 从N(x | 4, 0.8^2)的正态分布中抽样，样本容量为10万
+np.random.seed(1)
+sample_norm = stats.norm.rvs(loc = 4, scale = 0.8, size = 100000)
+# 求小于等于3的比例
+sp.sum(sample_norm <= 3) / len(sample_norm)
+```
+
+- 累积分布函数，也叫分布函数。对于随机变量X，当x为实数时，F(X)叫做累积分布函数。
+
+$$
+F(X) = P(X \leq x)
+$$
+
+简单来说，累积分布函数可以计算随机变量小于等于某个值的概率，用这个公式，就不需要像刚才pyhon中计算数据的个数了，比如
+
+$$
+P(x \leq 3) = \int_{- \infty}^3 \frac{1}{\sqrt{2 \pi \sigma^2}}e^{-\frac{(x - \mu)^2}{2 \sigma^2}}dx
+$$
+
+```python
+# 计算小于等于3的累积分布
+stats.norm.cdf(loc = 4, scale = 0.8, x = 3)
+```
+
+这样就可以无须计算数据的个数，只计算积分就可以得到概率，这也是假设总体服从正态分布的优点。
+
+- 左侧概率与百分位数
+
+数据小于等于某个值的概率叫做左侧概率。借助累积分布函数可以直接得到左侧概率。与之相反，可以得到某个概率的某个值，这个值就叫百分位数，也叫做左侧百分位数。
+
+```python
+# 计算左侧概率为2.5%的百分位数
+stats.norm.ppf(loc = 4, scale = 0.8, q = 0.025)
+
+# 比如，计算之前P( x <= 3)的百分位数,正反方向都做
+left = stats.norm.cdf(loc = 4, scale = 0.8, x = 3)
+r = stats.norm.ppf(loc = 4, scale = 0.8, q = left)
+assert(r == left)
+```
+
+- 标准正态分布，均值为0，方差/标准差 为1的正态分布叫作标准正态分布，即 $N(x | 0, 1)$
+- $t$值 ，是一个统计量。本质上就是样本均值减去总体均值，再除以标准误差
+
+$$
+t = \frac{\widehat{\mu} - \mu}{\widehat{\sigma} / \sqrt{N}}
+$$
+其中 $\widehat{\sigma}$ 为实际样本的无偏标准差
+
+t值的公式与标准化公式类似，标准化就是把均值转化为0，把方差转化为1
+
+- $t$值的样本分布，主要用于样本容量较小的地方。
+
+```python
+# 做1万次抽样，把一万次的样本算出来的t值放到一个t值数组里面，求t值的样本分布
+
+np.random.seed(1)
+t_value_array = np.zeros(10000)
+norm_dist = stats.norm(loc = 4, scale = 0.8)
+for i range(0, 10000):
+	sample = norm_dist.rvs(size = 10)
+	sample_mean = sp.mean(sample)
+	sample_std = sp.std(sample, ddof = 1)
+	sample_se = sample_std / sp.sqrt(len(sample))
+	t_value_array[i] = (sample_mean - 4) / sample_se
+
+# 画出t值的分布,一般来说，t值的边缘比较接近正态分布曲线
+sns.distplot(t_value_array, color = 'black')
+x = np.arrange(start = -8, stop = 8.1, step = 0.1)
+plt.plot(x, stats.norm.pdf(x = x), color = 'black', linestyle = 'dotted')
+```
+
+- $t$分布，当总体服从正态分布时，$t$值的样本分布就是$t$分布。
+
+假设样本容量为N， 那么自由度就是N - 1.  $t$分布的图形与自由度相关，如果自由度为n - 1，则t分布表示为$t(n - 1)$
+
+$$
+t(n - 1)的方差 = \frac{n - 1}{n - 3} 且  n > 3
+$$
+
+可以看到，自由度（样本容量）越大，方差越接近1，t分布就越接近标准正态分布。样本容量越小，t分布就远离标准正态分布
+
+```python
+# 标准正态分布
+plt.plot(x, stats.norm.pdf(x = x), color = 'black', linestyle = 'dotted')
+# t分布，df是自由度，之前的每次样本的容量为10，10 - 1 = 9
+plt.plot(x, stats.t.pdf(x = x, df = 9), color = 'black')
+
+sns.distplot(t_value_array, color = 'black'， norm_hist = True)
+plt.plot(x, stats.t.pdf(x = x, df = 9), color = 'black', linestyle = 'dotted')
+```
+
+t分布的意义就是在总体方差未知的时候，也可以研究样本均值的分布。样本均值的分布就是之前python的10000次抽样的实验，每次抽样，算样本容量为10的均值的均值分布。
 
 ### 参数估计
+
+
 
 ### 假设检验
 
