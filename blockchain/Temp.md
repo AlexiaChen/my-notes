@@ -33,6 +33,17 @@ UC Berkeley: Bitcoin and Cryptocurrencies UCB 的这门课难度稍微低一些�
 A16z cryptp page [a16z crypto](https://a16zcrypto.com/)
 
 
+[Leader Election from Randomness Beacons and Other Strategies - a16z crypto](https://a16zcrypto.com/leader-election-from-randomness-beacons-and-other-strategies/)
+
+
+[Exploring Decentralized Proof-of-Solvency Systems | Chainlink](https://blog.chain.link/decentralized-proof-of-solvency-systems/)
+
+[Modular MEV; Part 1—The Introduction - Maven11 Research (substack.com)](https://maven11.substack.com/p/modular-mev-part-1the-introduction)
+
+[(web3降智系列)一文读懂StarkNet的开源堆栈 - by cryptonerdcn (substack.com)](https://web3rover.substack.com/p/web3starknet?utm_source=twitter&sd=pf)
+
+[The cryptoeconomics of slashing - a16z crypto](https://a16zcrypto.com/the-cryptoeconomics-of-slashing/)
+
 
 
 #### 并行处理的链

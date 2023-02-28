@@ -7,3 +7,6 @@ https://mp.weixin.qq.com/s/mRc7pkV2kJuhHS_oupA7TQ
 [(1) Haym 在 Twitter: "(1/17) Cryptography Basics: Polynomial Commitments Creating unique digital fingerprints is core to cryptography. We use tools like hashing to provide cryptographic-certainty without revealing any info. But hashing is so destructive, is there a better way to commit to data? https://t.co/TpGAskL5qF" / Twitter](https://twitter.com/SalomonCrypto/status/1581462447491194880)
 
 [(1) Haym 在 Twitter: "(1/18) Cryptography Basics: Polynomial Encoding Humans think in words and ideas, machines think in numbers and math; the translation of words into numbers is core to basic computing. Want to learn about the powers we have in this process? Let's start with Lagrange Polynomials. https://t.co/WwJAFwRnN2" / Twitter](https://twitter.com/SalomonCrypto/status/1581314867243327489)
+
+[An Introduction to Commitment Schemes - by stu - Block Doc (substack.com)](https://blockdoc.substack.com/p/an-introduction-to-commitment-schemes?utm_source=twitter&sd=pf)
+
