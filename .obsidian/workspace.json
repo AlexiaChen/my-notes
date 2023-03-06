@@ -13,7 +13,91 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "backend/Database/Kafka.md",
+                "file": "crypto/零知识证明学习笔记.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "833d282a168b157d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/SystemDesign/ArchDesign/01-什么是架构以及架构基本法.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "7a7668b79b224719",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/SystemDesign/ArchDesign/02-高性能存储.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "697695df6e5ce3cb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/SystemDesign/ArchDesign/03-高性能网络.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "b4c106483c88f905",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/SystemDesign/ArchDesign/04-分布式CAP理论.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "f46ba35a6d8597f2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/SystemDesign/ArchDesign/05-存储高可用.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "5fa35c6eb585f8c2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/SystemDesign/ArchDesign/01-什么是架构以及架构基本法.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "31e23bd4e262b6fb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/SystemDesign/ArchDesign/07-高并发.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +181,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "crypto/Temp.md",
+                "file": "video-audio/zkcard/OpenCV学习笔记.md",
                 "mode": "source",
                 "source": false
               }
@@ -133,7 +217,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "https://noxx.substack.com/p/evm-deep-dives-the-path-to-shadowy-16e",
+                "query": "高并发",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -142,8 +226,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -163,7 +246,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "crypto/Temp.md",
+                "file": "backend/SystemDesign/ArchDesign/07-高并发.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -191,7 +274,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "crypto/Temp.md",
+                "file": "backend/SystemDesign/ArchDesign/07-高并发.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -203,7 +286,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "crypto/Temp.md"
+                "file": "backend/SystemDesign/ArchDesign/07-高并发.md"
               }
             }
           }
@@ -227,34 +310,37 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "1042266280941d51",
+  "active": "31e23bd4e262b6fb",
   "lastOpenFiles": [
-    "blockchain/Temp.md",
+    "backend/SystemDesign/ArchDesign/01-什么是架构以及架构基本法.md",
+    "backend/SystemDesign/ArchDesign/07-高并发.md",
+    "backend/Database/程序员应该知道的数据库知识.md",
+    "backend/SystemDesign/ArchDesign/06-业务高可用.md",
+    "backend/SystemDesign/ArchDesign/07-如何选择一个开源项目.md",
+    "backend/SystemDesign/如何选择一个开源项目.md",
+    "backend/SystemDesign/ArchDesign/05-存储高可用.md",
+    "backend/SystemDesign/ArchDesign/04-分布式CAP理论.md",
+    "backend/SystemDesign/ArchDesign/03-高性能网络.md",
+    "backend/SystemDesign/ArchDesign/02-高性能存储.md",
     "crypto/零知识证明学习笔记.md",
+    "backend/SystemDesign/ArchDesign",
+    "crypto/量子密码学.md",
+    "crypto/ZKP/DoraHack搞了一期ZKP的文本讲座.md",
+    "crypto/ZKP/Chaum-Pedersen零知识证明方案.md",
+    "crypto/ZKP/简要介绍下BulletProofs.md",
+    "crypto/ZKP/使用ZKP技术对抗虚假信息.md",
+    "crypto/数字签名学习笔记.md",
+    "crypto/ZKP/零知识证明综述.md",
+    "crypto/Basic/DL和CDH以及DDH还有GGM.md",
+    "video-audio/zkcard/OpenCV学习笔记.md",
+    "backend/Database/Kafka.md",
+    "crypto/Temp.md",
+    "blockchain/Temp.md",
     "backend/内存中的数值表示.md",
     "attachments/Pasted image 20230228084224.png",
     "AI/机器学习.md",
     "attachments/Pasted image 20230228083946.png",
     "tools/未命名.md",
-    "tools/让GPT帮你读文献.md",
-    "tools/Git内部原理.md",
-    "AI/神经网络.md",
-    "AI/用马尔科夫链来做自动补全.md",
-    "AI/逻辑回归详解.md",
-    "backend/Network/IPv4与IPv6.md",
-    "attachments/Pasted image 20230228082415.png",
-    "backend/Network/网络相关梳理.md",
-    "crypto/量子密码学.md",
-    "crypto/ZKP/零知识证明综述.md",
-    "backend/Linux/Linux学习笔记.md",
-    "math/statistics/用Python动手学习统计学-学习笔记.md",
-    "blockchain/ETH/Solidity/可升级合约.md",
-    "blockchain/ETH/Solidity/solidity合约架构分析工具.md",
-    "math/四元数学习笔记.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-40要不要使用分区表.md",
-    "tools/downloads/youtube视频下载.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-39grant之后要跟着flush privileges吗.md",
-    "backend/Linux/SSH学习笔记.md",
-    "backend/Database/MQ/MQ高手/03-消息模型-主题和队列有什么不同.md"
+    "attachments/Pasted image 20230228082415.png"
   ]
 }
