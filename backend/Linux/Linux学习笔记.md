@@ -7,6 +7,17 @@
 [15 Tips On How to Use 'Curl' Command in Linux (tecmint.com)](https://www.tecmint.com/linux-curl-command-examples/)
 
 
+对于自签证书，用curl访问https自签网址接口, 需要加入一个`-k`参数
+
+```bash
+curl --ssl -X 'GET' -k 'https://localhost:5000/api/invitecode' -H 'accept: application/json' -H '  
+X-Api-Key-Id: LocalGabby' -H 'X-Api-Key: LocalGabbyAPIKey'  
+{"code":201,"message":"Generate captcha Success","data":{"invitecode":"bF8hAH"}}
+```
+
+自签证书一般不靠谱，生产环境推荐千万不要用。仅仅可以本地测试，其实现在大多数浏览器都默认禁用了自签网址的访问，需要费好大劲才可以调整，Edge浏览器访问https网址，它会自动安装自签证书。
+
+
 ## Linux的文件权限
 
 ![[Pasted image 20220706214815.png]]
