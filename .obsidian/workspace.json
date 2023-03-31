@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "crypto/零知识证明学习笔记.md",
+                "file": "backend/DevOps/GitOps是什么.md",
                 "mode": "source",
                 "source": false
               }
@@ -211,8 +211,7 @@
               }
             }
           }
-        ],
-        "currentTab": 9
+        ]
       }
     ],
     "direction": "vertical"
@@ -241,7 +240,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "curl",
+                "query": "Postgres",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -250,7 +249,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -270,7 +270,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "backend/Linux/Linux学习笔记.md",
+                "file": "backend/DevOps/GitOps是什么.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -298,7 +298,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "backend/Linux/Linux学习笔记.md",
+                "file": "backend/DevOps/GitOps是什么.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -310,7 +310,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "backend/Linux/Linux学习笔记.md"
+                "file": "backend/DevOps/GitOps是什么.md"
               }
             }
           }
@@ -334,8 +334,16 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "37dc58cfac316a81",
+  "active": "e97429c874fdf6e9",
   "lastOpenFiles": [
+    "backend/Database/PostgresSQL/PG学习笔记.md",
+    "PL/Java/MyBatis-Plus学习笔记.md",
+    "backend/Container/Docker学习笔记.md",
+    "blockchain/Cosmos/CosmosSDK教程.md",
+    "PL/Python/Python学习笔记.md",
+    "backend/DevOps/在AWS上申请SSL证书并应用在AWS Load Balancer上.md",
+    "backend/DevOps/GitOps是什么.md",
+    "crypto/零知识证明学习笔记.md",
     "crypto/数字签名学习笔记.md",
     "blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
     "blockchain/Web3/DeFi/hardhat/Hardhat network.md",
@@ -344,7 +352,6 @@
     "backend/Network/未命名.md",
     "backend/Network/网络相关梳理.md",
     "AI/GPT与LLM相关.md",
-    "crypto/零知识证明学习笔记.md",
     "crypto/Temp.md",
     "backend/SystemDesign/ArchDesign/07-高并发.md",
     "backend/SystemDesign/ArchDesign/01-什么是架构以及架构基本法.md",
@@ -355,14 +362,7 @@
     "backend/SystemDesign/ArchDesign/05-存储高可用.md",
     "backend/SystemDesign/ArchDesign/04-分布式CAP理论.md",
     "backend/SystemDesign/ArchDesign/03-高性能网络.md",
-    "backend/SystemDesign/ArchDesign/02-高性能存储.md",
     "backend/SystemDesign/ArchDesign",
-    "crypto/量子密码学.md",
-    "crypto/ZKP/DoraHack搞了一期ZKP的文本讲座.md",
-    "crypto/ZKP/Chaum-Pedersen零知识证明方案.md",
-    "crypto/ZKP/简要介绍下BulletProofs.md",
-    "crypto/ZKP/使用ZKP技术对抗虚假信息.md",
-    "crypto/ZKP/零知识证明综述.md",
     "attachments/Pasted image 20230228084224.png",
     "attachments/Pasted image 20230228083946.png",
     "attachments/Pasted image 20230228082415.png"
