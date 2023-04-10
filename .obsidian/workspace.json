@@ -13,7 +13,127 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "backend/DevOps/GitOps是什么.md",
+                "file": "AI/GPT与LLM相关.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "993ed79c7ae58f69",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/chatGPT私有化部署原理.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "cfcb18537d38a122",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "a50db740586693dc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Network/网络相关梳理.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "cbd2f6bdbd3691e0",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "9cf98014b754183f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "0d19f5b421f81ba5",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "e249f3b41059df2d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "fde3642e6789a644",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "9599d3763ac15edd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/chatGPT私有化部署原理.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "1cd6daf9b8b6a1ed",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
                 "mode": "source",
                 "source": false
               }
@@ -211,7 +331,8 @@
               }
             }
           }
-        ]
+        ],
+        "currentTab": 10
       }
     ],
     "direction": "vertical"
@@ -249,8 +370,7 @@
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -270,7 +390,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "backend/DevOps/GitOps是什么.md",
+                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -298,7 +418,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "backend/DevOps/GitOps是什么.md",
+                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -310,7 +430,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "backend/DevOps/GitOps是什么.md"
+                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md"
               }
             }
           }
@@ -334,34 +454,42 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "e97429c874fdf6e9",
+  "active": "1cd6daf9b8b6a1ed",
   "lastOpenFiles": [
+    "AI/OpenAI/Prompt Enginnering.md",
+    "AI/OpenAI/chatGPT私有化部署原理.md",
+    "AI/OpenAI/利用langchain来进行对csv数据的QA.md",
+    "attachments/Pasted image 20230410092422.png",
+    "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
+    "attachments/Pasted image 20230410092316.png",
+    "attachments/Pasted image 20230410092247.png",
+    "AI/OpenAI/最近OpenAI相关的资料教程.md",
+    "AI/利用开源模型来进行文本的Embeddings.md",
+    "attachments/Pasted image 20230410092035.png",
+    "attachments/Pasted image 20230410092026.png",
+    "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
+    "AI/OpenAI/基于langchain做金融的QA机器人的演示.md",
+    "attachments/Pasted image 20230410091657.png",
+    "backend/Network/到底谁reset了谁的连接.md",
+    "backend/Network/网络相关梳理.md",
+    "backend/Network/未命名.md",
+    "backend/Network/家里的网络布局方案.md",
+    "AI/画图相关.md",
+    "AI/未命名",
+    "AI/GPT与LLM相关.md",
+    "AI/OpenAI",
+    "backend/DevOps/GitOps是什么.md",
     "backend/Database/PostgresSQL/PG学习笔记.md",
     "PL/Java/MyBatis-Plus学习笔记.md",
     "backend/Container/Docker学习笔记.md",
     "blockchain/Cosmos/CosmosSDK教程.md",
     "PL/Python/Python学习笔记.md",
     "backend/DevOps/在AWS上申请SSL证书并应用在AWS Load Balancer上.md",
-    "backend/DevOps/GitOps是什么.md",
     "crypto/零知识证明学习笔记.md",
     "crypto/数字签名学习笔记.md",
     "blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
     "blockchain/Web3/DeFi/hardhat/Hardhat network.md",
     "202303150848.md",
-    "temp-notes/未命名.md",
-    "backend/Network/未命名.md",
-    "backend/Network/网络相关梳理.md",
-    "AI/GPT与LLM相关.md",
-    "crypto/Temp.md",
-    "backend/SystemDesign/ArchDesign/07-高并发.md",
-    "backend/SystemDesign/ArchDesign/01-什么是架构以及架构基本法.md",
-    "backend/Database/程序员应该知道的数据库知识.md",
-    "backend/SystemDesign/ArchDesign/06-业务高可用.md",
-    "backend/SystemDesign/ArchDesign/07-如何选择一个开源项目.md",
-    "backend/SystemDesign/如何选择一个开源项目.md",
-    "backend/SystemDesign/ArchDesign/05-存储高可用.md",
-    "backend/SystemDesign/ArchDesign/04-分布式CAP理论.md",
-    "backend/SystemDesign/ArchDesign/03-高性能网络.md",
     "backend/SystemDesign/ArchDesign",
     "attachments/Pasted image 20230228084224.png",
     "attachments/Pasted image 20230228083946.png",
