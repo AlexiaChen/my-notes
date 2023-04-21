@@ -133,7 +133,79 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
+                "file": "blockchain/ETH/状态存储/ETH之MPT.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "39977676ead4e971",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Linux/CURL与httpie使用学习笔记.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "9f08d4ed9855e013",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MQ/MQ高手/03-消息模型-主题和队列有什么不同.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "7051883af6222135",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MQ/MQ高手/04-如何利用事务消息实现分布式事务.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "78eefca0159e3817",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MQ/MQ高手/05-如何确保消息不会丢失.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "e432d0f939de673e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MQ/MQ高手/06-如何处理消费过程中的重复消息.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "5ccd7bd22dabac1a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md",
                 "mode": "source",
                 "source": false
               }
@@ -332,7 +404,7 @@
             }
           }
         ],
-        "currentTab": 10
+        "currentTab": 16
       }
     ],
     "direction": "vertical"
@@ -361,7 +433,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "Postgres",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -390,7 +462,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
+                "file": "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -418,7 +490,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
+                "file": "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -430,7 +502,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md"
+                "file": "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md"
               }
             }
           }
@@ -454,13 +526,28 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "1cd6daf9b8b6a1ed",
+  "active": "5ccd7bd22dabac1a",
   "lastOpenFiles": [
+    "attachments/Pasted image 20230421162028.png",
+    "backend/Database/MQ/MQ高手/06-如何处理消费过程中的重复消息.md",
+    "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md",
+    "backend/Database/MQ/MQ高手/05-如何确保消息不会丢失.md",
+    "attachments/Pasted image 20230421105124.png",
+    "backend/Database/MQ/MQ高手/04-如何利用事务消息实现分布式事务.md",
+    "attachments/Pasted image 20230421104617.png",
+    "attachments/Pasted image 20230421104119.png",
+    "attachments/Pasted image 20230421103644.png",
+    "backend/Database/MQ/MQ高手/03-消息模型-主题和队列有什么不同.md",
+    "backend/Database/MQ/MQ高手/01-为什么需要消息队列.md",
+    "backend/Linux/Nginx学习笔记.md",
+    "backend/Linux/CURL与httpie使用学习笔记.md",
+    "blockchain/ETH/状态存储/ETH之MPT.md",
+    "202303150848.md",
+    "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
     "AI/OpenAI/Prompt Enginnering.md",
     "AI/OpenAI/chatGPT私有化部署原理.md",
     "AI/OpenAI/利用langchain来进行对csv数据的QA.md",
     "attachments/Pasted image 20230410092422.png",
-    "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
     "attachments/Pasted image 20230410092316.png",
     "attachments/Pasted image 20230410092247.png",
     "AI/OpenAI/最近OpenAI相关的资料教程.md",
@@ -479,20 +566,6 @@
     "AI/GPT与LLM相关.md",
     "AI/OpenAI",
     "backend/DevOps/GitOps是什么.md",
-    "backend/Database/PostgresSQL/PG学习笔记.md",
-    "PL/Java/MyBatis-Plus学习笔记.md",
-    "backend/Container/Docker学习笔记.md",
-    "blockchain/Cosmos/CosmosSDK教程.md",
-    "PL/Python/Python学习笔记.md",
-    "backend/DevOps/在AWS上申请SSL证书并应用在AWS Load Balancer上.md",
-    "crypto/零知识证明学习笔记.md",
-    "crypto/数字签名学习笔记.md",
-    "blockchain/Web3/DeFi/hardhat/Hardhat教程.md",
-    "blockchain/Web3/DeFi/hardhat/Hardhat network.md",
-    "202303150848.md",
-    "backend/SystemDesign/ArchDesign",
-    "attachments/Pasted image 20230228084224.png",
-    "attachments/Pasted image 20230228083946.png",
-    "attachments/Pasted image 20230228082415.png"
+    "backend/SystemDesign/ArchDesign"
   ]
 }
