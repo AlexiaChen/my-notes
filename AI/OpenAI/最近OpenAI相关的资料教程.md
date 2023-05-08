@@ -13,3 +13,21 @@ langchain的教程 [A Comprehensive Guide to LangChain (nathankjer.com)](https:/
 
 [The LangChain Cookbook - Beginner Guide To 7 Essential Concepts - YouTube](https://www.youtube.com/watch?v=2xxziIWmaSA)
 
+基于LLM做语义化检索的教程（langchain） [A Practical 5-Step Guide to Do Semantic Search on Your Private Data With the Help of LLMs | HackerNoon](https://hackernoon.com/a-practical-5-step-guide-to-do-semantic-search-on-your-private-data-with-the-help-of-llms)
+
+各种LLM模型的关系图 [Ecosystem Graphs for Foundation Models (stanford.edu)](https://crfm.stanford.edu/ecosystem-graphs/index.html?mode=graph) 
+
+各种LLM论文的关系图 [Timeline of Transformer Models / Large Language Models (AI / ML / LLM) (v-gar.de)](https://ai.v-gar.de/ml/transformer/timeline/index.html)
+
+一个网站，用于chatWith网页的服务 [Chatbase | ChatGPT for your website](https://www.chatbase.co/)
+
+[Turbocharge LangChain NOW: guide to 20x faster embedding | Anyscale](https://www.anyscale.com/blog/turbocharge-langchain-now-guide-to-20x-faster-embedding)
+
+LLama模型的简史  [A brief history of LLaMA models - AGI Sphere (agi-sphere.com)](https://agi-sphere.com/llama-models/) 
+
+[Understanding Parameter-Efficient LLM Finetuning: Prompt Tuning And Prefix Tuning (sebastianraschka.com)](https://magazine.sebastianraschka.com/p/understanding-parameter-efficient)
+
+[St4r 在 Twitter: "最近一段时间除了评估各个LLM本地部署的效果之外，也调研了一些AGI相关的内容，比如BabyAGI/AutoGPT/AgentGPT/Generative Agents，本tweet会总结一下近期这些热门项目背后的技术原理和潜在问题。1/10" / Twitter](https://twitter.com/xinqiu_bot/status/1652572537812041728)
+
+[Reinforcement learning course: hands-on, step by step, and free - (datamachines.xyz)](https://datamachines.xyz/the-hands-on-reinforcement-learning-course-page/)
+

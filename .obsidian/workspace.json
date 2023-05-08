@@ -229,187 +229,19 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "PL/Python/Python学习笔记.md",
+                "file": "AI/机器学习.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "734c847557a8252d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/深度学习.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "a008c598e6595783",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/GPT与LLM相关.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "833d282a168b157d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/SystemDesign/ArchDesign/01-什么是架构以及架构基本法.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "7a7668b79b224719",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/SystemDesign/ArchDesign/02-高性能存储.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "697695df6e5ce3cb",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/SystemDesign/ArchDesign/03-高性能网络.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "b4c106483c88f905",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/SystemDesign/ArchDesign/04-分布式CAP理论.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "f46ba35a6d8597f2",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/SystemDesign/ArchDesign/05-存储高可用.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "5fa35c6eb585f8c2",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/SystemDesign/ArchDesign/01-什么是架构以及架构基本法.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "31e23bd4e262b6fb",
+            "id": "1a8059dcb3203752",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "crypto/零知识证明学习笔记.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "4b3a8381db10b84d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Network/网络相关梳理.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "707d3fa15cff0124",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Linux/Linux学习笔记.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "6423c3dc4ea8bb35",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/01-为什么需要消息队列.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "c9128cfb27821e23",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/02-如何选择消息队列.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "9009f780b2b551e1",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Network/网络相关梳理.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "b9ee0162a164da4e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/神经网络.md",
                 "mode": "source",
                 "source": false
               }
@@ -452,7 +284,7 @@
             }
           }
         ],
-        "currentTab": 20
+        "currentTab": 19
       }
     ],
     "direction": "vertical"
@@ -489,6 +321,14 @@
                 "sortOrder": "alphabetical"
               }
             }
+          },
+          {
+            "id": "c73231a284fa3741",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
           }
         ]
       }
@@ -510,7 +350,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "AI/GPT与LLM相关.md",
+                "file": "crypto/零知识证明学习笔记.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -538,7 +378,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "AI/GPT与LLM相关.md",
+                "file": "crypto/零知识证明学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -550,7 +390,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AI/GPT与LLM相关.md"
+                "file": "crypto/零知识证明学习笔记.md"
               }
             }
           }
@@ -574,19 +414,36 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "a008c598e6595783",
+  "active": "1a8059dcb3203752",
   "lastOpenFiles": [
-    "202303150848.md",
+    "AI/OpenAI/最近OpenAI相关的资料教程.md",
+    "crypto/零知识证明学习笔记.md",
+    "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
+    "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
+    "AI/OpenAI/Prompt Enginnering.md",
+    "AI/机器学习.md",
+    "AI/画图相关.md",
+    "AI/利用开源模型来进行文本的Embeddings.md",
+    "AI/一个简单的机器学习模型-一行一行解释.md",
+    "AI/OpenAI/langchain的基本概念.md",
+    "attachments/Pasted image 20230508162218.png",
+    "AI/OpenAI/基于langchain做金融的QA机器人的演示.md",
+    "attachments/Pasted image 20230508161938.png",
     "AI/GPT与LLM相关.md",
+    "AI/神经网络/ReLU与Sigmod激活函数.md",
+    "AI/神经网络",
+    "未命名 1",
+    "未命名",
+    "PL/Python/Python学习笔记.md",
+    "backend/Database/MQ/MQ高手/02-如何选择消息队列.md",
+    "AI/深度学习.md",
+    "attachments/Pasted image 20230410092035.png",
+    "202303150848.md",
     "backend/Network/NAT穿透的原理.md",
     "backend/Database/高可用架构.md",
-    "AI/深度学习.md",
-    "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
     "AI/OpenAI/利用langchain来进行对csv数据的QA.md",
     "AI/OpenAI/chatGPT私有化部署原理.md",
-    "AI/OpenAI/Prompt Enginnering.md",
     "PL/Python/Gunicorn的最佳配置.md",
-    "PL/Python/Python学习笔记.md",
     "backend/Database/MQ/MQ高手/09-学习开源代码该如何入手.md",
     "backend/Database/MQ/MQ高手/08-答疑解惑基础篇.md",
     "attachments/Pasted image 20230421164247.png",
@@ -595,24 +452,9 @@
     "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md",
     "attachments/Pasted image 20230421162028.png",
     "backend/Database/MQ/MQ高手/06-如何处理消费过程中的重复消息.md",
-    "backend/Database/MQ/MQ高手/05-如何确保消息不会丢失.md",
     "attachments/Pasted image 20230421105124.png",
-    "backend/Database/MQ/MQ高手/04-如何利用事务消息实现分布式事务.md",
     "attachments/Pasted image 20230421104617.png",
     "attachments/Pasted image 20230421104119.png",
-    "attachments/Pasted image 20230421103644.png",
-    "backend/Database/MQ/MQ高手/03-消息模型-主题和队列有什么不同.md",
-    "backend/Database/MQ/MQ高手/01-为什么需要消息队列.md",
-    "backend/Linux/Nginx学习笔记.md",
-    "backend/Linux/CURL与httpie使用学习笔记.md",
-    "blockchain/ETH/状态存储/ETH之MPT.md",
-    "attachments/Pasted image 20230410092422.png",
-    "attachments/Pasted image 20230410092316.png",
-    "AI/OpenAI/最近OpenAI相关的资料教程.md",
-    "AI/利用开源模型来进行文本的Embeddings.md",
-    "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
-    "AI/OpenAI/基于langchain做金融的QA机器人的演示.md",
-    "AI/未命名",
     "AI/OpenAI",
     "backend/SystemDesign/ArchDesign"
   ]

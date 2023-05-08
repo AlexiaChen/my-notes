@@ -72,3 +72,8 @@ https://www.promptingguide.ai/
 
 [Building an Image Recognition App in Javascript using Pinecone, Hugging Face, and Vercel | Pinecone](https://www.pinecone.io/learn/pinecone-vision-app/)
 
+
+[歸藏 在 Twitter: "答应大家的AI歌手教程来了，手把手教你训练你自己的AI歌手，主要分为使用模型和训练模型两部分，这里是第一部分如何使用模型生成音乐的部分，主要介绍了音源的处理，模型的使用和后期音轨的合成。 看在藏师傅生病肝教程的份上希望各位多多支持，下面是具体步骤🧶 https://t.co/klsiAogSly" / Twitter](https://twitter.com/op7418/status/1655437246869417985)
+
+[🧭 Midjourney 学习导航 | Learning Prompt](https://learningprompt.wiki/docs/midjourney-learning-path)
+
