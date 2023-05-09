@@ -80,78 +80,6 @@
             }
           },
           {
-            "id": "0d19f5b421f81ba5",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "e249f3b41059df2d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "fde3642e6789a644",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "9599d3763ac15edd",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/chatGPT私有化部署原理.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "1cd6daf9b8b6a1ed",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "blockchain/ETH/状态存储/ETH之MPT.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "39977676ead4e971",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Linux/CURL与httpie使用学习笔记.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "9f08d4ed9855e013",
             "type": "leaf",
             "state": {
@@ -241,7 +169,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "crypto/零知识证明学习笔记.md",
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md",
                 "mode": "source",
                 "source": false
               }
@@ -284,7 +212,7 @@
             }
           }
         ],
-        "currentTab": 19
+        "currentTab": 13
       }
     ],
     "direction": "vertical"
@@ -350,7 +278,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "crypto/零知识证明学习笔记.md",
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -378,7 +306,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "crypto/零知识证明学习笔记.md",
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -390,7 +318,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "crypto/零知识证明学习笔记.md"
+                "file": "math/statistics/用Python动手学习统计学-学习笔记.md"
               }
             }
           }
@@ -416,8 +344,11 @@
   },
   "active": "1a8059dcb3203752",
   "lastOpenFiles": [
-    "AI/OpenAI/最近OpenAI相关的资料教程.md",
+    "math/做工程或者科研对数学的正确态度.md",
+    "math/Temp.md",
+    "math/statistics/用Python动手学习统计学-学习笔记.md",
     "crypto/零知识证明学习笔记.md",
+    "AI/OpenAI/最近OpenAI相关的资料教程.md",
     "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
     "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
     "AI/OpenAI/Prompt Enginnering.md",
@@ -445,13 +376,10 @@
     "AI/OpenAI/chatGPT私有化部署原理.md",
     "PL/Python/Gunicorn的最佳配置.md",
     "backend/Database/MQ/MQ高手/09-学习开源代码该如何入手.md",
-    "backend/Database/MQ/MQ高手/08-答疑解惑基础篇.md",
     "attachments/Pasted image 20230421164247.png",
     "attachments/Pasted image 20230421164018.png",
     "attachments/Pasted image 20230421163859.png",
-    "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md",
     "attachments/Pasted image 20230421162028.png",
-    "backend/Database/MQ/MQ高手/06-如何处理消费过程中的重复消息.md",
     "attachments/Pasted image 20230421105124.png",
     "attachments/Pasted image 20230421104617.png",
     "attachments/Pasted image 20230421104119.png",
