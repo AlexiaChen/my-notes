@@ -19,6 +19,8 @@
 
 ### 神经元-大自然的计算机
 
+![[Pasted image 20230510172826.png]]
+
 本质上就是神经元之间互相连接，形成的一种可以处理复杂信息的计算模型。神经元之间有抑制机制。所以人工神经元也有了激活函数这样的抑制神经元输出的机制，比如Sigmoid函数和ReLU函数。Sigmoid在坐标轴上是一个S曲线，正好可以模拟大脑神经元的抑制激活功能
 
 $$
@@ -114,4 +116,123 @@ $$
 
 y是误差。
 
-使用梯度下降，需要计算出误差函数相对于权重的斜率，误差函数的输入是神经网路的输出，所以误差函数是很依赖神经网络的权重的，我们最终要找到最小的y值，所对应的权重矩阵。
+使用梯度下降，需要计算出误差函数相对于权重的斜率，误差函数的输入是神经网路的输出，所以误差函数是很依赖神经网络的权重的，我们最终要找到最小的y值，所对应的权重矩阵。因为y值是误差，所以把y的符号变成E
+
+$$
+y_{output} = ComplexWeightMatrixCompute(x_{input})
+$$
+
+
+$$
+E = (target - y_{output})^2
+$$
+
+$$
+E = (target - ComplexWeightMatrixCompute(x_{input}))^2
+$$
+
+
+换句话说，我们要研究E对连接权重的改变又多敏感？多敏感就是变化率有多快？这个显而易见可以用微积分的符号来表示:
+
+$$
+\frac{dE}{dw_{ij}}
+$$
+
+或者
+
+$$
+\frac{\partial E}{\partial w_{ij}}
+$$
+
+让我们来优化下误差函数E的公式，因为真实误差，毕竟是对各个误差值求和，所以E的实际公式是:
+
+$$
+E = \sum_{n}(t_n - o_n)^2
+$$
+
+$o_n$就是神经网络输出层的单个神经元节点的输出值，$t_n$ 就是训练数据的向量的第n维的输出值，然后各部分累加。
+
+$$
+\frac{\partial E}{\partial w_{ij}} = \frac{\partial}{\partial w_{ij}}\sum_{n}(t_n - o_n)^2
+$$
+
+注意，在节点n的输出$o_n$ 只取决于连接到这个节点的权重链接，因此，节点k的输出$o_k$ 只取决于权重$w_{jk}$ ,  比如$o_5$ 的权重是权重向量$(w_{15}, w_{25}, w_{35}, .. w_{j5})$
+
+$$
+\frac{\partial E}{\partial w_{jk}} = \frac{\partial}{\partial w_{jk}}(t_k - o_k)^2
+$$
+通过链式求导法则，
+
+$$
+\frac{\partial E}{\partial w_{jk}} = \frac{\partial E}{\partial o_k} \cdot \frac{\partial o_k}{\partial w_{jk}}
+$$
+
+$$
+\frac{\partial E}{\partial w_{jk}} =-2(t_k - o_k) \cdot \frac{\partial o_k}{\partial w_{jk}}
+$$
+
+然后对第二项进行分解，$o_k$是上一层神经元的加权求和，并输入到激活函数而来的。
+
+$$
+\frac{\partial E}{\partial w_{jk}} =-2(t_k - o_k) \cdot \frac{\partial}{\partial w_{jk}}sigmoid(\sum_jw_{jk} \cdot o_{j})
+$$
+
+$o_j$是上一层节点的输出。不是最终层的输出$o_k$
+
+接下来无非就是对sigmoid函数微分，这个有特定的公式了，无需管细节。
+
+$$
+\frac{\partial E}{\partial w_{jk}} =-2(t_k - o_k) \cdot  sigmoid(\sum_jw_{jk} \cdot o_{j})(1 - sigmoid(\sum_jw_{jk} \cdot o_{j}))  \cdot \frac{\partial}{\partial w_{jk}}\sum_jw_{jk} \cdot o_{j} 
+$$
+
+$$
+\frac{\partial E}{\partial w_{jk}} = -2(t_k - o_k) \cdot  sigmoid(\sum_jw_{jk} \cdot o_{j})(1 - sigmoid(\sum_jw_{jk} \cdot o_{j}))  \cdot o_j
+$$
+
+然后我们把表达式中的常数2去掉，因为我们只对误差的斜率感兴趣，这个常数是什么无关紧要，去掉这个常数可以变得简单
+
+$$
+\frac{\partial E}{\partial w_{jk}} = -(t_k - o_k) \cdot  sigmoid(\sum_jw_{jk} \cdot o_{j})(1 - sigmoid(\sum_jw_{jk} \cdot o_{j}))  \cdot o_j
+$$
+
+目前为止，这个公式是为了优化隐藏层和输出层之间的权重，接下来，我们要为输入层和隐藏层找到类似的误差斜率。我们可以直接用以上的公式来构造输入层和隐藏层的误差斜率公式。
+
+根据上式第一部分$t_k - o_k$的误差，现在要变成隐藏层节点重组的向后传播误差。这个误差记为$e_j$  **注意， 以上的公式前提都是只有一个隐藏层的神经网络。**
+
+sigmoid部分可以保持不变，但是内部的求和表达式是前一层，因此求和的范围是所有由权重调节的进入隐藏层节点j的输入，记为$i_j$
+
+最后一部分就是第一层节点的输出$o_i$,  这里碰巧是输入信号
+
+这种方法，利用了问题中对称性，避免了大量的工作。下面就是我们所得到的输入层和隐藏层之前的权重调整
+
+$$
+\frac{\partial E}{\partial w_{ij}} = -(e_j) \cdot  sigmoid(\sum_iw_{ij} \cdot o_{i})(1 - sigmoid(\sum_iw_{ij} \cdot o_{i}))  \cdot o_i
+$$
+
+
+
+记住，权重改变的方向与梯度方向相反。我们需要一个学习因子来调节变化，跟线性分类器中的道理一样，学习因子作为避免被错误的训练样本拉得太远的一种方式，也保证权重不会由于持续超调而在最小值之间来回跳动。
+
+$$
+(new \quad w_{jk}) = (old \quad w_{jk}) - \alpha \cdot \frac{\partial E}{\partial w_{jk}}
+$$
+
+注意上式，因为权重改变的反向与梯度方向相反，所以需要用旧的权重，减去刚得到的误差斜率。其中$\alpha$就是学习因子，也叫学习率(learning rate)
+
+根据一以上公式，可以写出$\Delta W$ 矩阵是通过前一层输出的行向量，乘以下一层的列向量的值得到的一个权重变化矩阵。
+
+$$
+\Delta W_{jk} = (new \quad w_{jk}) - (old \quad w_{jk}) = \alpha \cdot E_k \cdot O_k(1 - O_k) \cdot O_j^T
+$$
+
+以上是写成向量形式的共识，前一层输出向量的转置就是一个行向量，乘以下一层的输出列向量。当然，如果线性代数熟悉的话都是知道，m维列向量乘以n维行向量，得到的是一个m\*n的矩阵。
+
+
+最后你发现，sigmod消失了，在上述式子。
+
+### 更新权重的一个实例
+
+
+
+
+### 准备数据，尝试训练
