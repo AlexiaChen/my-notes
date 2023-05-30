@@ -8,211 +8,55 @@
         "type": "tabs",
         "children": [
           {
-            "id": "e97429c874fdf6e9",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/GPT与LLM相关.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "993ed79c7ae58f69",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/chatGPT私有化部署原理.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "cfcb18537d38a122",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "a50db740586693dc",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Network/网络相关梳理.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "cbd2f6bdbd3691e0",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "9cf98014b754183f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/OpenAI/最近OpenAI相关的资料教程.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "9f08d4ed9855e013",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/03-消息模型-主题和队列有什么不同.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "7051883af6222135",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/04-如何利用事务消息实现分布式事务.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "78eefca0159e3817",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/05-如何确保消息不会丢失.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "e432d0f939de673e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/06-如何处理消费过程中的重复消息.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "5ccd7bd22dabac1a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/07-消息积压了该如何处理.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "a605912fc3f63b2c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/08-答疑解惑基础篇.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "0bc10536b30cba1e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AI/机器学习.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
             "id": "1a8059dcb3203752",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AI/神经网络/Python神经网络编程.md",
+                "file": "math/四元数学习笔记.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "c6fcf5197336d2ca",
+            "id": "404bf3d6e74eadda",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "blockchain/Temp.md",
+                "file": "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "3ae26e1a0a3f696d",
+            "id": "6ab42b2f54a7f4bc",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "crypto/零知识证明学习笔记.md",
+                "file": "blockchain/ETH/ERC4337/发明一个账户抽象01.md",
                 "mode": "source",
                 "source": false
               }
             }
           },
           {
-            "id": "6109c7c22986355c",
+            "id": "ec6100667864e19a",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "video-audio/zkcard/OpenCV学习笔记.md",
+                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
         ],
-        "currentTab": 13
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -278,7 +122,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "AI/神经网络/Python神经网络编程.md",
+                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -306,7 +150,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "AI/神经网络/Python神经网络编程.md",
+                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -318,7 +162,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AI/神经网络/Python神经网络编程.md"
+                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md"
               }
             }
           }
@@ -342,47 +186,48 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "1a8059dcb3203752",
+  "active": "ec6100667864e19a",
   "lastOpenFiles": [
-    "attachments/Pasted image 20230510172826.png",
-    "attachments/Pasted image 20230510161430.png",
-    "attachments/Pasted image 20230510161029.png",
-    "attachments/Pasted image 20230510155740.png",
-    "math/statistics/用Python动手学习统计学-学习笔记.md",
+    "attachments/481b992427bff91be4cc17734b8a268.jpg",
+    "attachments/012ba419208d351362e37c06e63666a.jpg",
+    "attachments/393792c89626666f5c8f4ad1823e009.jpg",
+    "attachments/08db35f46ed20a24a1fec7cbd7da992.jpg",
+    "attachments/e2cc97eefd890ee426d93d46ace47cb.jpg",
+    "attachments/7eb387f4d65a0da9a4e7136517addb5.jpg",
+    "attachments/8649f8cecdf7290d5f223f4e3d0d11d.jpg",
+    "attachments/f2db053d1270fa85b6a6034011c038a.jpg",
+    "attachments/6cb765023a3a3d2d35efa8a10e03fa0.jpg",
+    "attachments/51a13e43ed7753c85fea3409cefd321.jpg",
+    "blockchain/ETH/ERC4337/ERC4337思维导图.md",
+    "blockchain/ETH/ERC4337/发明一个账户抽象01.md",
+    "blockchain/ETH/ERC4337/Temp.md",
+    "crypto/MPC/Temp.md",
+    "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
+    "blockchain/ETH/ERC4337",
+    "attachments/Pasted image 20230529150602.png",
+    "crypto/MPC/门限签名详解.md",
+    "crypto/数字签名学习笔记.md",
+    "crypto/Temp.md",
     "AI/神经网络/Python神经网络编程.md",
-    "math/做工程或者科研对数学的正确态度.md",
-    "math/Temp.md",
-    "crypto/零知识证明学习笔记.md",
-    "AI/OpenAI/最近OpenAI相关的资料教程.md",
-    "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
-    "AI/OpenAI/利用LLama index来进行语义化搜索的QA机器人.md",
-    "AI/OpenAI/Prompt Enginnering.md",
-    "AI/机器学习.md",
-    "AI/画图相关.md",
-    "AI/利用开源模型来进行文本的Embeddings.md",
-    "AI/一个简单的机器学习模型-一行一行解释.md",
-    "AI/OpenAI/langchain的基本概念.md",
-    "attachments/Pasted image 20230508162218.png",
+    "AI/神经网络/一段简单的神经网络代码.md",
+    "backend/Linux/Linux学习笔记.md",
+    "math/statistics/用Python动手学习统计学-学习笔记.md",
+    "backend/Container/Docker学习笔记.md",
+    "backend/Linux/manjaro折腾手记.md",
+    "blockchain/Cosmos/CosmosSDK教程.md",
+    "PL/c-cpp/CERT-CPP-spec/cert-cpp编码规范ERR.md",
     "AI/OpenAI/基于langchain做金融的QA机器人的演示.md",
-    "attachments/Pasted image 20230508161938.png",
+    "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
+    "AI/OpenAI/利用langchain来进行对csv数据的QA.md",
+    "AI/OpenAI/langchain的基本概念.md",
+    "AI/OpenAI/chatGPT私有化部署原理.md",
+    "202303150848.md",
+    "PL/Temp.md",
     "AI/GPT与LLM相关.md",
-    "AI/神经网络/ReLU与Sigmod激活函数.md",
+    "PL/Rust/Rust学习笔记.md",
     "AI/神经网络",
     "未命名 1",
     "未命名",
-    "PL/Python/Python学习笔记.md",
-    "backend/Database/MQ/MQ高手/02-如何选择消息队列.md",
-    "AI/深度学习.md",
-    "attachments/Pasted image 20230410092035.png",
-    "202303150848.md",
-    "backend/Network/NAT穿透的原理.md",
-    "backend/Database/高可用架构.md",
-    "AI/OpenAI/利用langchain来进行对csv数据的QA.md",
-    "AI/OpenAI/chatGPT私有化部署原理.md",
-    "attachments/Pasted image 20230421164247.png",
-    "attachments/Pasted image 20230421164018.png",
-    "attachments/Pasted image 20230421163859.png",
-    "attachments/Pasted image 20230421162028.png",
     "AI/OpenAI",
     "backend/SystemDesign/ArchDesign"
   ]

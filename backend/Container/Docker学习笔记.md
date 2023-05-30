@@ -46,6 +46,8 @@ EXPOSE指令暴露了指定的端口，使其仅用于容器间的通信。让�
 sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && sudo add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable" && sudo apt-get update && sudo apt-get install -y docker-ce
 ```
 
+用`apt-key add`的方式可能有警告，过时了 [apt key - Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead - Stack Overflow](https://stackoverflow.com/questions/68992799/warning-apt-key-is-deprecated-manage-keyring-files-in-trusted-gpg-d-instead) 
+
 #### 免sudo
 
 [How can I use docker without sudo? - Ask Ubuntu](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo)
@@ -64,6 +66,28 @@ sudo service docker restart
 sudo chown root:docker /var/run/docker.sock
 sudo chown -R root:docker /var/run/docker
 
+```
+
+#### Docker设置国内镜像源
+
+创建活修改`/etc/docker/daemon.json`  添加国内镜像
+
+```json
+{
+  "registry-mirrors": [
+        "https://cr.console.aliyun.com/",
+        "http://hub-mirror.c.163.com",
+        "https://docker.mirrors.ustc.edu.cn",
+        "https://mirror.ccs.tencentyun.com",
+        "https://registry.docker-cn.com"
+  ],
+  "insecure-registries":["docker.harbor.com"]
+}
+```
+
+```bash
+sudo service docker restart
+docker info
 ```
 
 #### Docker 推送Image到Dockerhub

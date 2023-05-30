@@ -92,6 +92,131 @@ e2fsck -f /dev/sda2
 sudo resize2fs /dev/sda2
 ```
 
+### 删除整个硬盘分区
+
+比如时硬盘`/dev/sdb`
+
+`sudo fdisk /dev/sdb`
+
+进入交互界面，然后键入`d` 就可以选择分区了，一个一个删除。最后键入`w` 保存。
+
+然后格式化为`ext4` 
+
+```bash
+sudo mkfs -t ext4 -c /dev/sdb
+```
+
+### 扩展整个逻辑卷
+
+在ubuntu中，LVM的逻辑卷很有用。但是默认安装ubuntu server这个的硬盘的逻辑卷不会全部使用完整个分区。比如
+
+```bash
+mathxh@mathxh-server:~/Hi-mina/models$ df -h  
+Filesystem Size Used Avail Use% Mounted on  
+tmpfs 3.2G 1.8M 3.2G 1% /run  
+/dev/mapper/ubuntu--vg-ubuntu--lv 98G 66G 27G 72% /  
+tmpfs 16G 0 16G 0% /dev/shm  
+tmpfs 5.0M 0 5.0M 0% /run/lock  
+/dev/sda2 2.0G 340M 1.5G 19% /boot  
+/dev/sda1 1.1G 6.1M 1.1G 1% /boot/efi  
+tmpfs 3.2G 8.0K 3.2G 1% /run/user/1000
+mathxh@mathxh-server:~$ sudo lsblk  
+[sudo] password for mathxh:  
+NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS  
+loop0 7:0 0 63.3M 1 loop /snap/core20/1879  
+loop2 7:2 0 111.9M 1 loop /snap/lxd/24322  
+loop3 7:3 0 49.8M 1 loop /snap/snapd/18357  
+loop4 7:4 0 53.2M 1 loop /snap/snapd/19122  
+loop5 7:5 0 63.5M 1 loop /snap/core20/1891  
+sda 8:0 0 931.5G 0 disk  
+├─sda1 8:1 0 1G 0 part /boot/efi  
+├─sda2 8:2 0 2G 0 part /boot  
+└─sda3 8:3 0 928.5G 0 part  
+   └─ubuntu--vg-ubuntu--lv 253:0 0 100G 0 lvm /  
+sdb 8:16 0 465.8G 0 disk
+```
+
+以上就是sda3的分区，对于逻辑卷只使用了100G，还剩900多G没用。
+
+```bash
+mathxh@mathxh-server:~$ sudo vgdisplay  
+--- Volume group ---  
+VG Name ubuntu-vg  
+System ID  
+Format lvm2  
+Metadata Areas 1  
+Metadata Sequence No 2  
+VG Access read/write  
+VG Status resizable  
+MAX LV 0  
+Cur LV 1  
+Open LV 1  
+Max PV 0  
+Cur PV 1  
+Act PV 1  
+VG Size <928.46 GiB  
+PE Size 4.00 MiB  
+Total PE 237685  
+Alloc PE / Size 25600 / 100.00 GiB  
+Free PE / Size 212085 / <828.46 GiB  
+VG UUID H760ZR-dqT2-nAV2-6sDa-kDEt-dE0L-XCA0Up
+```
+
+以上就可以看到逻辑卷LVM这种格式，只分配了100G，就是Alloc PE那里。而还剩800多G空闲，Free PE那里。
+
+然后再来查看逻辑卷的路径:
+
+```bash
+mathxh@mathxh-server:~$ sudo lvdisplay  
+--- Logical volume ---  
+LV Path /dev/ubuntu-vg/ubuntu-lv  
+LV Name ubuntu-lv  
+VG Name ubuntu-vg  
+LV UUID tghkoK-lPh6-k8CZ-abQY-op4D-uWqN-DqhdYz  
+LV Write Access read/write  
+LV Creation host, time ubuntu-server, 2023-05-14 05:04:42 +0000  
+LV Status available  
+# open 1  
+LV Size 100.00 GiB  
+Current LE 25600  
+Segments 1  
+Allocation inherit  
+Read ahead sectors auto  
+- currently set to 256  
+Block device 253:0
+```
+
+注意LV Path那项。然后我们通过这个Path扩展逻辑卷，直接分配完剩下的空闲区域
+
+```bash
+mathxh@mathxh-server:~$ sudo lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv  
+Size of logical volume ubuntu-vg/ubuntu-lv changed from 100.00 GiB (25600 extents) to <928.46 GiB (237685 extents).  
+Logical volume ubuntu-vg/ubuntu-lv successfully resized.
+mathxh@mathxh-server:~$ sudo resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv  
+resize2fs 1.46.5 (30-Dec-2021)  
+Filesystem at /dev/mapper/ubuntu--vg-ubuntu--lv is mounted on /; on-line resizing required  
+old_desc_blocks = 13, new_desc_blocks = 117  
+The filesystem on /dev/mapper/ubuntu--vg-ubuntu--lv is now 243389440 (4k) blocks long.
+```
+
+以上第二个命令resize2fs的参数是通过df -h看到的。与第一个命令不一样。
+
+最后你就可以通过`dh -h` 看到，你想要的结果了
+
+```bash
+mathxh@mathxh-server:~$ df -h  
+Filesystem Size Used Avail Use% Mounted on  
+tmpfs 3.2G 1.8M 3.2G 1% /run  
+/dev/mapper/ubuntu--vg-ubuntu--lv 914G 66G 810G 8% /  
+tmpfs 16G 0 16G 0% /dev/shm  
+tmpfs 5.0M 0 5.0M 0% /run/lock  
+/dev/sda2 2.0G 340M 1.5G 19% /boot  
+/dev/sda1 1.1G 6.1M 1.1G 1% /boot/efi  
+tmpfs 3.2G 8.0K 3.2G 1% /run/user/1000
+```
+
+可以看到，/dev/mapper/ubuntu--vg-ubuntu--lv 变大了。
+
 
 #### Linux的管道性能
 
@@ -282,3 +407,45 @@ cat /proc/<pid>/environ | tr '\0' '\n'
 strings /proc/<pid>/environ
 
 ```
+
+#### 查看CPU和GPU信息
+
+```bash
+# cpu
+cat /proc/cpuinfo 
+# gpu
+sudo lshw -C display
+```
+
+#### 安装ubuntu server
+
+用这个https://rufus.ie/en/  把iso镜像烧录进USB stick中，选择MBR。然后启动的时候，就一直默认选择下一步就行，server的安装都是控制台安装，没有GUI，
+
+#### 增加锁定内存物理页大小的限制
+
+一般来说我们通过`ulimit -l` 查看到的系统限制了锁定物理页的大小，也就是内存的页最大允许多大被锁定在物理内存里面，不给换出到磁盘。我们要把其调整到`unlimited` 这样，一些需要大内存的程序，或者安全相关的程序才可以比较好的工作。
+
+[Use prlimit set RLIMIT_MEMLOCK to 1G or bigger size but it did not work · Issue #902 · jedisct1/libsodium (github.com)](https://github.com/jedisct1/libsodium/issues/902)
+
+
+```bash
+sudo sh -c "ulimit -l unlimited && exec su $USER"
+```
+
+以上命令好像不行，即使重启。
+
+打开`/etc/security/limits.conf` , 然后新增以下
+
+```txt
+<user-name>               hard    memlock         unlimited
+<user-name>               soft    memlock         unlimited
+```
+
+打开 `/etc/pam.d/common-session` ，然后增加:
+
+```txt
+session required pam_limits.so
+```
+
+然后保存这些修改，重启机器，就可以生效了。然后就可以看到`ulimit -l` 变成没有限制了。
+
