@@ -230,4 +230,8 @@ nmap -sS [ip addr]
 nmap -sN [ip addr]
 ```
 
+- 扫描某个子网网段ssh端口是否开放
 
+```bash
+nmap -p 22 192.168.1.0/24
+```

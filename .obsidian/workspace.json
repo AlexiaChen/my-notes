@@ -37,26 +37,14 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "blockchain/ETH/ERC4337/发明一个账户抽象01.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "ec6100667864e19a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
+                "file": "backend/Linux/Linux学习笔记.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -85,7 +73,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "ubuntu",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -102,7 +90,8 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -122,7 +111,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
+                "file": "backend/Linux/Linux学习笔记.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -150,7 +139,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
+                "file": "backend/Linux/Linux学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -162,7 +151,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md"
+                "file": "backend/Linux/Linux学习笔记.md"
               }
             }
           }
@@ -186,25 +175,35 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "ec6100667864e19a",
+  "active": "1042266280941d51",
   "lastOpenFiles": [
+    "backend/Linux/Nmap学习笔记.md",
+    "backend/Container/Docker学习笔记.md",
+    "blockchain/ETH/EVM/EVM上的event log.md",
+    "crypto/MPC/MPC钱包核心原理解释.md",
+    "blockchain/ETH/ERC4337/发明一个账户抽象01.md",
+    "blockchain/ETH/以太坊-预言机和chainlink-Web3的通信层.md",
+    "blockchain/ETH/EVM/EVM学习笔记.md",
+    "blockchain/ETH/EVM/深入理解EVM-part1.md",
+    "blockchain/ETH/ETH的交易.md",
+    "crypto/MPC/KZG多项式承诺完全指南.md",
+    "math/四元数学习笔记.md",
+    "blockchain/ETH/ERC4337/ERC4337思维导图.md",
     "attachments/481b992427bff91be4cc17734b8a268.jpg",
     "attachments/012ba419208d351362e37c06e63666a.jpg",
     "attachments/393792c89626666f5c8f4ad1823e009.jpg",
-    "attachments/08db35f46ed20a24a1fec7cbd7da992.jpg",
     "attachments/e2cc97eefd890ee426d93d46ace47cb.jpg",
     "attachments/7eb387f4d65a0da9a4e7136517addb5.jpg",
     "attachments/8649f8cecdf7290d5f223f4e3d0d11d.jpg",
     "attachments/f2db053d1270fa85b6a6034011c038a.jpg",
     "attachments/6cb765023a3a3d2d35efa8a10e03fa0.jpg",
-    "attachments/51a13e43ed7753c85fea3409cefd321.jpg",
-    "blockchain/ETH/ERC4337/ERC4337思维导图.md",
-    "blockchain/ETH/ERC4337/发明一个账户抽象01.md",
     "blockchain/ETH/ERC4337/Temp.md",
-    "crypto/MPC/Temp.md",
+    "blockchain/ETH/ERC4337/ERC4337相关项目实现.md",
     "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
+    "attachments/08db35f46ed20a24a1fec7cbd7da992.jpg",
+    "attachments/51a13e43ed7753c85fea3409cefd321.jpg",
+    "crypto/MPC/Temp.md",
     "blockchain/ETH/ERC4337",
-    "attachments/Pasted image 20230529150602.png",
     "crypto/MPC/门限签名详解.md",
     "crypto/数字签名学习笔记.md",
     "crypto/Temp.md",
@@ -212,19 +211,9 @@
     "AI/神经网络/一段简单的神经网络代码.md",
     "backend/Linux/Linux学习笔记.md",
     "math/statistics/用Python动手学习统计学-学习笔记.md",
-    "backend/Container/Docker学习笔记.md",
     "backend/Linux/manjaro折腾手记.md",
     "blockchain/Cosmos/CosmosSDK教程.md",
     "PL/c-cpp/CERT-CPP-spec/cert-cpp编码规范ERR.md",
-    "AI/OpenAI/基于langchain做金融的QA机器人的演示.md",
-    "AI/OpenAI/基于langchain做chatWithPDF的QA机器人.md",
-    "AI/OpenAI/利用langchain来进行对csv数据的QA.md",
-    "AI/OpenAI/langchain的基本概念.md",
-    "AI/OpenAI/chatGPT私有化部署原理.md",
-    "202303150848.md",
-    "PL/Temp.md",
-    "AI/GPT与LLM相关.md",
-    "PL/Rust/Rust学习笔记.md",
     "AI/神经网络",
     "未命名 1",
     "未命名",

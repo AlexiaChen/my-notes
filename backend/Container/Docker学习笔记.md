@@ -129,3 +129,24 @@ docker kill $containers
 # or
 c=$(docker ps -q) && [[ $c ]] && docker kill $c
 ```
+
+
+## 手动下载Docker hub上的image
+
+[dockerhub - Downloading Docker Images from Docker Hub without using Docker - DevOps Stack Exchange](https://devops.stackexchange.com/questions/2731/downloading-docker-images-from-docker-hub-without-using-docker)
+
+把这个bash保存在本地，[raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh](https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh)
+
+然后运行:
+
+```bash
+./download-image.sh ./ nvidia/cuda:12.1.0-runtime-ubuntu20.04
+./download-image.sh ./ ubuntu:latest
+```
+
+## Docker导出导入镜像到本机
+
+```bash
+docker save -o your-image-file.tar your-image:tag
+docker load < your-image-file.tar
+```

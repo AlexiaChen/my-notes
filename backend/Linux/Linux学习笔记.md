@@ -449,3 +449,32 @@ session required pam_limits.so
 
 然后保存这些修改，重启机器，就可以生效了。然后就可以看到`ulimit -l` 变成没有限制了。
 
+
+## 安装Nvidia的GPU Driver
+
+一般用默认的就行:
+
+```bash
+# 会显示推荐的驱动
+ubuntu-drivers devices
+# 按照推荐的驱动安装，注意别安装-open后缀的
+sudo ubuntu-drivers autoinstall
+# or
+sudo apt install nvidia-driver-510
+sudo reboot
+```
+
+然后，不出意外，以下命令就可以显示NVidia信息了:
+
+```bash
+nvidia-smi
+```
+
+当然，你也可以手动安装，[Linux AMD64 Display Driver Archive | NVIDIA](https://www.nvidia.com/en-us/drivers/unix/linux-amd64-display-archive/)  下载匹配的驱动，sudo bash .run的文件就行了
+
+
+当然，也有可能遇到[nvidia-smi no devices were found_Nightmare004的博客-CSDN博客](https://blog.csdn.net/qq_39942341/article/details/128346642)  其实就是驱动安装错误了，这个就需要不停地折腾了。 [nvidia-smi 输出“No devices were found_缄默0603的博客-CSDN博客](https://blog.csdn.net/weixin_58045467/article/details/129402251)
+
+## 安装CUDA Toolkit
+
+[Ubuntu系统nvidia-cuda-toolkit安装 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/625219352)
