@@ -37,7 +37,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "backend/Linux/Linux学习笔记.md",
+                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md",
                 "mode": "source",
                 "source": false
               }
@@ -73,7 +73,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "ubuntu",
+                "query": "统计学",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -90,8 +90,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -111,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "backend/Linux/Linux学习笔记.md",
+                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -139,7 +138,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "backend/Linux/Linux学习笔记.md",
+                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -151,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "backend/Linux/Linux学习笔记.md"
+                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md"
               }
             }
           }
@@ -175,8 +174,13 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "1042266280941d51",
+  "active": "6ab42b2f54a7f4bc",
   "lastOpenFiles": [
+    "AI/神经网络/Python神经网络编程.md",
+    "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
+    "math/statistics/用Python动手学习统计学02-学习笔记.md",
+    "math/statistics/用Python动手学习统计学01-学习笔记.md",
+    "backend/Linux/Linux学习笔记.md",
     "backend/Linux/Nmap学习笔记.md",
     "backend/Container/Docker学习笔记.md",
     "blockchain/ETH/EVM/EVM上的event log.md",
@@ -199,7 +203,6 @@
     "attachments/6cb765023a3a3d2d35efa8a10e03fa0.jpg",
     "blockchain/ETH/ERC4337/Temp.md",
     "blockchain/ETH/ERC4337/ERC4337相关项目实现.md",
-    "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
     "attachments/08db35f46ed20a24a1fec7cbd7da992.jpg",
     "attachments/51a13e43ed7753c85fea3409cefd321.jpg",
     "crypto/MPC/Temp.md",
@@ -207,13 +210,9 @@
     "crypto/MPC/门限签名详解.md",
     "crypto/数字签名学习笔记.md",
     "crypto/Temp.md",
-    "AI/神经网络/Python神经网络编程.md",
     "AI/神经网络/一段简单的神经网络代码.md",
-    "backend/Linux/Linux学习笔记.md",
-    "math/statistics/用Python动手学习统计学-学习笔记.md",
     "backend/Linux/manjaro折腾手记.md",
     "blockchain/Cosmos/CosmosSDK教程.md",
-    "PL/c-cpp/CERT-CPP-spec/cert-cpp编码规范ERR.md",
     "AI/神经网络",
     "未命名 1",
     "未命名",
