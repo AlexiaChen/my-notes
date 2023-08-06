@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "math/四元数学习笔记.md",
+                "file": "embbed-system/STM32/STM32学习笔记.md",
                 "mode": "source",
                 "source": false
               }
@@ -25,26 +25,13 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "6ab42b2f54a7f4bc",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md",
+                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -73,7 +60,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "统计学",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -110,7 +97,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md",
+                "file": "embbed-system/STM32/STM32学习笔记.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -138,7 +125,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md",
+                "file": "embbed-system/STM32/STM32学习笔记.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -150,7 +137,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "math/statistics/用Python动手学习统计学02-学习笔记.md"
+                "file": "embbed-system/STM32/STM32学习笔记.md"
               }
             }
           }
@@ -174,15 +161,37 @@
       "zk-prefixer:创建时间戳笔记": false
     }
   },
-  "active": "6ab42b2f54a7f4bc",
+  "active": "1a8059dcb3203752",
   "lastOpenFiles": [
-    "AI/神经网络/Python神经网络编程.md",
+    "attachments/Pasted image 20230806162819.png",
+    "attachments/Pasted image 20230806162538.png",
+    "attachments/Pasted image 20230806101410.png",
+    "embbed-system/STM32/STM32学习笔记.md",
+    "attachments/Pasted image 20230806101329.png",
+    "attachments/Pasted image 20230806101136.png",
+    "attachments/Pasted image 20230806095246.png",
+    "attachments/SK03015-STM32F103C8T6引脚定义.png",
+    "attachments/Pasted image 20230805210446.png",
+    "attachments/Pasted image 20230805210426.png",
+    "attachments/Pasted image 20230805200010.png",
+    "attachments/Pasted image 20230805194752.png",
+    "backend/Container/Docker学习笔记.md",
+    "embbed-system/STM32",
+    "blockchain/ETH/ERC4337/ERC4337思维导图.md",
+    "backend/DevOps/Golang后端服务的可观测性说明.md",
+    "backend/DevOps/Sentry/在Red Hart 7.7上安装Docker服务.md",
+    "backend/DevOps/Sentry/自建Self-hosted Sentry服务.md",
+    "backend/DevOps/Sentry",
+    "math/四元数学习笔记.md",
     "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
+    "backend/Apple/APNs/APNs服务的消息推送.md",
+    "backend/Apple/APNs",
+    "backend/Apple",
     "math/statistics/用Python动手学习统计学02-学习笔记.md",
+    "AI/神经网络/Python神经网络编程.md",
     "math/statistics/用Python动手学习统计学01-学习笔记.md",
     "backend/Linux/Linux学习笔记.md",
     "backend/Linux/Nmap学习笔记.md",
-    "backend/Container/Docker学习笔记.md",
     "blockchain/ETH/EVM/EVM上的event log.md",
     "crypto/MPC/MPC钱包核心原理解释.md",
     "blockchain/ETH/ERC4337/发明一个账户抽象01.md",
@@ -191,28 +200,10 @@
     "blockchain/ETH/EVM/深入理解EVM-part1.md",
     "blockchain/ETH/ETH的交易.md",
     "crypto/MPC/KZG多项式承诺完全指南.md",
-    "math/四元数学习笔记.md",
-    "blockchain/ETH/ERC4337/ERC4337思维导图.md",
-    "attachments/481b992427bff91be4cc17734b8a268.jpg",
-    "attachments/012ba419208d351362e37c06e63666a.jpg",
-    "attachments/393792c89626666f5c8f4ad1823e009.jpg",
-    "attachments/e2cc97eefd890ee426d93d46ace47cb.jpg",
-    "attachments/7eb387f4d65a0da9a4e7136517addb5.jpg",
-    "attachments/8649f8cecdf7290d5f223f4e3d0d11d.jpg",
-    "attachments/f2db053d1270fa85b6a6034011c038a.jpg",
-    "attachments/6cb765023a3a3d2d35efa8a10e03fa0.jpg",
     "blockchain/ETH/ERC4337/Temp.md",
     "blockchain/ETH/ERC4337/ERC4337相关项目实现.md",
-    "attachments/08db35f46ed20a24a1fec7cbd7da992.jpg",
-    "attachments/51a13e43ed7753c85fea3409cefd321.jpg",
     "crypto/MPC/Temp.md",
     "blockchain/ETH/ERC4337",
-    "crypto/MPC/门限签名详解.md",
-    "crypto/数字签名学习笔记.md",
-    "crypto/Temp.md",
-    "AI/神经网络/一段简单的神经网络代码.md",
-    "backend/Linux/manjaro折腾手记.md",
-    "blockchain/Cosmos/CosmosSDK教程.md",
     "AI/神经网络",
     "未命名 1",
     "未命名",

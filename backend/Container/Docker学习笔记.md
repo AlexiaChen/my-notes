@@ -40,6 +40,39 @@ EXPOSE指令暴露了指定的端口，使其仅用于容器间的通信。让�
 
 如果你觉得docker网络概念有点复杂，不用担心，有docker compose来救你。Docker compose自己为你处理网络层，并允许你通过docker-compose.yml文件中提到的服务名称来引用其他容器。
 
+#### Dockerfile中的EXPOSE指令和docker-compose.yml配置中的expose指令有什么区别
+
+在Docker中，`Expose`关键字在Docker Compose配置文件中和Dockerfile中的`EXPOSE`指令具有不同的作用和含义。
+
+1. Docker Compose中的`expose`：
+   在Docker Compose配置文件中，`expose`关键字用于定义容器之间的网络连接。它指定了容器暴露的端口，以便其他容器可以通过网络连接到该端口。这个关键字主要用于在Compose项目中定义服务之间的通信，而不涉及主机与容器之间的端口映射。
+
+   示例：
+   ```yaml
+   services:
+     app:
+       build: .
+       ports:
+         - "8080:80"
+       expose:
+         - "9000"
+   ```
+   在上述示例中，`expose`指定了容器的9000端口暴露给其他服务使用，但并没有映射到主机上。
+
+2. Dockerfile中的`EXPOSE`指令：
+   在Dockerfile中，`EXPOSE`指令用于声明容器运行时将监听的端口。它并不会自动将容器内部的端口映射到主机上，而是提供了一种文档化的方式，告知用户该容器运行时需要监听哪些端口。
+
+   示例：
+   ```dockerfile
+   FROM nginx:latest
+   EXPOSE 80
+   ```
+   在上述示例中，`EXPOSE 80`指令声明容器将监听80端口，但并没有指定将该端口映射到主机上。
+
+总结：
+
+Docker Compose中的`expose`关键字用于定义容器之间的网络连接，而Dockerfile中的`EXPOSE`指令用于声明容器运行时将监听的端口。`expose`关键字在Compose项目中定义服务之间的通信，而`EXPOSE`指令则是提供给用户的文档化信息，告知容器运行时需要监听哪些端口。
+
 ## ubuntu安装
 
 ```bash
@@ -149,4 +182,11 @@ c=$(docker ps -q) && [[ $c ]] && docker kill $c
 ```bash
 docker save -o your-image-file.tar your-image:tag
 docker load < your-image-file.tar
+```
+
+## Grep Docker container中的日志
+
+```bash
+# stopped的容器也可以
+docker logs <nginx | container id> 2>&1 | grep "127."
 ```
