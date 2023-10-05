@@ -13,19 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "embbed-system/STM32/STM32学习笔记.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "404bf3d6e74eadda",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "blockchain/ETH/ERC4337/ERC4337思维导图.md",
+                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
                 "mode": "source",
                 "source": false
               }
@@ -97,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "embbed-system/STM32/STM32学习笔记.md",
+                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -125,7 +113,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "embbed-system/STM32/STM32学习笔记.md",
+                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": false
               }
@@ -137,7 +125,17 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "embbed-system/STM32/STM32学习笔记.md"
+                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md"
+              }
+            }
+          },
+          {
+            "id": "a6765dea8e057e38",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency"
               }
             }
           }
@@ -163,21 +161,37 @@
   },
   "active": "1a8059dcb3203752",
   "lastOpenFiles": [
-    "attachments/Pasted image 20230819225017.png",
-    "attachments/Pasted image 20230819223933.png",
-    "attachments/Pasted image 20230819222531.png",
-    "attachments/Pasted image 20230819222155.png",
-    "attachments/Pasted image 20230819220414.png",
-    "attachments/Pasted image 20230819161628.png",
-    "attachments/Pasted image 20230819155326.png",
-    "attachments/Pasted image 20230819154828.png",
-    "attachments/Pasted image 20230818204932.png",
-    "attachments/Pasted image 20230818204401.png",
-    "attachments/Pasted image 20230818203629.png",
-    "blockchain/ETH/EVM/EVM上的event log.md",
-    "embbed-system/STM32/STM32学习笔记.md",
-    "embbed-system/STM32/用过Rust编写一个简单的STM32点灯实验.md",
+    "backend/Database/MQ/MQ高手/18-如何用硬件同步原语CAS代替锁.md",
+    "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
+    "backend/Database/MQ/MQ高手/17-如何正确地使用锁保护共享数据协调异步线程.md",
+    "backend/Database/MQ/MQ高手/16-缓存策略-如何使用缓存来合理减少磁盘IO.md",
+    "backend/Database/MQ/MQ高手/15-Kafka如何实现高性能IO.md",
+    "backend/Database/MQ/MQ高手/15-加餐-JMQ的Broker是如何异步处理消息的.md",
+    "attachments/Pasted image 20231005205905.png",
+    "attachments/Pasted image 20231005205710.png",
+    "backend/Database/MQ/MQ高手/14-内存管理-如何避免内存溢出和频繁的GC.md",
+    "backend/Database/MQ/MQ高手/13-传输协议-应用程序之间的对话语言.md",
+    "backend/Database/MQ/MQ高手/12-序列化和反序列化-如何通过网络传输结构化数据.md",
+    "backend/Database/MQ/MQ高手/11-如何实现高性能的异步网络传输.md",
+    "attachments/Pasted image 20231005200402.png",
+    "attachments/Pasted image 20231005195920.png",
+    "attachments/Pasted image 20231005195758.png",
+    "backend/Database/MQ/MQ高手/10-如何使用异步设计提升系统性能.md",
+    "attachments/Pasted image 20231005194412.png",
+    "attachments/Pasted image 20231005193722.png",
+    "backend/Database/MQ/MQ高手/09-学习开源代码该如何入手.md",
+    "backend/Database/MySQL/MySQL45讲/实践篇-23MySQL是怎样保证高可用的.md",
+    "backend/Database/MySQL/MySQL45讲/实践篇-22MySQL是怎么保证主备一致的.md",
+    "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
+    "202309211028.md",
     "backend/Container/Docker学习笔记.md",
+    "embbed-system/STM32/STM32学习笔记-2.md",
+    "attachments/Pasted image 20230825193720.png",
+    "attachments/Pasted image 20230825191319.png",
+    "attachments/Pasted image 20230825185712.png",
+    "embbed-system/STM32/STM32学习笔记-1.md",
+    "blockchain/ETH/EVM/EVM上的event log.md",
+    "embbed-system/STM32/用过Rust编写一个简单的STM32点灯实验.md",
     "embbed-system/STM32",
     "blockchain/ETH/ERC4337/ERC4337思维导图.md",
     "backend/DevOps/Golang后端服务的可观测性说明.md",
@@ -185,24 +199,8 @@
     "backend/DevOps/Sentry/自建Self-hosted Sentry服务.md",
     "backend/DevOps/Sentry",
     "math/四元数学习笔记.md",
-    "blockchain/ETH/ERC4337/账户抽象02-使用支付主体赞助交易.md",
-    "backend/Apple/APNs/APNs服务的消息推送.md",
     "backend/Apple/APNs",
     "backend/Apple",
-    "math/statistics/用Python动手学习统计学02-学习笔记.md",
-    "AI/神经网络/Python神经网络编程.md",
-    "math/statistics/用Python动手学习统计学01-学习笔记.md",
-    "backend/Linux/Linux学习笔记.md",
-    "backend/Linux/Nmap学习笔记.md",
-    "crypto/MPC/MPC钱包核心原理解释.md",
-    "blockchain/ETH/ERC4337/发明一个账户抽象01.md",
-    "blockchain/ETH/以太坊-预言机和chainlink-Web3的通信层.md",
-    "blockchain/ETH/EVM/EVM学习笔记.md",
-    "blockchain/ETH/EVM/深入理解EVM-part1.md",
-    "blockchain/ETH/ETH的交易.md",
-    "crypto/MPC/KZG多项式承诺完全指南.md",
-    "blockchain/ETH/ERC4337/Temp.md",
-    "blockchain/ETH/ERC4337/ERC4337相关项目实现.md",
     "blockchain/ETH/ERC4337",
     "AI/神经网络",
     "未命名 1",

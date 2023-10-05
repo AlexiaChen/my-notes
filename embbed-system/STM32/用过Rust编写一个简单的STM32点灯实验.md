@@ -1,5 +1,5 @@
 
-设备用的就是[[STM32学习笔记]] 中提到的，STM32F103  Medium Density
+设备用的就是[[STM32学习笔记-1]] 中提到的，STM32F103  Medium Density
 
 
 ## 安装
