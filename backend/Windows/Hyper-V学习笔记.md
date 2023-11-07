@@ -115,3 +115,18 @@ Add-VMHardDiskDrive -VMName "MyVM" -Path "C:\VMs\MyVM.vhdx"
 Start-VM -Name "MyVM"
 ```
 
+
+
+## TroublleShooting
+
+解决一个线上问题。
+
+在Hyper-V中的虚拟机实例，如果设置了启用带宽管理，那么设置虚拟网卡的最大带宽的参数就不能超过这个范围。
+
+```bash
+$netAdp = Get-VMNetworkAdapter -VMName 'vm instance name'
+Set-VMNetworkAdapter -VMNetworkAdapter $netAdp -MaximumBandwidth 800000000
+```
+
+
+![[871c217a8e3688d2249f2559111dbbfe.png]]
