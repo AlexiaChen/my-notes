@@ -102,3 +102,7 @@ ffplay -showmode 0 rtmp://127.0.0.1:1935/live/test
 
 
 [StreamingGuide – FFmpeg](https://trac.ffmpeg.org/wiki/StreamingGuide)
+
+
+[FFmpeg 教程 — FFmpeg 教程 文档 (wklchris.github.io)](https://wklchris.github.io/blog/FFmpeg/)
+
