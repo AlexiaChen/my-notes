@@ -662,8 +662,7 @@ mount -t nfs 127.0.0.1:/export/secondary /mnt/secondary/
 由于我想使用的是KVM这个Hypervisor，所以我是执行:
 
 ```bash
-/usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt -m /mnt/secondary -u  
-http://download.cloudstack.org/systemvm/4.19/systemvmtemplate-4.19.0-kvm.qcow2.bz2 -h kvm -F
+/usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt -m /mnt/secondary -u http://download.cloudstack.org/systemvm/4.19/systemvmtemplate-4.19.0-kvm.qcow2.bz2 -h kvm -F
 ```
 
 - 如果您使用的是分开单独的 NFS 服务器，请执行此步骤。如果将管理服务器用作 NFS 服务器，则不得执行此步骤。
@@ -870,10 +869,88 @@ https://docs.cloudstack.apache.org/en/4.19.0.0/installguide/configuration.html#a
     - Protocol 对于 XenServer，选择 NFS、iSCSI 或 PreSetup。对于 KVM，请选择 NFS、SharedMountPoint、CLVM、RBD、FiberChannel 或自定义（对于 PowerFlex）。对于 vSphere，选择 VMFS（iSCSI 或 FiberChannel）或 NFS。屏幕中的其余字段会有所不同，具体取决于您在此处选择的内容。
 ##### 高级的Zone配置
 
+对于高级Zone区域，您可以选择允许创建边缘Zone区域的 Edge。如果未选择 Edge，则向导将继续创建核心区域。
+
 https://docs.cloudstack.apache.org/en/4.19.0.0/installguide/configuration.html#id4
 ###### Core Zone
 
-https://docs.cloudstack.apache.org/en/4.19.0.0/installguide/configuration.html#core-zone
+1. 对于核心区域，你会输入以下内容
+    - **Name.** Zone的名称
+    - **DNS 1 and 2.** （DNS 1 必填）这些是供Zone区域中的访客实例使用的 DNS 服务器。这些 DNS 服务器将通过您稍后添加的公共网络进行访问。Zone区域的公共 IP 地址必须具有指向此处命名的 DNS 服务器的路由。
+    - **Internal DNS 1 and Internal DNS 2.** （DNS 1 必填）这些是供Zone区域内系统虚拟机使用的DNS服务器（这些是CloudStack本身使用的实例，如虚拟路由器、控制台代理和二级存储虚拟机）。这些 DNS 服务器将通过系统 VM 的管理流量网络接口进行访问。您为 Pod 提供的专用 IP 地址必须具有指向此处指定的内部 DNS 服务器的路由。
+    - **Network Domain.** 如果要为访客网络分配特殊域名，请指定 DNS 后缀。
+    - **Hypervisor.** （必填）为Zone区域中的第一个集群选择Hypervisor。在完成Zone区域添加后，您可以稍后添加具有不同Hypervisor的集群。
+    - **Dedicated.** 专用Zone区域可供Domain域中的选定用户或组使用。只有该Domain域中的指定用户或组才能在此Zone区域中创建访客实例。
+    - **Enable local storage for User instances.** 让用户有机会为用户实例提供本地存储（主机上的物理存储）来存储数据。
+    - **Enable local storage for System VMs.** 让系统有机会将本地存储（主机上的物理存储）用于系统虚拟机。
+2. 点击下一步
+3. 选择物理网络将承载的流量类型。
+    流量类型包括管理流量、公共流量、访客流量和存储流量。有关类型的详细信息，请将鼠标悬停在图标上以显示其工具提示，或参阅[高级区域网络流量类型](https://docs.cloudstack.apache.org/en/4.19.0.0/conceptsandterminology/concepts.html#about-adv-network-traffic-types)。此屏幕从已配置一个网络开始。如果您有多个物理网络，则需要添加更多物理网络。将流量类型拖放到灰色网络上，它将变为活动状态。您可以将交通图标从一个网络移动到另一个网络;例如，如果为网络 1 显示的默认流量类型与您的实际设置不匹配，您可以将其向下移动。如果需要，您还可以更改网络名称。
+4. （在 3.0.1 版中引入）为每个物理网络上的每种流量类型分配网络流量标签。这些标签必须与您已在Hypervisor主机上定义的标签匹配。要分配每个标签，请单击每个物理网络中流量类型图标下的编辑按钮。此时将显示一个弹出对话框，您可以在其中键入标签，然后单击“确定”。
+    
+    这些流量标签将仅针对为第一个集群选择的Hypervisor定义。对于所有其他Hypervisor，可以在创建区域后配置标签。
+    
+    （仅限 VMware）如果在环境中启用了 Nexus dvSwitch ，则必须指定相应的以太网端口配置文件名称作为物理网络上每种流量类型的网络流量标签。有关 Nexus dvSwitch 的详细信息，请参见《安装指南》中的使用 Nexus 1000v 虚拟交换机配置 vSphere 集群。如果在环境中启用了 VMware dvSwitch，则必须为物理网络上的每种流量类型指定相应的交换机名称作为网络流量标签。有关详细信息，请参见《安装指南》中的使用 VMware 分布式虚拟交换机配置 VMware 数据中心。
+    
+5. 点击下一步
+    
+6. 在一个新的区域中，CloudStack会为你添加第一个pod。您以后可以随时添加更多 Pod。有关 Pod 的概述，请参见 [[CloudStack的相关概念和术语#Pods]]
+    
+    为了配置第一个Pod，需要输入以下字段
+    - **Pod Name.** Pod的名字
+    - **Reserved system gateway.** Pod中所有主机的网关地址
+    - **Reserved system netmask.** Pod的子网掩码
+    - **Start/End Reserved System IP.** （启动保留系统 IP - 必填）CloudStack用于管理各种系统虚拟机的IP范围，如次要存储虚拟机(SSVM)、控制台代理虚拟机(consoleProxyVM)和DHCP。有关详细信息，请参阅[[CloudStack的相关概念和术语#系统保留的IP地址]]
+7. 配置访客流量的 IP 范围。访客网络流量是终端用户实例之间的通信。输入以下详细信息，然后单击“添加”。完成后，单击“下一步”。
+    - **Guest Gateway.** 访客IP地址范围的网关
+    - **Guest Netmask.** 访客IP地址范围的子网掩码
+    - **Guest Start IP/ GuestEnd IP.** 假定可从 Internet 访问并分配用于访问访客网络的 IP 地址范围。
+    - **VLAN / VNI ID.** 将用于访客流量的 VLAN/VNI ID。
+8. 在一个新的pod中，CloudStack为你添加第一个集群。您以后可以随时添加更多集群。有关什么是集群的概述，请参阅[[CloudStack的相关概念和术语#Clusters]]
+    
+    为了配置第一个集群，你需要输入以下字段
+    - **Cluster name.** 集群名称，只是用在之后在UI界面做选择的时候。
+9. 在一个新的集群中，CloudStack会为你添加第一个主机。您以后可以随时添加更多主机。有关什么是主机的概述，请参见 [[CloudStack的相关概念和术语#Hosts]]
+    
+    注意
+    
+    当你部署CloudStack时，虚拟机管理程序主机不能有任何已经运行的实例。
+    
+    在配置主机之前，您需要在主机上安装Hypervisor软件。你需要知道CloudStack支持哪个版本的Hypervisor软件版本，以及需要哪些额外的配置来确保主机能够与CloudStack一起工作。若要查找这些安装详细信息，请参阅：
+    - Citrix XenServer Installation for CloudStack
+    - VMware vSphere Installation and Configuration
+    - KVM Installation and Configuration
+    为了配置第一个主机，需要填写以下字段:
+    - **Host Name.** DNS的名称或者是IP地址(反正要找得到主机)
+    - **Username.** （必填）在指定主机上具有管理员/root 权限的用户的用户名（通常使用 Linux 主机，通常是 root）。
+    - **Password.** （必填）这是上面指定的用户的密码（来自 XenServer 或 KVM 安装）。
+    
+    注意
+    
+    出于安全原因，有一些方法可以使用非管理员用户来添加主机。有关详细信息，请参阅虚拟机管理程序设置指南。
+    
+    - **Host Tags.** 用于对主机进行分类以便于维护的任何标签。例如，如果您希望此主机仅用于启用了“高可用性”功能的实例，则可以设置为云的 HA 标记（在 ha.tag 全局配置参数中设置）。有关更多信息，请参阅《管理指南》中的启用 HA 的实例和主机的 HA。
+        
+10. 在一个新的集群中，CloudStack会为你添加第一个主存储服务器。您以后可以随时添加更多服务器。有关什么是主存储的概述，请参见 [[CloudStack的相关概念和术语#主存储-Primary Storage]]
+    
+    要配置第一个主存储服务器，请输入以下内容，然后单击下一步：
+    
+    - **Name.** 存储设备的名称
+        
+    - **Protocol.** （必填）对于 XenServer，选择 NFS、iSCSI 或 PreSetup。对于 KVM，请选择 NFS、SharedMountPoint、CLVM、RBD 或自定义（对于 PowerFlex）。
+        
+        对于 vSphere，选择 NFS、PreSetup （VMFS - iSCSI/FiberChannel、vSAN、VVOLS） 或 DatastoreCluster。屏幕中的其余字段会有所不同，具体取决于您在此处选择的内容。
+        
+	    ![[Pasted image 20240308174914.png]]
+        
+        Zone区域中跨集群的主存储上的tags集必须相同。例如，如果集群 A 提供具有标签 T1 和 T2 的主存储，则区域中的所有其他集群也必须提供具有标签 T1 和 T2 的主存储。
+        
+1. 在一个新的Zone区域中，CloudStack会为你连接第一个次要存储服务器。有关什么是次要存储的概述，请参阅[[CloudStack的相关概念和术语#次要存储-Secondary Storage]]
+    在你填写这个屏幕之前，你需要通过设置NFS共享和安装最新的CloudStack System VM Template来准备次要存储。请参阅添加次要存储：
+    - **NFS Server.** NFS server的IP地址或者域名
+    - **Path.** NFS Server暴露的路径
+2. 点击启动
+
 ###### 边缘Zone(Edge Zone)
 
 https://docs.cloudstack.apache.org/en/4.19.0.0/installguide/configuration.html#edge-zone

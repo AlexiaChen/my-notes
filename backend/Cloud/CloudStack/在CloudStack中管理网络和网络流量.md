@@ -365,60 +365,887 @@ XenServer、KVM 和 VMware Hypervisor支持此功能。
 
 ### 关于VPC
 
+CloudStack Virtual Private Cloud是CloudStack的一个私有的、独立的部分。VPC 可以拥有自己的虚拟网络拓扑，类似于传统的物理网络。可以在虚拟网络中启动实例，这些实例的专用地址可以在所选范围内，例如：10.0.0.0/16。您可以在 VPC 网络范围内定义网络层，这样您就可以根据 IP 地址范围对类似类型的实例进行分组。
+
+例如，如果 VPC 的专用范围为 10.0.0.0/16，则其访客网络可以具有网络范围 10.0.1.0/24、10.0.2.0/24、10.0.3.0/24 等。
+
 ### 一个VPC主要组件
+
+VPC由以下网络组件组成：
+
+- VPC：VPC充当多个隔离网络的容器，这些网络可以通过其虚拟路由器相互通信。
+- 网络层：每个网络层都充当具有自己的 VLAN 和 CIDR 列表的隔离网络，您可以在其中放置资源组，例如实例。网络层通过 VLAN 进行分段。每个网络层的 NIC 充当其网关。
+- 虚拟路由器：创建VPC时会自动创建并启动虚拟路由器。虚拟路由器连接网络层，并在公有网关、VPN 网关和 NAT 实例之间定向流量。对于每个网络层，虚拟路由器中都存在相应的 NIC 和 IP。虚拟路由器通过其 IP 提供 DNS 和 DHCP 服务。
+- 公网网关：通过公网网关路由到VPC的流量。在VPC中，公有网关不会暴露给终端用户;因此，公共网关不支持静态路由。
+- 私有网关：通过私有网关路由到VPC的所有进出私有网络的流量。有关更多信息，请参阅  [[#添加一个私有网关到VPC]]
+- VPN网关：VPN连接的VPC端。
+- Site-to-Site VPN 连接：VPC 与数据中心、家庭网络或主机托管设施之间基于硬件的 VPN 连接。
+- 客户网关：VPN 连接的客户端。有关详细信息，请参阅“创建和更新 VPN 客户网关”。
+- NAT实例：为实例提供端口地址转换，通过公网网关访问公网。有关更多信息，请参阅 [[#在一个VPC上打开或者关闭Static NAT]]
+- 网络ACL：网络ACL是一组网络ACL项。网络 ACL 项只不过是按顺序评估的编号规则，从编号最低的规则开始。这些规则确定是否允许流量进出与网络 ACL 关联的任何网络层。有关详细信息，请参阅 [[#配置网络访问控制列表(ACL)]]
 
 ### 一个VPC的网络架构
 
+在VPC中，存在以下四个基本网络架构选项：
+
+- 仅具有公有网关的 VPC
+- 具有公有网关和私有网关的 VPC
+- 具有公有和私有网关以及站点到站点 VPN 访问的 VPC
+- 仅具有私有网关和站点到站点 VPN 访问权限的 VPC
+
 ### 一个VPC的Connectivity选项
+
+您可以将 VPC 连接到：
+
+- 通过公共网关的 Internet。
+- 通过 VPN 网关使用站点到站点 VPN 连接的企业数据中心。
+- 使用公共网关和 VPN 网关的 Internet 和公司数据中心。
 
 ### VPC网络的考量
 
+在创建一个VPC之前，你需要考虑以下问题:
+
+- 默认情况下，VPC创建时处于启用状态。
+- VPC只能在高级Zone可用区中创建，一次不能属于多个Zone可用区。
+- 一个账户可以创建的默认 VPC 数量为 20 个。但是，您可以使用 max.account.vpcs 全局参数对其进行更改，该参数控制允许账户创建的最大 VPC 数。
+- 账户可以在 VPC 中创建的默认网络层(tier)数为 3。可以使用 vpc.max.networks 参数配置此数字。
+- 每个网络层在 VPC 中都应具有唯一的 CIDR。确保网络层的 CIDR 应在 VPC CIDR 范围内。
+- 一个网络层只属于一个VPC。
+- VPC 内的所有网络层(tier)都应属于同一账户。
+- 创建VPC时，默认为VPC分配一个Source NAT IP。仅当VPC被移除时，才会释放Source NAT IP。
+- 公共 IP 一次只能用于一个目的。如果 IP 是 source NAT，则不能用于 Static NAT 或端口转发。
+- 实例只能具有您预置的私有 IP 地址。要与 Internet 通信，请为您在 VPC 中启动的实例启用 NAT。
+- VPC只能添加新的网络。每个 VPC 的最大网络数受您在 vpc.max.networks 参数中指定的值的限制。默认值为 3。
+- 负载均衡服务只能由 VPC 内的一个网络层(tier)支持。
+- 如果一个IP地址被分配到了一个网络层(tier):
+    - 该 IP 不能同时由多个网络层在 VPC 中使用。例如，如果您有网络层 A 和 B 以及公共 IP1，则可以使用 A 或 B 的 IP（但不能同时使用两者）来创建端口转发规则。
+    - 该 IP 不能用于 VPC 内其他访客网络的静态 NAT、负载均衡或端口转发规则。
+- 远程访问VPN，不支持VPC网络
+
 ### 添加一个VPC
+
+创建 VPC 时，您只需为 VPC 网络地址空间提供区域和一组 IP 地址即可。您可以以无类别域间路由 （CIDR） 块的形式指定这组地址。
+
+1. 以管理员或者终端用户登录CloudStack UI
+2. 在左侧导航栏，选择Network
+3. 选择VPC
+4. 点击添加VPC，页面如下
+
+    ![[Pasted image 20240310105202.png]]
+1. 提供以下信息
+    - **Name**: VPC的简要名称
+    - **Description**: VPC的简要描述
+    - **Zone**: 选择VPC所属的Zone区域
+    - **CIDR**: 定义 VPC 中所有网络层tier（访客网络）的 CIDR 范围。创建网络层(tier)时，请确保其 CIDR 在您输入的父 CIDR 值范围内。CIDR 必须符合RFC1918。
+    - **Network Domain**: 如果要分配特殊域名，请指定 DNS 后缀。此参数将应用于 VPC 内的所有网络层tier。这意味着，您在 VPC 中创建的所有网络层tier都属于同一个 DNS 域。如果未指定该参数，则自动生成DNS域名。
+    - **VPC Offering**: 如果管理员配置了多个 VPC 产品(offering)，请选择要用于此 VPC 的offering。
+    - **DNS**: 此 VPC 将使用的一组自定义 DNS。如果未提供，则将使用为Zone区域指定的 DNS。仅当所选VPC产品支持DNS服务时才可用。
+    - **IPv6 DNS**: 此 VPC 将使用的一组自定义 IPv6 DNS。如果未提供，则将使用为Zone区域指定的 IPv6 DNS。仅当所选 VPC 产品启用 IPv6 并支持 DNS 服务时才可用。
+    - **IPv4 address for the VR in this VPC**: 访客网络要使用的source NAT 地址或primary公用网络地址。如果未提供，则将使用可用地址池中的随机地址。
+    - **Public MTU**: 在VPC网络VR的公网接口上配置的MTU
+2. 点击OK
+
+> - 在启用安全组的高级Zone可用区和基本Zone可用区中，不支持创建VPC和隔离网络。
+> - 公共 MTU 选项将显示在 UI 中，仅当区域配置 allow.end.users.to.specify.vr.mtu 设置为 true 时才会考虑。公共 MTU 的最大允许值可由Zone区域级配置 - vr.public.interface.max.mtu 控制。
+
 
 ### 添加网络层(Network tiers)
 
+网络层tier是 VPC 中的不同位置，充当隔离网络(isolated network)，默认情况下无法访问其他网络层tier。网络层tier设置在不同的 VLAN 上，这些 VLAN 可以使用虚拟路由器相互通信。网络层tier提供与 VPC 内其他网络层tier的低成本、低延迟网络连接。
 
+1. 管理员账户或者终端用户登录CloudStack UI
+2. 左侧导航栏，选择Network
+3. 选择VPC
+    在这个账号下创建的所有VPC都会列出来
+
+> 最终用户可以查看自己的 VPC，而ROOT用户和Domain管理员可以查看他们有权查看的任何 VPC。
+
+1. 单击要为其设置网络层tier的 VPC 的 Configure （配置） 按钮。
+2. 点击创建网络
+    
+    点击添加新的网络层tier，如下
+   ![[Pasted image 20240310105352.png]]
+1. 如果您已经创建了网络层，则会显示 VPC 图表。单击“创建网络层tier”以添加新的网络层tier。
+2. 指定以下内容:
+    所有字段都是必填项。
+    
+    - **Name**: 网络层的名称，必须唯一
+    - **Network Offering**: 列出了以下默认网络产品/服务：Internal LB、DefaultIsolatedNetworkOfferingForVpcNetworksNoLB、DefaultIsolatedNetworkOfferingForVpcNetworks
+        在 VPC 中，使用启用 LB 的网络产品(Offering)只能创建一个网络层tier。
+    - **Gateway**: 您创建的网络层tier的网关。确保网关位于您在创建 VPC 时指定的父级 CIDR 范围内，并且不与 VPC 内任何现有网络层tier的 CIDR 重叠。
+    - **VLAN**: root管理员创建的网络层tier的 VLAN ID。
+        仅当您选择的网络产品Offering启用了 VLAN 时，此选项才可见。
+        
+        For more information, see [“Assigning VLANs to Isolated Networks”](https://docs.cloudstack.apache.org/en/latest/adminguide/hosts.html#assigning-vlans-to-isolated-networks).
+    
+    - **Netmask**: 你创建的网络层tier的子网掩码
+        例如，VPC网段为10.0.0.0/16，网络层tier网段为10.0.1.0/24，则网络层tier网关为10.0.1.1，网络层tier网段为255.255.255.0。
+        
+3. 点击OK
+4. 继续为网络层Tier配置访问控制列表。
 ### 配置网络访问控制列表(ACL)
+
+仅当创建的VPC支持“NetworkACL”服务时，才能创建网络访问控制列表。
+
+定义网络访问控制列表 （ACL） 以控制关联的网络层tier与外部网络（VPC 的其他网络层tier以及公共网络）之间的传入（入口，ingress）和传出（出口 egress）流量。
 
 #### 关于网络ACL
 
+在CloudStack术语中，网络ACL是一组网络ACL规则。网络 ACL 规则按其顺序进行处理，从编号最低的规则开始。每个规则至少定义一个受影响的协议、流量类型、操作和受影响的detination/source网络。下表显示了“default_deny”ACL 的示例性内容。
+
+|Rule|Protocol|Traffic type|Action|CIDR|
+|---|---|---|---|---|
+|1|All|Ingress|Deny|0.0.0.0/0|
+|2|All|Egress|Deny|0.0.0.0/0|
+
+每个网络ACL都与一个VPC关联，可以分配给多个VPC网络层tier。每个网络层tier都需要与网络 ACL 相关联。一次只能将一个 ACL 与网络层tier关联。如果在创建网络层tier时没有可用的自定义网络 ACL，则必须改用默认网络 ACL。目前有两个默认 ACL 可用。“default_allow”ACL 允许流入和流出，而“default_deny”阻止所有流入和流出流量。默认网络 ACL 无法删除或修改。新创建的 ACL 虽然显示为空，但会拒绝所有传入流量到关联的网络层tier，并允许所有传出流量。要更改默认值，请向 ACL 添加“拒绝所有出口目标”和/或“允许所有入口源”规则。之后，流量可以被列入白名单或黑名单。
+
+- Cloudstack中的ACL规则是有状态的
+- source/destination CIDR 始终是外部网络
+- 在VPC的虚拟路由器上也可以看到ACL规则。入口规则列在表 iptables 表“filter”中，而出口规则列在表 “mangle” 表中
+- 入口和出口的 ACL 规则不相关。例如，出口“全部拒绝”不会影响流量以响应允许的入口连接
 #### 创建网络ACL
+
+1. 用终端用户账号或者管理员账号登录CloudStack UI
+2. 在左侧导航栏中，选择网络。
+3. 选择VPC
+    
+    所有此账号创建的VPC都会列出
+    
+4. 点击VPC的配置按钮
+    
+    对于每个网络层tier，以下选项都会列出
+    - Internal LB
+    - Public LB IP
+    - Static NAT
+    - Instances
+    - CIDR
+        
+    以下路由信息也会列出:
+    - Private Gateways
+    - Public IP Addresses
+    - Site-to-Site VPNs
+    - Network ACL Lists
+        
+5. 选择网络ACL列表.
+    
+    “网络 ACL”页面中显示以下默认规则：default_allow、default_deny。
+    
+6. 单击“添加 ACL 列表”，然后指定以下内容：
+    - **ACL List Name**: ACL列表的名称
+    - **Description**: 可向用户显示的 ACL 列表的简短说明。
 
 #### 创建一个ACL规则
 
+1. 终端用户或者管理员登录CloudStack UI
+2. 左侧导航栏选择Network
+3. 选择VPC
+    
+    所有这个账号创建的VPC都已经列出
+    
+4. 点击VPC配置按钮
+5. 选择Network ACL列表
+    
+    除了您创建的自定义 ACL 列表外，“网络 ACL”页面中还会显示以下默认规则：default_allow、default_deny。
+    
+6. 选择你期望的ACL列表
+7. 选择ACL规则Tab页面
+    
+    要添加 ACL 规则，请填写以下字段以指定 VPC 中允许的网络流量类型。
+    
+    - **Rule Number**:  计算规则的顺序。
+    - **CIDR**: CIDR 充当入口规则的源 CIDR 和出口规则的目标 CIDR。要仅接受来自或流向特定地址块内 IP 地址的流量，请输入 CIDR 或逗号分隔的 CIDR 列表。CIDR 是传入流量的基本 IP 地址。例如，192.168.0.0/22。要允许所有 CIDR，请设置为 0.0.0.0/0。
+    - **Action**: 要采取什么行动。允许流量或阻止。
+    - **Protocol**: 源用于将流量发送到层tier的网络协议。TCP 和 UDP 协议通常用于数据交换和最终用户通信。ICMP 协议通常用于发送错误消息或网络监控数据。全部支持所有流量。另一个选项是协议编号。
+    - **Start Port**, **End Port** （仅限 TCP、UDP）：作为传入流量目标的侦听端口范围。如果要打开单个端口，请在两个字段中使用相同的数字。
+    - **Protocol Number**: 与 IPv4 或 IPv6 关联的协议编号。有关详细信息，请参阅[协议编号](http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml)。
+    - **ICMP Type**, **ICMP Code** （仅限 ICMP）：将发送的消息类型和错误代码。
+    - **Traffic Type**: 流量类型：传入或传出。
+        
+8. 点击添加
+    
+    您可以编辑分配给 ACL 规则的标签并删除已创建的 ACL 规则。单击“详细信息”选项卡中的相应按钮。
+
 #### 用一个自定义的ACL规则创建一个Tier层
+
+1. 创建一个VPC
+2. 创建一个自定义的VPC列表
+3. 给这个列表添加一个ACL规则
+4. 在VPC中创建一个Tier层
+    
+    当创建一个tier层时，选择期望的ACL列表
+    
+5. 点击OK
 
 #### 把一个自定义的ACL列表分配给一个Tier层
 
+1. 创建一个VPC
+2. 在VPC中创建一个tier层
+3. 将默认的ACL列表关联至该tier层
+4. 创建一个自定义的ACL列表
+5. 添加一些ACL规则到这个ACL列表中
+6. 选择一个tier层，这个层是你想分配自定义ACL列表的层
+7. 点击替换ACL图标. ![button to replace an ACL list](https://docs.cloudstack.apache.org/en/latest/_images/replace-acl-icon.png)
+    
+    替换的ACL列表已经显示
+    
+8. 选择期望的ACL列表
+9. 点击OK
+
 ### 添加一个私有网关到VPC
 
-#### 在私有网关上的Source NAT
+私有网关可由root管理员和用户添加。VPC内网与物理网的网卡是1：1的关系。您可以将多个私有网关配置到单个 VPC。同一数据中心中不允许具有重复 VLAN 和 IP 的网关。
 
-#### 在私有网关上的ACL
+1. 管理员或者终端用户登录CloudStack
+2. 在左边的导航栏上，选择Network
+3. 选择VPC
+    
+    所有这个账号创建的VPC都已经列出
+    
+4. 单击要配置负载均衡规则的VPC的配置按钮。
+    
+    这个VPC下所有的网络tier层被列出
+    
+5. 点击设置图标
+    
+    以下选项被显示
+    
+    - Internal LB
+    - Public LB IP
+    - Static NAT
+    - Instances
+    - CIDR
+    
+    以下路由信息被显示
+    
+    - Private Gateways
+    - Public IP Addresses
+    - Site-to-Site VPNs
+    - Network ACL Lists
+        
+6. 选择 Private Gateways.
+    
+    网关页面被显示
+    
+7. 点击添加一个新的网关
+   ![[Pasted image 20240310114718.png]]
+   1. 指定以下内容
+    
+    - **Physical Network**: （仅限管理员）您在Zone区域中创建的物理网络。
+    - **VLAN**: （仅限管理员）与VPC网关关联的VLAN。
+    - **IP Address**: VPC网关关联的IP地址
+    - **Gateway**: 流量通过其路由到 VPC 或从 VPC 路由的网关。
+    - **Netmask**: VPC网关的子网掩码
+    - **Source NAT**: 选择此选项可在 VPC 私有网关上启用源 NAT 服务。
+     参阅 [[#在私有网关上的Source NAT]]
+        
+    - **Bypass VLAN id/range overlap**: （仅限管理员）绕过 VLAN 重叠检查。这样，可以创建具有相同 VLAN 的多个网络
+    - **Associated Network**: 此专用网关关联的 L2 或隔离网络。此专用网络将使用与关联网络相同的 VLAN。
+    - **ACL**: 控制 VPC 私有网关上的入口和出口流量。默认情况下，所有流量都会被阻止。
+        
+        参阅 [[#在私有网关上的ACL]]
+        
+    
+    新网关将显示在列表中。您可以重复这些步骤，为此 VPC 添加更多网关。
 
-#### 创建一个静态路由
+### 在私有网关上的Source NAT
+
+您可能希望部署具有相同父级 CIDR 和访客层 CIDR 的多个 VPC。因此，来自不同 VPC 的多个 Guest 实例可以具有相同的 IP，以通过私有网关到达企业数据中心。在这种情况下，需要在私有网关上配置NAT服务以避免IP冲突。如果开启了source NAT，则VPC中的访客实例将通过NAT服务通过私有网关IP地址到达企业网络。
+
+在添加私有网关时，可以启用私有网关上的source NAT 服务。删除私有网关时，将删除特定于该私有网关的source NAT 规则。
+
+要在现有私有网关上启用source NAT，请将其删除并使用source NAT 重新创建。
+
+### 在私有网关上的ACL
+
+VPC 私有网关上的流量通过创建入口和出口网络 ACL 规则来控制。ACL 包含允许和拒绝规则。根据规则，将阻止所有进入私有网关接口的流量和从私有网关接口流出的所有出口流量。
+
+您可以在创建私有网关时更改此默认行为。或者，您可以执行以下操作：
+
+1. 在 VPC 中，确定要使用的私有网关。
+2. 在 Private Gateway （私有网关） 页面中，执行以下任一操作：
+    
+    - Use the Quickview. See 3.
+        
+    - Use the Details tab. See 4 through .
+        
+3. 在所选私有网关的概览中，单击替换 ACL，选择 ACL 规则，然后单击确定
+4. 单击要使用的私有网关的 IP 地址。
+5. 在“详细信息”选项卡中，单击“替换 ACL”按钮 ![button to replace an ACL list](https://docs.cloudstack.apache.org/en/latest/_images/replace-acl-icon.png)
+    
+    The Replace ACL dialog is displayed.
+    
+6. 选择 ACL 规则，然后单击确定。
+    
+    等待几秒钟。您可以看到新的ACL规则显示在详情页面中。
+
+### 创建一个静态路由
+
+CloudStack允许你为你创建的VPN连接指定路由。您可以输入一个 CIDR 地址或 CIDR 地址，以指示要路由回网关的流量。
+
+
+1. In a VPC, identify the Private Gateway you want to work with.
+    
+2. In the Private Gateway page, click the IP address of the Private Gateway you want to work with.
+    
+3. Select the Static Routes tab.
+    
+4. Specify the CIDR of destination network.
+    
+5. Click Add.
+    
+    Wait for few seconds until the new route is created.
 
 #### Denylisting路由
 
+CloudStack使你能够阻止路由列表，这样它们就不会被分配给任何VPC私有网关。在“denied.routes”全局参数中指定要列入拒绝列表的路由列表。请注意，参数更新仅影响新的静态路由创建。如果阻止现有静态路由，则该路由将保持不变并继续运行。如果静态路由被拒绝，则无法添加该Zone区域的路由。
+
 ### 部署实例到特定的Tier层
+
+2. Log in to the CloudStack UI as an administrator or end User.
+    
+3. In the left navigation, choose Network.
+    
+4. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+5. Click the Configure button of the VPC to which you want to deploy the Instances.
+    
+    The VPC page is displayed where all the tiers you have created are listed.
+    
+6. Click Instances tab of the tier to which you want to add an Instance.
+
+![[Pasted image 20240310114845.png]]
+
+The Add Instance page is displayed.
+
+Follow the on-screen instruction to add an Instance. For information on adding an Instance, see the Installation Guide.
 
 ### 部署实例到一个VPC Tier和共享网络
 
+CloudStack允许你在VPC层和一个或多个共享网络上部署实例。借助此功能，部署在多层应用程序中的实例可以通过服务提供商提供的共享网络接收监控服务。
+
+1. Log in to the CloudStack UI as an administrator.
+    
+2. In the left navigation, choose Instances.
+    
+3. Click Add Instance.
+    
+4. Select a zone.
+    
+5. Select a Template or ISO, then follow the steps in the wizard.
+    
+6. Ensure that the hardware you have allows starting the selected service offering.
+    
+7. Under Networks, select the desired networks for the Instance you are launching.
+    
+    You can deploy an Instance to a VPC tier and multiple shared networks.
+     ![[Pasted image 20240310114925.png]]
+1. Click Next, review the configuration and click Launch.
+    
+    Your Instance will be deployed to the selected VPC tier and shared network.
+
 ### 为一个VPC申请一个新的IP地址
+
+获取 IP 地址时，所有 IP 地址都将分配给 VPC，而不是分配给 VPC 内的访客网络。仅当为 IP 或网络创建第一个端口转发、负载平衡或静态 NAT 规则时，IP 才会关联到访客网络。IP 不能一次关联到多个网络。
+
+
+1. Log in to the CloudStack UI as an administrator or end User.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+4. Click the Configure button of the VPC to which you want to deploy the Instances.
+    
+    The VPC page is displayed where all the tiers you created are listed in a diagram.
+    
+    The following options are displayed.
+    
+    - Internal LB
+        
+    - Public LB IP
+        
+    - Static NAT
+        
+    - Instances
+        
+    - CIDR
+        
+    
+    The following router information is displayed:
+    
+    - Private Gateways
+        
+    - Public IP Addresses
+        
+    - Site-to-Site VPNs
+        
+    - Network ACL Lists
+        
+5. Select IP Addresses.
+    
+    The Public IP Addresses page is displayed.
+    
+6. Click Acquire New IP, and click Yes in the confirmation dialog.
+    
+    系统会提示您进行确认，因为通常 IP 地址是有限的资源。片刻之后，新的 IP 地址将显示为“已分配”状态。您现在可以在端口转发、负载均衡和静态 NAT 规则中使用 IP 地址。
 
 ### 释放一个已经分配给一个VPC的IP地址
 
+IP 地址是有限的资源。如果您不再需要特定 IP，则可以取消其与 VPC 的关联，并将其返回到可用地址池。仅当删除此 IP 地址的所有网络（端口转发、负载平衡或 StaticNAT）规则时，才能从其层中释放 IP 地址。释放的 IP 地址仍将属于同一 VPC。
+
+1. Log in to the CloudStack UI as an administrator or end User.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+4. Click the Configure button of the VPC whose IP you want to release.
+    
+    The VPC page is displayed where all the tiers you created are listed in a diagram.
+    
+    The following options are displayed.
+    
+    - Internal LB
+        
+    - Public LB IP
+        
+    - Static NAT
+        
+    - Instances
+        
+    - CIDR
+        
+    
+    The following router information is displayed:
+    
+    - Private Gateways
+        
+    - Public IP Addresses
+        
+    - Site-to-Site VPNs
+        
+    - Network ACL Lists
+        
+5. Select Public IP Addresses.
+    
+    The IP Addresses page is displayed.
+    
+6. Click the IP you want to release.
+    
+7. In the Details tab, click the Release IP button ![button to release an IP.](https://docs.cloudstack.apache.org/en/latest/_images/release-ip-icon.png)
+
 ### 在一个VPC上打开或者关闭Static NAT
+
+静态 NAT 规则将公有 IP 地址映射到 VPC 中实例的私有 IP 地址，以允许 Internet 流量流向该实例。本节介绍如何为 VPC 中的特定 IP 地址启用或禁用静态 NAT。
+
+如果端口转发规则已对某个 IP 地址生效，则无法启用该 IP 的静态 NAT。
+
+如果访客实例是多个网络的一部分，则静态 NAT 规则只有在默认网络上定义时才会起作用。
+
+1. Log in to the CloudStack UI as an administrator or end User.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+4. Click the Configure button of the VPC to which you want to deploy the Instances.
+    
+    The VPC page is displayed where all the tiers you created are listed in a diagram.
+    
+    For each tier, the following options are displayed.
+    
+    - Internal LB
+        
+    - Public LB IP
+        
+    - Static NAT
+        
+    - Instances
+        
+    - CIDR
+        
+    
+    The following router information is displayed:
+    
+    - Private Gateways
+        
+    - Public IP Addresses
+        
+    - Site-to-Site VPNs
+        
+    - Network ACL Lists
+        
+5. In the Router node, select Public IP Addresses.
+    
+    The IP Addresses page is displayed.
+    
+6. Click the IP you want to work with.
+    
+7. In the Details tab,click the Static NAT button. ![button to enable Static NAT.](https://docs.cloudstack.apache.org/en/latest/_images/enable-disable.png) The button toggles between Enable and Disable, depending on whether static NAT is currently enabled for the IP address.
+    
+8. If you are enabling static NAT, a dialog appears as follows:
+    ![[Pasted image 20240310115030.png]]
+1. Select the tier and the destination Instance, then click Apply.
 
 ### 在一个VPC上添加负载均衡规则
 
+在 VPC 中，您可以配置两种类型的负载均衡：外部 LB 和内部 LB。 外部 LB 只不过是一个 LB 规则，用于重定向在 VPC 虚拟路由器的公有 IP 上接收的流量。流量根据您的配置在层内进行负载均衡。外部 LB 支持 Citrix NetScaler 和 VPC 虚拟路由器。当您使用内部 LB 服务时，在某个层接收的流量会在该层内的不同实例之间进行负载均衡。例如，在 Web 层到达的流量将重定向到该层中的另一个实例。内部 LB 不支持外部负载平衡设备。该服务由在目标层上配置的内部 LB 实例提供。
+
+#### 在一个Tier层上加入负载均衡(External LB)
+
+CloudStack用户或管理员可以创建负载均衡规则，将公有IP接收到的流量均衡到属于VPC中提供负载均衡服务的网络层的一个或多个实例。用户创建规则，指定算法，并将该规则分配给层中的一组实例。
+
+##### 使NetScaler在一个VPC的tier层上作为一个LB Provider
+
+1. Add and enable Netscaler VPX in dedicated mode.
+    
+    Netscaler can be used in a VPC environment only if it is in dedicated mode.
+    
+2. Create a network offering, as given in “[Creating a Network Offering for External LB](https://docs.cloudstack.apache.org/en/latest/adminguide/networking_and_traffic.html#create-net-offering-ext-lb)”.
+    
+3. Create a VPC with Netscaler as the Public LB provider.
+    
+    For more information, see [“Adding a Virtual Private Cloud”](https://docs.cloudstack.apache.org/en/latest/adminguide/networking_and_traffic.html#adding-a-virtual-private-cloud).
+    
+4. For the VPC, acquire an IP.
+    
+5. Create an external load balancing rule and apply, as given in [Creating an External LB Rule](https://docs.cloudstack.apache.org/en/latest/adminguide/networking_and_traffic.html#create-ext-lb-rule).
+
+##### 为external LB创建一个网络产品(Offering)
+
+To have external LB support on VPC, create a network offering as follows:
+
+1. Log in to the CloudStack UI as a user or admin.
+    
+2. Navigate to Service Offerings and choose Network Offering.
+    
+3. Click Add Network Offering.
+    
+4. In the dialog, make the following choices:
+    
+    - **Name**: Any desired name for the network offering.
+        
+    - **Description**: A short description of the offering that can be displayed to users.
+        
+    - **Network Rate**: Allowed data transfer rate in MB per second.
+        
+    - **Traffic Type**: The type of network traffic that will be carried on the network.
+        
+    - **Guest Type**: Choose whether the guest network is isolated or shared.
+        
+    - **Persistent**: Indicate whether the guest network is persistent or not. The network that you can provision without having to deploy an Instance on it is termed persistent network.
+        
+    - **VPC**: This option indicate whether the guest network is Virtual Private Cloud-enabled. A Virtual Private Cloud (VPC) is a private, isolated part of CloudStack. A VPC can have its own virtual network topology that resembles a traditional physical network. For more information on VPCs, see :ref: about-vpc.
+        
+    - **Specify VLAN**: (Isolated guest networks only) Indicate whether a VLAN should be specified when this offering is used.
+        
+    - **Supported Services**: Select Load Balancer. Use Netscaler or VpcVirtualRouter.
+        
+    - **Load Balancer Type**: Select Public LB from the drop-down.
+        
+    - **LB Isolation**: Select Dedicated if Netscaler is used as the external LB provider.
+        
+    - **System Offering**: Choose the system service offering that you want virtual routers to use in this network.
+        
+    - **Conserve mode**: Indicate whether to use conserve mode. In this mode, network resources are allocated only when the first virtual machine starts in the network.
+        
+5. Click OK and the network offering is created.
+
+##### 创建一个external LB规则
+
+1. Log in to the CloudStack UI as an administrator or end user.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+4. Click the Configure button of the VPC, for which you want to configure load balancing rules.
+    
+    The VPC page is displayed where all the tiers you created listed in a diagram.
+    
+    For each tier, the following options are displayed:
+    
+    - Internal LB
+        
+    - Public LB IP
+        
+    - Static NAT
+        
+    - Instances
+        
+    - CIDR
+        
+    
+    The following router information is displayed:
+    
+    - Private Gateways
+        
+    - Public IP Addresses
+        
+    - Site-to-Site VPNs
+        
+    - Network ACL Lists
+        
+5. In the Router node, select Public IP Addresses.
+    
+    The IP Addresses page is displayed.
+    
+6. Click the IP address for which you want to create the rule, then click the Configuration tab.
+    
+7. In the Load Balancing node of the diagram, click View All.
+    
+8. Select the tier to which you want to apply the rule.
+    
+9. Specify the following:
+    
+    - **Name**: A name for the load balancer rule.
+        
+    - **Public Port**: The port that receives the incoming traffic to be balanced.
+        
+    - **Private Port**: The port that the Instances will use to receive the traffic.
+        
+    - **Algorithm**. Choose the load balancing algorithm you want CloudStack to use. CloudStack supports the following well-known algorithms:
+        
+        - Round-robin
+            
+        - Least connections
+            
+        - Source
+            
+    - **Stickiness**. (Optional) Click Configure and choose the algorithm for the stickiness policy. See Sticky Session Policies for Load Balancer Rules.
+        
+    - **Add Instances**: Click Add Instances, then select two or more Instances that will divide the load of incoming traffic, and click Apply.
+        
+
+The new load balancing rule appears in the list. You can repeat these steps to add more load balancing rules for this IP address.
+
+#### 跨Tier的负载均衡
+
+CloudStack支持在VPC内的不同层之间共享工作负载。假设在环境中设置了多个层，例如 Web 层和应用层。每个层的流量在公共端的 VPC 虚拟路由器上进行平衡，如 [[#在一个VPC上添加负载均衡规则]] 中所述。如果你想平衡从Web层到应用层的流量，请使用CloudStack提供的内部负载均衡功能。
+
+#### 内部LB在VPC中是如何工作的
+
+在此图中，为公共 IP 72.52.125.10 创建了一个公共 LB 规则，具有公共端口 80 和专用端口 81。在 VPC 虚拟路由器上创建的 LB 规则将应用于从 Internet 到 Web 层上的实例的流量。在应用程序层上，将创建两个内部负载均衡规则。在实例 InternalLBVM1 上配置了具有负载均衡器端口 23 和实例端口 25 的客户机 IP 10.10.10.4 的内部 LB 规则。具有负载均衡器端口 45 和实例端口 46 的客户机 IP 10.10.10.4 的另一个内部 LB 规则在实例 InternalLBVM1 上配置。客户机 IP 10.10.10.6 的另一个内部 LB 规则（负载均衡器端口 23 和实例端口 25）在实例 InternalLBVM2 上配置。
+
+![[Pasted image 20240310115500.png]]
+
+##### 指南
+
+- 内部 LB 和公共 LB 在层上是互斥的。如果该层在公共端具有 LB，则它不能具有内部 LB。
+    
+- 在CloudStack 4.2版本中，只有VPC网络支持内部LB。
+    
+- 在CloudStack 4.2版本中，只有内部LB实例可以作为内部LB提供者。
+    
+- 不支持从具有内部 LB 的网络产品到具有公共 LB 的网络产品/服务的网络升级。
+    
+- VPC中可以支持多个层的内部LB。
+    
+- VPC中只能有一个层支持公有LB。
+
+##### 使Internal LB在一个VPC网络tier层上
+
+1. Create a network offering, as given in [Creating a Network Offering for Internal LB](https://docs.cloudstack.apache.org/en/latest/adminguide/networking_and_traffic.html#creating-net-offering-internal-lb).
+    
+2. Create an internal load balancing rule and apply, as given in [Creating an Internal LB Rule](https://docs.cloudstack.apache.org/en/latest/adminguide/networking_and_traffic.html#create-int-lb-rule).
+
+##### 为Internal LB创建一个网络产品(Offering)
+
+要在 VPC 上获得内部 LB 支持，请使用默认产品 DefaultIsolatedNetworkOfferingForVpcNetworksWithInternalLB，或按如下方式创建网络产品：
+
+1. Log in to the CloudStack UI as a user or admin.
+    
+2. Navigate to Service Offerings and choose Network OfferingPublic IP Addresses.
+    
+3. Click Add Network Offering.
+    
+4. In the dialog, make the following choices:
+    
+    - **Name**: Any desired name for the network offering.
+        
+    - **Description**: A short description of the offering that can be displayed to users.
+        
+    - **Network Rate**: Allowed data transfer rate in MB per second.
+        
+    - **Traffic Type**: The type of network traffic that will be carried on the network.
+        
+    - **Guest Type**: Choose whether the guest network is isolated or shared.
+        
+    - **Persistent**: Indicate whether the guest network is persistent or not. The network that you can provision without having to deploy an Instance on it is termed persistent network.
+        
+    - **VPC**: This option indicate whether the guest network is Virtual Private Cloud-enabled. A Virtual Private Cloud (VPC) is a private, isolated part of CloudStack. A VPC can have its own virtual network topology that resembles a traditional physical network. For more information on VPCs, see [“About Virtual Private Clouds”](https://docs.cloudstack.apache.org/en/latest/adminguide/networking_and_traffic.html#about-virtual-private-clouds).
+        
+    - **Specify VLAN**: (Isolated guest networks only) Indicate whether a VLAN should be specified when this offering is used.
+        
+    - **Supported Services**: Select Load Balancer. Select `InternalLbVM` from the provider list.
+        
+    - **Load Balancer Type**: Select Internal LB from the drop-down.
+        
+    - **System Offering**: Choose the system service offering that you want virtual routers to use in this network.
+        
+    - **Conserve mode**: Indicate whether to use conserve mode. In this mode, network resources are allocated only when the first virtual machine starts in the network.
+        
+5. Click OK and the network offering is created.
+
+##### 创建一个Internal LB规则
+
+当您创建内部 LB 规则并应用于实例时，将创建一个负责负载均衡的内部 LB 实例。
+
+如果导航到“**基础架构**”>“**区域**”> <zone_名称> > <physical_network_name> >“**网络服务提供商**”>“**内部LB实例**”，则可以在“实例”页面中查看创建的内部 LB 实例。您可以根据需要从该位置管理内部 LB 实例。
+
+1. Log in to the CloudStack UI as an administrator or end user.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+4. Locate the VPC for which you want to configure internal LB, then click Configure.
+    
+    The VPC page is displayed where all the tiers you created listed in a diagram.
+    
+5. Locate the Tier for which you want to configure an internal LB rule, click Internal LB.
+    
+    In the Internal LB page, click Add Internal LB.
+    
+6. In the dialog, specify the following:
+    
+    - **Name**: A name for the load balancer rule.
+        
+    - **Description**: A short description of the rule that can be displayed to users.
+        
+    - **Source IP Address**: (Optional) The source IP from which traffic originates. The IP is acquired from the CIDR of that particular tier on which you want to create the Internal LB rule. If not specified, the IP address is automatically allocated from the network CIDR.
+        
+        For every Source IP, a new Internal LB Instance is created for load balancing.
+        
+    - **Source Port**: The port associated with the source IP. Traffic on this port is load balanced.
+        
+    - **Instance Port**: The port of the internal LB Instance.
+        
+    - **Algorithm**. Choose the load balancing algorithm you want CloudStack to use. CloudStack supports the following well-known algorithms:
+        
+        - Round-robin
+            
+        - Least connections
+            
+        - Source
 ### 在一个VPC上添加端口转发规则
+
+1. Log in to the CloudStack UI as an administrator or end user.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+4. Click the Configure button of the VPC to which you want to deploy the Instances.
+    
+    The VPC page is displayed where all the tiers you created are listed in a diagram.
+    
+    For each tier, the following options are displayed:
+    
+    - Internal LB
+        
+    - Public LB IP
+        
+    - Static NAT
+        
+    - Instances
+        
+    - CIDR
+        
+    
+    The following router information is displayed:
+    
+    - Private Gateways
+        
+    - Public IP Addresses
+        
+    - Site-to-Site VPNs
+        
+    - Network ACL Lists
+        
+5. In the Router node, select Public IP Addresses.
+    
+    The IP Addresses page is displayed.
+    
+6. Click the IP address for which you want to create the rule, then click the Configuration tab.
+    
+7. In the Port Forwarding node of the diagram, click View All.
+    
+8. Select the tier to which you want to apply the rule.
+    
+9. Specify the following:
+    
+    - **Public Port**: The port to which public traffic will be addressed on the IP address you acquired in the previous step.
+        
+    - **Private Port**: The port on which the Instance is listening for forwarded public traffic.
+        
+    - **Protocol**: The communication protocol in use between the two ports.
+        
+        - TCP
+            
+        - UDP
+            
+    - **Add Instance**: Click Add Instance. Select the name of the Instance to which this rule applies, and click Apply.
+        
+        You can test the rule by opening an SSH session to the Instance.
 
 ### 删除Tiers
 
+您可以从 VPC 中删除tier层。无法撤消已删除的层。删除某个层时，仅清除该层的资源。将删除所有网络规则（端口转发、负载平衡和静态 NAT）以及与层关联的 IP 地址。该 IP 地址仍属于同一 VPC。
+1. Log in to the CloudStack UI as an administrator or end user.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPC that you have created for the Account is listed in the page.
+    
+4. Click the Configure button of the VPC for which you want to set up tiers.
+    
+    The Configure VPC page is displayed. Locate the tier you want to work with.
+    
+5. Select the tier you want to remove.
+    
+6. In the Network Details tab, click the Delete Network button. ![button to remove a tier](https://docs.cloudstack.apache.org/en/latest/_images/del-tier.png)
+    
+    Click Yes to confirm. Wait for some time for the tier to be removed.
+
 ### 编辑-重启-删除一个VPC
 
+> 在删除 VPC 之前，请确保删除所有tier层。
 
+1. Log in to the CloudStack UI as an administrator or end user.
+    
+2. In the left navigation, choose Network.
+    
+3. In the Select view, select VPC.
+    
+    All the VPCs that you have created for the Account is listed in the page.
+    
+4. Select the VPC you want to work with.
+    
+5. In the Details tab, click the Remove VPC button ![button to remove a VPC](https://docs.cloudstack.apache.org/en/latest/_images/remove-vpc.png)
+    
+    You can remove the VPC by also using the remove button in the Quick View.
+    
+    You can edit the name and description of a VPC. To do that, select the VPC, then click the Edit button. ![button to edit.](https://docs.cloudstack.apache.org/en/latest/_images/edit-icon.png)
+    
+    To restart a VPC, select the VPC, then click the Restart button. ![button to restart a VPC](https://docs.cloudstack.apache.org/en/latest/_images/restart-vpc.png)
 
 ## 持久化网络
 
