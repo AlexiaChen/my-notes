@@ -10,3 +10,5 @@ https://mp.weixin.qq.com/s/mRc7pkV2kJuhHS_oupA7TQ
 
 [An Introduction to Commitment Schemes - by stu - Block Doc (substack.com)](https://blockdoc.substack.com/p/an-introduction-to-commitment-schemes?utm_source=twitter&sd=pf)
 
+[A High-Level Technical Overview of Fully Homomorphic Encryption || Math ∩ Programming (jeremykun.com)](https://www.jeremykun.com/2024/05/04/fhe-overview/)
+
