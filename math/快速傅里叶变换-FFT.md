@@ -68,6 +68,8 @@ $$
 
 快速傅里叶变换让我们能够使多点求值和插值变得更快。
 
+> 注意这里的域D，就是点的x坐标的集合。[Lagrange Interpolating Polynomial -- from Wolfram MathWorld](https://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html)
+
 ### 快速傅里叶变换
 
 使用这种更快的算法，你需要付出的代价是，你不能选择任何任意的域(Field)和任何任意的域(Domain)。而使用拉格朗日插值，你可以选择你想要的任何x坐标和y坐标，以及你想要的任何域Field（你甚至可以在普通的实数上进行操作），并且可以得到一个通过这些点的多项式。而快速傅里叶变换（FFT）则必须使用有限域(finite field)，并且域(Domain)必须是该有限域(finite field)的乘法子群（也就是说，一些“生成元”值的幂的列表）。
