@@ -36,3 +36,11 @@ Citations:
 [3] https://www.youtube.com/watch?v=mDvqUIETkoI
 [4] https://stackoverflow.com/questions/19405791/what-version-of-mongodb-is-installed-on-ubuntu
 [5] https://database.guide/7-ways-to-check-your-mongodb-version/
+
+
+## 容器化安装
+
+```bash
+chown 999:999 /mnt/rasp_data/mongo/
+docker run -d --name mongo --privileged=true -p 27017:27017 -v /mnt/rasp_data/mongo:/data/db mongo:4.2
+```

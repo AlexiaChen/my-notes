@@ -6,3 +6,4 @@
 
 [All you need to know about cryptocurrency (wundertrading.com)](https://wundertrading.com/journal/en/learn)
 
+[Pionex | Bitcoin Ethereum Auto buy low and sell high | Free Crypto Trading Bot](https://www.pionex.com/en/)
