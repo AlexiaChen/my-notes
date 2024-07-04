@@ -1,0 +1,13 @@
+{
+  "promptDelete": false,
+  "alwaysUpdateLinks": true,
+  "legacyEditor": false,
+  "livePreview": true,
+  "pdfExportSettings": {
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 56
+  },
+  "attachmentFolderPath": "Attachments"
+}
