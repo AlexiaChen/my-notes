@@ -400,7 +400,17 @@ cat /sys/module/vhost_net/parameters/experimental_zcopytx
 > 这将关闭所有网桥端口上的学习（泛洪）模式，libvirt 将根据需要向 FDB 添加或删除条目。除了消除学习MAC地址的正确转发端口的开销外，这还允许内核在将网桥连接到网络的物理设备上禁用混杂模式，从而进一步降低开销。
 
 
-#### 网络防火墙
+在网桥模式下，宿主机充当一个虚拟交换设备，同时也开启了`ip_forwarding=1`的转发配置, 这个更接近真实环境，比如，宿主机A的IP是192.168.13.6 宿主机B是192.168.13.7 主机A上有两个libvirt KVM启动的虚拟机实例，IP分别是192.168.122.5 192.168.122.8 。如果是宿主机A上的ip_forwarding开启，在宿主机B上ping某个虚拟机实例的IP
+
+```bash
+# 在宿主机B上执行，添加路由规则，首先让宿主机B知道，122网段上哪台机器上的路由去找
+sudo ip route add 192.168.122.0/24 via 192.168.13.6
+# 在宿主机A上，允许FORWARD链中的流量，也就是让宿主机A转发，eth0是宿主机A的物理网卡设备，也就是流量输入端，virbr0是宿主机上的一个虚拟网桥设备，这个设备上挂着虚拟机的虚拟网卡，也就是对于FORWARD来说的所有流量都无脑转发到virbr0上
+sudo iptables -A FORWARD -i eth0 -o virbr0 -j ACCEPT
+```
+
+#### 网络防火墙和网络过滤器
+
 
 > libvirt创建出来的KVM虚拟机实例，连接的是默认的default网络。宿主机和虚拟机实例网落ping可以互通。
 
@@ -415,16 +425,229 @@ iptables -L OUTPUT -n --line-numbers
 iptables -D OUTPUT <line-number>
 ```
 
-在网桥模式下，宿主机充当一个虚拟交换设备，同时也开启了`ip_forwarding=1`的转发配置, 这个更接近真实环境，比如，宿主机A的IP是192.168.13.6 宿主机B是192.168.13.7 主机A上有两个libvirt KVM启动的虚拟机实例，IP分别是192.168.122.5 192.168.122.8 。如果是宿主机A上的ip_forwarding开启，在宿主机B上ping某个虚拟机实例的IP
+下面，正式的要开始了。
 
-```bash
-# 在宿主机B上执行，添加路由规则，首先让宿主机B知道，122网段上哪台机器上的路由去找
-sudo ip route add 192.168.122.0/24 via 192.168.13.6
-# 在宿主机A上，允许FORWARD链中的流量，也就是让宿主机A转发，eth0是宿主机A的物理网卡设备，也就是流量输入端，virbr0是宿主机上的一个虚拟网桥设备，这个设备上挂着虚拟机的虚拟网卡，也就是对于FORWARD来说的所有流量都无脑转发到virbr0上
-sudo iptables -A FORWARD -i eth0 -o virbr0 -j ACCEPT
+有三种类型的libvirt的功能可以来做某些类型的网络流量过滤，从高层次上来看，它们有:
+
+- 虚拟网络驱动。这个提供了一个独立隔离的网桥设备（就是没有任何物理网卡挂载这个网桥上），客户虚拟机的TAP设备都挂载到这个桥接设备上。客户虚拟机之间可以互通，也可以跟宿主机互通。当然，甚至可以与外部互联网通信（看宿主机上没上网）。
+- QEMU驱动程序MAC过滤。这个提供了对MAC地址的通用过滤，以防止客户虚拟机伪造其MAC地址。这基本上被下一项所淘汰。
+- 网络过滤器驱动。这个提供了全部的可配置化，在客户虚拟机的网卡上可以实现流量的任意网络过滤。通用规则集在宿主机上定义，用于控制以某种方式进行的流量。然后规则集会关联到一个客户虚拟机的独立网卡上。虽然不如直接使用iptables/etables那么有表现力，但是仍然可以在客户虚拟机的网卡上执行几乎所有你想要执行的网络过滤
+
+##### 虚拟网络驱动
+
+客户虚拟机的典型配置是在主机上将客户虚拟机直接连接到宿主机所在的局域网。在 RHEL6 中，还有 可以使用 macvtap/sr-iov 和 VEPA 连接。这些东西都不是与无线网卡配合得很好，因为它们通常会静默地丢弃任何MAC地址与物理网卡MAC地址不匹配的流量。**这个其实就是最经典最传统的桥接模式，把虚拟机的虚拟网卡直接桥接到物理网卡。**
+
+> 以上的桥接模式一般在windows下的Hyper-V，还有VMware  VirtualBox都可以见到
+
+所以libvirt的虚拟网络驱动被发明了，对传统的桥接模式做了改进。它其实是一个独立的桥接设备（没有任何物理网卡挂在这个桥上）。客户虚拟机的TAP设备都挂载到这个桥接设备上。这样就可以立即让在同一台宿主机上的客户虚拟机可以相互通信，然后也可以与宿主操作系统相互通信（宿主机iptables的规则）。
+
+> TAP设备是一种虚拟网络内核接口，在Linux和其他类Unix操作系统中用于网络虚拟化。它表现为一个虚拟网络设备，工作在数据链路层，可以处理以太网帧。TAP设备常用于虚拟化环境中，允许虚拟机直接发送和接收以太网帧，就好像它们是连接到物理网络的一部分。
+> 
+> TAP设备常用于创建虚拟网络，使得虚拟机或容器可以拥有自己的网络接口，仿佛它们是连接到实际的物理网络上。
+> 
+> 通过将TAP设备桥接到物理网络接口，虚拟机可以直接出现在物理网络上，拥有自己的IP地址，就像物理机一样。
+> 
+> TAP设备也可以用于创建网络隧道和VPN连接，允许远程网络或设备安全地连接和交换数据。
+
+然后，libvirt使用iptables来控制可用的进一步连接，目前对于一个虚拟网络，下面有三种配置可以配置:
+
+- 隔离(isolated): 所有的绕过主机的流量(off-node traffic)完全被阻止。 off-node traffic其实就是虚拟机实例可以直接把数据发到网络上，根本不通过宿主机内核。
+- 网络地址转换(nat): 从虚拟机实例出去到宿主机的局域网流量被允许，还启动NAT伪装，相当于能共用一个出口IP。NAT伪装其实就是把数据包的source IP替换为防火墙的IP。
+- 转发(forward): 从虚拟机实例出去到宿主机局域网的流量全部被允许，没有例外。
+
+forward的情况要求虚拟网络相对于宿主机的局域网在一个分离的子网上，然后这样的话，该局域网管理员就可以给这个子网配置路由。在未来，我们打算添加IP子网和ARP代理的支持。这个允许虚拟网络使用相同子网的情况下，像使用宿主机局域网一样，这样可以避免该局域网管理员来配置特殊的路由规则。
+
+libvirt也会选择性提供DHCP服务给虚拟网络（使用DNSMASQ）。对于所有的case来说，我们需要允许虚拟机实例向宿主机OS上发起的DNS/DHCP请求，因此我们不能假设宿主机防火墙的设置规则允许了这些请求，所以我们无脑在宿主机的INPUT Chain的头部插入了以下四条规则:
+
+```txt
+target     prot opt in     out     source               destination
+ACCEPT     udp  --  virbr0 *       0.0.0.0/0            0.0.0.0/0           udp dpt:53
+ACCEPT     tcp  --  virbr0 *       0.0.0.0/0            0.0.0.0/0           tcp dpt:53
+ACCEPT     udp  --  virbr0 *       0.0.0.0/0            0.0.0.0/0           udp dpt:67
+ACCEPT     tcp  --  virbr0 *       0.0.0.0/0            0.0.0.0/0           tcp dpt:67
 ```
 
-还可以通过virsh，请参考 [libvirt: Firewall and network filtering in libvirt](https://libvirt.org/firewall.html)
+> 上面的四条规则中，in 设备是virbr0，所以方向是出口方向，也就是虚拟机向宿主机的流量。
+
+下面的规则依赖于连接的类型，规则在宿主机的FORWARD chain中:
+
+- isolated类型， 允许虚拟机实例之间的流量，但是阻止入方向和出方向。也就是不允许虚拟机访问宿主机，不允许宿主机访问虚拟机
+
+```txt
+target     prot opt in     out     source               destination
+ACCEPT     all  --  virbr1 virbr1  0.0.0.0/0            0.0.0.0/0
+REJECT     all  --  *      virbr1  0.0.0.0/0            0.0.0.0/0           reject-with icmp-port-unreachable
+REJECT     all  --  virbr1 *       0.0.0.0/0            0.0.0.0/0           reject-with icmp-port-unreachable
+```
+
+- nat类型，允许已经建立连接的入流量，允许我们指定的子网的出流量。允许虚拟机实例之间的流量。拒绝其入流量。拒绝其他出流量。
+
+```txt
+target     prot opt in     out     source               destination
+ACCEPT     all  --  *      virbr0  0.0.0.0/0            192.168.122.0/24    state RELATED,ESTABLISHED
+ACCEPT     all  --  virbr0 *       192.168.122.0/24     0.0.0.0/0
+ACCEPT     all  --  virbr0 virbr0  0.0.0.0/0            0.0.0.0/0
+REJECT     all  --  *      virbr0  0.0.0.0/0            0.0.0.0/0           reject-with icmp-port-unreachable
+REJECT     all  --  virbr0 *       0.0.0.0/0            0.0.0.0/0           reject-with icmp-port-unreachable
+```
+
+- routed类型。允许我们指定子网的入流量。允许我们指定子网的出流量。允许虚拟机实例之间的流量。拒绝其他所有入流量，拒绝其他所有出流量。
+
+```txt
+target     prot opt in     out     source               destination
+ACCEPT     all  --  *      virbr2  0.0.0.0/0            192.168.124.0/24
+ACCEPT     all  --  virbr2 *       192.168.124.0/24     0.0.0.0/0
+ACCEPT     all  --  virbr2 virbr2  0.0.0.0/0            0.0.0.0/0
+REJECT     all  --  *      virbr2  0.0.0.0/0            0.0.0.0/0           reject-with icmp-port-unreachable
+REJECT     all  --  virbr2 *       0.0.0.0/0            0.0.0.0/0           reject-with icmp-port-unreachable
+```
+
+- 最后对于nat类型，其实在POSTROUTING Chain中还有一个规则项，主要是启用NAT伪装:
+
+```txt
+target     prot opt in     out     source               destination
+MASQUERADE all  --  *      *       192.168.122.0/24    !192.168.122.0/24
+```
+
+##### firewalld和虚拟网络驱动
+
+如果firewalld服务在宿主机上被启动激活，libvirt就试图把libvirt虚拟网络的网桥接口放到firewalld zone中，叫"libvirt"（这样就让在那个虚拟网络中的所有虚拟机到宿主机的流量，都会关联到firewall的规则）。 这样做是因为，如果 firewalld 正在使用其 nftables 后端（从 firewalld 0.6.0 开始可用） 默认 firewalld 区域（如果 libvirt 未显式设置 zone） 阻止来自访客虚拟机的流量通过网桥转发，以及 阻止 DHCP、DNS 和从客户机到主机的大多数其他流量。名为 “libvirt”由 libvirt 安装到 firewalld 配置中（不是由 firewalld），并允许通过网桥和 DHCP 转发流量， 到主机的 DNS、TFTP 和 SSH 流量 - 取决于 firewalld 的后端 将通过 iptables 或 nftables 规则实现。libvirt 自己的规则 上面概述的将*始终*是 iptables 规则，无论哪个后端是 由 firewalld 使用。
+
+注意：可以手动设置网络接口的防火墙区域 替换为网络“bridge”元素的“zone”属性。
+
+注意：在 libvirt 5.1.0 之前，firewalld “libvirt” 区域不存在，并且 在 firewalld 0.7.0 之前，这是使“libvirt”区域运行的关键功能 在 Firewalld 中未正确实现（丰富的规则优先级设置）。在 两个包中的一个或另一个缺少必要的情况 功能性，仍然可以通过以下方式拥有功能性访客网络 将 firewalld 后端设置为“iptables”（在 0.6.0 之前的 firewalld 中，这 是唯一可用的后端）。
+
+##### 网络过滤器驱动
+
+此驱动程序提供完全可配置的网络筛选功能，可 利用 EBTables、IPTABLES 和 IP6Tables。这是由 libvirt 团队写的 虽然它的 XML 模式是由 libvirt 定义的，但概念模型 与用于网络筛选的 DMTF CIM标准模式密切相关：[Visio-CIM_Network.vsd (dmtf.org)](https://www.dmtf.org/sites/default/files/cim/cim_schema_v2230/CIM_Network.pdf)
+
+过滤器被作为一个单独的对象被libvirt上层管理，也就是对象对用户可见。这就允许过滤器可以被任何的libvirt对象引用，这样就可以使用过滤器提供的功能了，而不仅仅只是客户虚拟机的网卡才可以使用。对于现在的实现，过滤器可以通过libvirt的domain XML格式被关联到独立的虚拟机的网卡上。未来，我们可能让过滤器被关联到虚拟网络对象上，这样我们就可以期待定义一个新的网络交换对象了，消除了配置bridge/sriov/vepa等网络模式的复杂性。这样就让网络过滤器物尽其用了。
+
+有一些新的virsh命令来管理网络过滤器:
+
+- `virsh nwfilter-define`  通过一个XML文件定义或者更新一个网络过滤器
+- `virsh newfilter-undefine` 删除一个网络过滤器
+- `virsh nwfilter-dumpxml` XML定义的网路过滤器的可视化信息
+- `virsh nwfilter-list`  列出现在的网络过滤器
+- `virsh nwfilter-edit` 编辑一个网络过滤器的XML配置
+
+当然，这些命令其实都有对应的C语言的API。
+
+正如所有被libvirt管理的对象一样，网络过滤器也是用一个XML格式配置的。大概是这样:
+
+```xml
+<filter name='no-spamming' chain='XXXX'>
+  <uuid>d217f2d7-5a04-0e01-8b98-ec2743436b74</uuid>
+
+  <rule ...>
+    ....
+  </rule>
+
+  <filterref filter='XXXX'/>
+</filter>
+```
+
+每个过滤器都有UUID，一个过滤器有一个或者多个规则rule。过滤器之间可能会被组织成一个有向无环图(DAG),  所以过滤器之间靠filterref来引用，但是环路是不被允许的。
+
+rule标签是过滤器的核心，所有的流量控制都是在这个里面定义的，并附有优先级
+
+```xml
+<rule action='drop' direction='out' priority='500'>
+```
+
+rule标签里面有有很多protocol，支持很多协议，ip，tcp，udp，icmp等等
+
+```xml
+<protocol match='yes|no' attribute1='value1' attribute2='value2'/>
+```
+
+比如以下就是一个protocol标签协议示例，匹配TCP的0-1023的源端口
+
+```xml
+<tcp match='yes' srcportstart='0' srcportend='1023'/>
+```
+
+上面的一些标签属性还可以直接引用标量，比如客户虚拟机的XML格式允许每个网卡有一个MAC地址和IP，这样就可以通过变量来引用这些IP地址和MAC地址
+
+```xml
+<filter name='no-ip-spoofing' chain='ipv4'>
+  <rule action='drop' direction='out'>
+    <ip match='no' srcipaddr='$IP' />
+  </rule>
+</filter>
+```
+
+libvirt提供了一些内建的有用的规则, 它们被存在 `/etc/libvirt/nwfilter`
+
+```bash
+virsh nwfilter-list
+```
+
+要让某个客户虚拟机引用指定的过滤器，请在客户虚拟机的XML配置中的interface标签下加入filterref标签，引用过滤器的名称:
+
+```xml
+<interface type='bridge'>
+  <mac address='52:54:00:56:44:32'/>
+  <source bridge='br1'/>
+  <ip address='10.33.8.131'/>
+  <target dev='vnet0'/>
+  <model type='virtio'/>
+  <filterref filter='clean-traffic'/>
+</interface>
+```
+
+
+我用我机器上写一个防火墙的具体例子,  注意nwfilter只支持虚拟网卡的类型是network或bridge的。一般libvirt默认创建的虚拟机的网卡是network模式的, 而且在宿主机上必须要开启`firewalld`服务，特别是RedHat 7上。`systemctl start firewalld`
+
+```bash
+vi  /etc/libvirt/nwfilter/block-all.xml
+```
+
+XML的内容:
+
+```xml
+<filter name='block-all' chain='root' priority='-700'>  
+	<uuid>3cef420c-3a7d-11ef-ad33-00ff4c51429a</uuid>  
+	<rule action='drop' direction='in' priority='100'>  
+		<all/>  
+	</rule>  
+	<rule action='drop' direction='out' priority='100'>  
+		<all/>  
+	</rule>  
+</filter>
+```
+
+UUID需要自己生成，可以用Linux的uuid命令行。name就是nwfilter的名称。priority是优先级，值越小优先级越高。然后就是规则，以上的XML的规则就是禁止入方向的所有流量，这里的方向是in和out，in是进入虚拟机的流量，out是从虚拟机出去的流量。
+
+```bash
+# 根据一个XML文件定义或更新一个过滤器
+virsh nwfilter-define /etc/libvirt/nwfilter/block-all.xml
+# 查看当前的过滤器列表
+virsh nwfilter-list
+# 查看这个过滤器的配置
+virsh nwfilter-dumpxml block-all
+# 编辑虚拟机实例的配置文件， 在interface标签下加入filterref 标签 <filterref filter='block-all'/>
+virsh edit <vm-name>
+# 必须重启虚拟机才可以使防火墙生效 
+virsh shutdown <vm-name>
+virsh start <vm-name>
+# 查看防火墙绑定在哪个虚拟网卡上
+virsh nwfilter-binding-list
+# ping虚拟机的IP就IP不通了
+ping 192.168.122.167
+# ping另一个虚拟机的IP，就可以ping通
+ping 192.168.122.144
+```
+
+> 编辑完成虚拟机的配置，必须重启虚拟机才可以使防火墙生效，[networking - Apply Network Filter to Ovirt Guest without Rebooting - Server Fault](https://serverfault.com/questions/947407/apply-network-filter-to-ovirt-guest-without-rebooting) [networking - Apply libvirt nwfilter without editing of XML - Server Fault](https://serverfault.com/questions/479144/apply-libvirt-nwfilter-without-editing-of-xml)
+
+
+以上的现象是正常的，必须重启虚拟机实例。如果你的filter已经关联到一个虚拟机上了，虚拟机重启完毕以后，你再对这个filter进行修改，增加删除rule标签，那么就不需要重启虚拟机实例了。但是生效会需要一些时间。
+
+> 从以上的这些任何操作你可以看到，很多virsh的操作都是配合edit的子命令来编辑XML文件的，但是这些对bash自动化脚本不友好，对直接传输远程执行的命令集合也不好，所以最好的方式就是bash脚本的源码需要类似 dumpxml 出来一个bak的XML文件，然后通过sed  xmlstarlet等工具进行XML的编辑，然后再define更新，然后还要找到对应的虚拟机实例名称等等 这样才生效，比如防护墙Hyper-V上其实就一行Powershell命令就可以了，但是在libvirt这里就不行，要更复杂。
+
+更多内容请看 [libvirt: Firewall and network filtering in libvirt](https://libvirt.org/firewall.html)
+
 #### 虚拟机的磁盘管理
 
 ```bash
@@ -538,4 +761,8 @@ KVM 虚拟机管理程序会自动过量使用 CPU 和内存。这意味着可�
 [libvirt: Network XML format](https://libvirt.org/formatnetwork.html#nat-based-network)
 
 [libvirt: Firewall and network filtering in libvirt](https://libvirt.org/firewall.html)
+[nwfilter规则-CSDN博客](https://blog.csdn.net/weixin_34032621/article/details/92863471)
+[基于network filter的虚拟机访问控制 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/70078069)
+
+[17.14. Applying Network Filtering | Red Hat Product Documentation](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/sect-virtual_networking-applying_network_filtering#sect-Advanced_Filter_Configuration_Topics-Limiting_Number_of_Connections)
 
