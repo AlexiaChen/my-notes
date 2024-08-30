@@ -12,6 +12,7 @@
 ### 1. 创建网络命名空间
 
 ```bash
+sudo apt install iproute2
 sudo ip netns add client1
 sudo ip netns add client2
 ```
@@ -19,11 +20,12 @@ sudo ip netns add client2
 
 ### 2. 配置虚拟网络接口
 
+> 以下有垃圾不可见的字符，注意删除空格
 
 ```bash
 # 创建虚拟以太网对
-sudo ip link add veth1 type veth peer name veth1-br
-sudo ip link add veth2 type veth peer name veth2-br
+sudo ip link add veth1 type veth peer name veth1-br
+sudo ip link add veth2 type veth peer name veth2-br
 
 # 将一端移动到命名空间
 sudo ip link set veth1 netns client1
@@ -33,13 +35,12 @@ sudo ip link set veth2 netns client2
 sudo ip netns exec client1 ip link set veth1 up
 sudo ip netns exec client2 ip link set veth2 up
 
-sudo ip link set veth1-br up
+sudo ip link set veth1-br up
 sudo ip link set veth2-br up
 
 # 分配IP地址
-sudo ip netns exec client1 ip addr add 10.0.0.1/24 dev veth1
+sudo ip netns exec client1 ip addr add 10.0.0.1/24 dev veth1
 sudo ip netns exec client2 ip addr add 10.0.0.2/24 dev veth2
-
 ```
 
 
@@ -47,10 +48,10 @@ sudo ip netns exec client2 ip addr add 10.0.0.2/24 dev veth2
 
 ```bash
 # 启用IP转发
-sudo sysctl -w net.ipv4.ip_forward=1
+sudo sysctl -w net.ipv4.ip_forward=1
 
 # 配置NAT规则 将匹配的数据包目标跳转到 `MASQUERADE` 目标。`MASQUERADE` 会动态地将源 IP 地址替换为外部接口的 IP 地址，并在连接关闭时自动清理。
-sudo iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth0 -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth0 -j MASQUERADE
 ```
 
 
@@ -102,4 +103,12 @@ sudo chroot /var/lib/machines/client1 /usr/cloudDetect/detect install
 sudo chroot /var/lib/machines/client2 /usr/cloudDetect/detect install
 sudo chroot /var/lib/machines/client1 /usr/cloudDetect/detect run
 sudo chroot /var/lib/machines/client2 /usr/cloudDetect/detect run
+```
+
+
+netns与chroot结合运行
+
+```bash
+sudo ip netns exec client1 chroot /var/lib/machines/client1 /usr/cloudDetect/detect run
+sudo ip netns exec client2 chroot /var/lib/machines/client2 /usr/cloudDetect/detect run
 ```
