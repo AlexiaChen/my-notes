@@ -1,6 +1,9 @@
 
 ## 准备
 
+> 准备在KVM中安装的镜像下载 [Index of /pub/centos-altarch/7.9.2009/isos/aarch64 (utah.edu)](https://mirror.chpc.utah.edu/pub/centos-altarch/7.9.2009/isos/aarch64/)   [Index of /pub/centos/7.9.2009/isos/x86_64 (utah.edu)](https://mirror.chpc.utah.edu/pub/centos/7.9.2009/isos/x86_64/)
+
+
 ```bash
 grep -E 'svm|vmx' /proc/cpuinfo
 ```
@@ -15,29 +18,59 @@ lsmod | grep kvm
 
 > 以上其实就是查看软硬件环境是否满足，有了硬件还不够，需要软件来驱动硬件工作
 
+
+如果你用的是windows 11上的WSL2，那么好消息，告诉你，这里是直接支持套娃式虚拟化的。
+
+在你的C:/Users/\<user\>目录下编辑全局的.wslconfig文件
+
+```txt
+# Disables nested virtualization,默认是关闭的，添加打开即可 
+nestedVirtualization=true
+```
+
+然后在你的虚拟机里面的Linux的`/etc/wsl.conf`的配置文件里面加入:
+
+```txt
+[boot]
+command = /bin/bash -c 'chown -v root:kvm /dev/kvm && chmod 660 /dev/kvm'
+```
+
+重启WSL2
+
+[hyper v - How to run KVM nested in WSL2 (or vmware)? - Server Fault](https://serverfault.com/questions/1043441/how-to-run-kvm-nested-in-wsl2-or-vmware)
+
+最后进入虚拟机中运行`kvm-ok`, 如果输出如下:
+
+```txt  
+INFO: /dev/kvm exists  
+KVM acceleration can be used
+```
+
+就可以了。
 ## 安装
 
 ```
+# CentOS
 yum install qemu-kvm libvirt
+# ubuntu
+sudo apt install -y qemu-kvm libvirt-daemon-system
 ```
 
 以上命令其实会安装三个包，qemu-kvm是用户态的KVM模拟器，实现客户虚拟机与宿主机的通信并且模拟CPU和外设，qemu-img实现客户虚拟机的磁盘管理，libvirt其实是一个标准的虚拟化API实现，已经被广泛采用，是一个库，也可以作为一个服务，主要是提供宿主机与Hypervisor的通信，这里的Hypervisior是KVM本身。
 
 ```
-yum install virt-install libvirt-python virt-manager  libvirt-client
+# CentoS
+yum install virt-install libvirt-python virt-manager  libvirt-client bridge-utils
+# ubuntu
+sudo apt install -y virt-manager  virtinst libvirt-clients bridge-utils
 ```
 
-以上主要是安装libvirt库服务的客户端工具，方便用户操作。virt-install用于创建虚拟机。libvirt-python提供给Python的libvirt API。virt-manager，通过libvirt-client的API来间接通过libvirt操作虚拟机的管理工具，有UI图形界面。libvert-client就是libvirt的API和附带的命令行来实现管理虚拟机的通信。
-
-```bash
-systemctl start libvirtd  
-systemctl enable libvirtd
-systemctl status libvirtd
-```
+以上主要是安装libvirt库服务的客户端工具，方便用户操作。virt-install用于创建虚拟机。libvirt-python提供给Python的libvirt API。virt-manager，通过libvirt-client的API来间接通过libvirt操作虚拟机的管理工具，有UI图形界面。libvert-client就是libvirt的API和附带的命令行来实现管理虚拟机的通信。bridge-utils是管理桥接设备的
 
 因为libvirt它一般是以server的方式提供，所以要启动它的守护进程
 
 ```
+# CentOS
 # 查看当前有哪些用户组
 groups
 # 把用户添加到libvirt用户组中
@@ -45,14 +78,25 @@ usermod -a -G libvirt $(whoami)
 # 退出当前shell，并重连
 exit
 
+# ubuntu
+sudo usermod -aG kvm $USER
+sudo usermod -aG libvirt $USER
 ```
 
 关闭SELINUX:
 
 ```bash
+# CentOS
 setenforce 0
 # SELINUX=disabled
 vi /etc/selinux/config
+```
+
+```bash
+# centos or ubuntu
+systemctl start libvirtd  
+systemctl enable libvirtd
+systemctl status libvirtd
 ```
 ## 创建虚拟机
 
@@ -73,6 +117,18 @@ virt-install \
 --extra-args "console=ttyS0" \
 --location /var/lib/libvirt/images/CentOS-7-x86_64-Minimal-2009.iso \
 --os-variant rhel7
+
+# 如果是在ARM64下虚拟化x86的OS
+virt-install \
+--name guest1-rhel7 \
+--memory 2048 \
+--vcpus 2 \
+--disk size=8 \
+--graphics none \
+--console pty,target_type=serial \
+--extra-args "console=ttyS0" \
+--location /var/lib/libvirt/images/centos7-aarch64.iso \
+--os-variant rhel7.0 
 
 virt-install \
 --name ubuntu-server \
@@ -99,6 +155,8 @@ virsh shutdown <vm-name>
 virsh destroy <vm-name>
 # 删除虚拟机定义
 virsh undefine <vm-name>
+# 一些新的版本需要这样删除
+virsh undefine --nvram <vm-name>
 # 删除虚拟机的磁盘文件
 rm /var/lib/libvirt/images/<vm-name>.qcow2
 ```
@@ -111,6 +169,12 @@ rm /var/lib/libvirt/images/<vm-name>.qcow2
 #### 虚拟机的网络
 
 默认的虚拟机网络是libvirt的NAT虚拟交换机。当然就是NAT的网络模式。也就是`virt-install` 未指定`--network`参数，如果显式指定就是`--network default`  
+
+> 注意，按理来说使用默认的网络，其实是NAT模式，也就是宿主机上的虚拟机实例之间如果用这个网络其实是一个子网，由DHCP分配，但是有些时候，虚拟机登录进去以后，ping不通百度，访问不了互联网，这是因为VM里面的网卡配置出了点问题，ip addr看不到eth0有子网IP，需要登录到对应的虚拟机里面，修改网卡配置`vi /etc/sysconfig/network-scripts/ifcfg-eth0`  这三个配置项很重要： 
+> DEVICE=eth0
+ BOOTPROTO=dhcp
+ ONBOOT=yes
+ 我发现ONBOOT是no，修改成yes就好了，保存。重启VM，virsh shutdown \<vm\> virsh start \<vm\>  这样再登录进去，就可以ip addr看到网卡的IP了，这下测试也可以访问互联网了。 NAT模式，VM可以ping通宿主机的IP，宿主机也可以ping通虚拟机，虚拟机之间当然也可以相互ping通（虽然他们之间是不同网段的）， 
 
 
 如果要弄成桥接(birdge)的网络模式，就要指定`--network br0`, 桥接模式意思就是虚拟机的网络与宿主机在一个网络里面，IP由DHCP分配。但是在运行`virt-install`之前，需要在宿主机上创建一个网桥(network bridge)， 然后`--network`才可以指定该网桥。
@@ -132,6 +196,63 @@ virsh net-list --all
 # 查看默认的一个网络，本质从看到的信息就是一个virbr0的桥接网络，内部网络的实例桥接在一起，设个virbr0实际上也充当一个NAT网关设备
 virsh net-info default
 
+```
+
+> 在WSL2的ubuntu 22.04启动default网络报错: error: internal error: Failed to apply firewall rules /usr/sbin/iptables -w --table filter --list-rules: iptables v1.8.7 (nf_tables): table `filter' is incompatible, use 'nft' tool.  
+> as
+> 其实可以把iptables的后端替换成nft的：
+sudo update-alternatives --set  iptables /usr/sbin/iptables-nft  
+sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-nft  
+sudo update-alternatives --set arptables /usr/sbin/arptables-nft  
+sudo update-alternatives --set ebtables /usr/sbin/ebtables-nft
+sudo systemctl restart libvirtd
+sudo systemctl enable nftables
+sudo systemctl start nftables
+sudo virsh net-start default
+asasa
+如果还有其他一个叫dnsmasq的socket already use报错，那么其实就是你是在用虚拟机里面做KVM虚拟化，所以宿主机这个虚拟机占用了这个，你得自己建造一个网桥，然后virsh-install的时候，指定这个网桥设备。
+sudo brctl addbr mybridge
+sudo brctl addif mybridge eth0
+sudo brctl addif mybridge eth1
+sudo ip link set dev mybridge up
+创建一个network的xml定义:
+
+```xml
+ <network>
+  <name>mybridge</name>
+  <forward mode='bridge'/>
+  <bridge name='mybridge'/>
+</network>
+```
+
+> sudo virsh net-define mybridge.xml
+> sudo virsh net-start mybridge
+> sudo virsh net-autostart mybridge
+> ip link show mybridge
+
+```bash
+# WSL2中的ubuntu 22.04 安装centos7系统，安装到最后，WSL2会崩溃，所以这个方案没做继续尝试了
+virt-install \
+--name guest1-rhel7 \
+--memory 2048 \
+--vcpus 2 \
+--disk size=8 \
+--graphics none \
+--console pty,target_type=serial \
+--extra-args "console=ttyS0" \
+--location /var/lib/libvirt/images/CentOS-7-x86_64-Minimal-2009.iso \
+--os-variant rhl7 --network bridge=mybridge
+```
+
+
+
+安装成功以后，请关机，开机就可以连接了:
+
+```bash
+virsh shutdown <vm-name>
+virsh start <vm-name>
+virsh console <vm-name>
+# 输入用户名密码就可以连接进去了
 ```
 
 ## 管理运维
@@ -159,11 +280,14 @@ virsh start <vm-name>
 从磁盘上导入
 
 ```bash
+# 找到虚拟机对应的镜像
+virsh dumpxml guest1-rhel7 | grep qcow2
+
 virt-install \
 --name new-rh2l7 \
 --memory 2048 \
 --vcpus 2 \
---disk  /var/lib/libvirt/images/kk.qcow2 \
+--disk  /var/lib/libvirt/images/centos7_aarch64_base.qcow2 \
 --import \
 --os-variant rhel7 \
 --graphics none \
