@@ -311,7 +311,7 @@ ovs-vsctl show
 
 [Open vSwitch with SSL — Open vSwitch 3.4.90 documentation](https://docs.openvswitch.org/en/latest/howto/ssl/)
 
-### 用隧道连接虚拟机
+### 用GRE隧道连接虚拟机
 
 本文档描述了如何使用Open vSwitch允许两个不同宿主机上的VM通过基于端口的GRE隧道进行通信。
 
@@ -368,6 +368,8 @@ ovs-vsctl add-port br0 tap1
 # 把gre0这个port桥接到OVS网桥上，gre0这个接口其实就是GRE隧道的端点，这个隧道连接到host2的eth0的IP上
 ovs-vsctl add-port br0 gre0 \
     -- set interface gre0 type=gre options:remote_ip=<IP of eth0 on host2>
+# 如果你还想让你在宿主机1上的VM访问Internet，比如eth0的链路可以连接互联网
+ovs-vsctl add-port br0 eth0
 ```
 
 在宿主机上如法炮制以上步骤，只是GRE的remote_ip那里需要修改成\<IP of eth0 on host1\>
@@ -388,12 +390,186 @@ ovs-vsctl add-port br0 gre0 \
 
 > 以上其实就是把两台宿主机的VM之间的内部网络变成了一个大二层网络
 
-### 用隧道连接虚拟机-用户态空间
+### 用VxLAN隧道连接虚拟机-用户态空间
+
+本文档描述了如何使用Open vSwitch允许两个不同宿主机上的VM通过VXLAN隧道进行通信。与[[#用GRE隧道连接虚拟机]] 不同，此配置完全在用户空间中工作。
+
+> 本指南涵盖了配置VXLAN隧道所需的步骤。同样的方法可用于Open vSwitch支持的任何其他隧道协议。
+
+![[Pasted image 20240927161909.png]]
+
+#### 设置
+
+本指南假设你的环境配置如下
+##### 两个物理宿主机
+
+环境假定使用两个主机，分别命名为host1和host2。我们只详细介绍了host1的配置，但host2也可以使用类似的配置。两台主机都应配置Open vSwitch（带或不带DPDK）、QEMU/KVM和合适的VM镜像。在继续之前，Open vSwitch应该正在运行。
+
+#### 配置步骤
+
+```bash
+# 创建一个br-int网桥，netdev的dp type就表明使用用户态空间，而不是内核。主要是用于内核不支持OVS模块的情况，然后就是给网桥设置一个外部ID，这个ID的值也是叫br-int。外部ID主要是用来识别和集成外部系统和控制器的。设置网桥的失败模式是standalone，这个模式下，网桥转发数据包，即使没有控制器连接，如果设置为secure，那么必须要有控制器，才可以转发数据包
+ovs-vsctl --may-exist add-br br-int \
+  -- set Bridge br-int datapath_type=netdev \
+  -- br-set-external-id br-int bridge-id br-int \
+  -- set bridge br-int fail-mode=standalone
+# 启动虚拟机，并把虚拟机对应的tap挂到网桥上
+ovs-vsctl add-port br-int tap0
+# 配置虚拟机里面的IP地址，要进入虚拟机里面
+ip addr add 192.168.1.1/24 dev eth0
+ip link set eth0 up
+# 在宿主机1里面，把vxlan0这个端点挂到网桥上。172.168.1.2 is the remote tunnel end point address. On the remote host this will be 172.168.1.1
+ovs-vsctl add-port br-int vxlan0 \
+  -- set interface vxlan0 type=vxlan options:remote_ip=172.168.1.2
+# 创建一个br-phy的网桥。在用户空间而不是基于内核的Open vSwitch中运行Open vSwitch时，需要这个额外的网桥。此网桥的目的是允许使用内核网络堆栈进行路由和ARP解析。数据路径需要查找路由表和ARP表，以准备隧道Header并将数据传输到输出端口。使用eth1而不是eth0。这是为了确保保持网络连接。
+ovs-vsctl --may-exist add-br br-phy \
+    -- set Bridge br-phy datapath_type=netdev \
+    -- br-set-external-id br-phy bridge-id br-phy \
+    -- set bridge br-phy fail-mode=standalone \
+         other_config:hwaddr=<mac address of eth1 interface>
+
+# 把eth1/dpdk0挂载到br-phy网桥上，如果物理端口eth1作为内核网络接口运行，请运行
+ovs-vsctl --timeout 10 add-port br-phy eth1
+ip addr add 172.168.1.1/24 dev br-phy
+ip link set br-phy up
+ip addr flush dev eth1 2>/dev/null
+ip link set eth1 up
+iptables -F
+
+# 如果接口是DPDK接口并绑定到igb_uio或vfio驱动程序，请运行：
+ovs-vsctl --timeout 10 add-port br-phy dpdk0 \
+  -- set Interface dpdk0 type=dpdk options:dpdk-devargs=0000:06:00.0
+ip addr add 172.168.1.1/24 dev br-phy
+ip link set br-phy up
+iptables -F
+```
+
+命令是不同的，因为DPDK接口不由内核管理，因此端口详细信息对任何ip命令都不可见。
+
+> 尝试对DPDK接口使用内核网络命令将导致通过eth1的连接丢失。有关更多详细信息，请参阅 [Basic Configuration — Open vSwitch 3.4.90 documentation](https://docs.openvswitch.org/en/latest/faq/configuration/)
+
+一旦完成以上，检查缓存的路由:
+
+```bash
+ovs-appctl ovs/route/show
+```
+
+如果隧道路由缺失，请立即添加：
+
+```bash
+ovs-appctl ovs/route/add 172.168.1.1/24 br-phy
+```
+
+在宿主机2上如法炮制以上步骤，只是remote_ip那里要换一下, 还有一些本机IP
+#### 测试
+
+使用此设置，ping到VXLAN目标设备（192.168.1.2）应该可以工作。流量将被VXLAN封装并通过eth1/dpdk0接口发送。
+
+#### 隧道相关的命令
+
+##### 隧道路由表
+
+```bash
+# 加入一个路由
+ovs-appctl ovs/route/add <IP address>/<prefix length> <output-bridge-name> <gw>
+# 查看所有路由配置
+ovs-appctl ovs/route/show
+# 删除路由
+ovs-appctl ovs/route/del <IP address>/<prefix length>
+# 查找和显示一个目标的路由
+ovs-appctl ovs/route/lookup <IP address>
+```
+
+##### ARP
+
+```bash
+# 查看ARP缓存内容
+ovs-appctl tnl/arp/show
+# 刷新ARP缓存
+ ovs-appctl tnl/arp/flush
+# 设置一个指定的ARP条目
+ovs-appctl tnl/arp/set <bridge> <IP address> <MAC address>
+```
+
+##### Ports
+
+```bash
+# 检查隧道端口在ovs-vswitchd的监听情况
+ovs-appctl tnl/ports/show
+# 设置VxLAN的UDP source port的范围
+ovs-appctl tnl/egress_port_range <num1> <num2>
+# 显示当前范围
+ovs-appctl tnl/egress_port_range
+```
+##### Datapath
+
+```bash
+# 检查datapath的port
+ovs-appctl dpif/show
+# 检查datapath流向
+ovs-appctl dpif/dump-flows
+```
 
 ### 用VLAN隔离虚拟机的流量
 
+![[Pasted image 20240927171034.png]]
+
+#### 设置
+
+假设你的环境配置如下：
+##### 两个物理网络
+
+- 数据网络
+
+用于VM数据流量的以太网，它将在VM之间承载VLAN tag的流量。您的物理交换机必须能够转发VLAN标记的流量，并且物理交换机端口应作为VLAN中继运行。（通常这是默认行为。配置物理交换硬件超出了本文的范围。）
+
+- 管理网络
+
+该网络不是严格要求的，但它是一种为物理宿主机提供远程访问IP地址的简单方法，因为IP地址不能直接分配给eth0（稍后将详细介绍）。
+
+##### 两个物理宿主机
+
+环境假定使用两个宿主机：host1和host2。两台宿主机都在运行Open vSwitch。每个主机都有两个NIC，eth0和eth1，配置如下：
+
+- eth0已连接到数据网络。没有为eth0分配IP地址。
+- eth1连接到管理网络（如果需要）。eth1有一个IP地址，用于访问物理宿主机进行管理。
+
+##### 四个虚拟机
+
+每个宿主机将运行两个虚拟机（VM）。vm1和vm2在主机1上运行，而vm3和vm4在主机2上运行。
+
+每个VM都有一个在物理宿主机上显示为Linux设备的单一接口（例如tap0）。
+
+> VM接口可能显示为Linux设备，名称如vnet0、vnet1等。
+
+#### 配置步骤
+
+```bash
+# 创建一个OVS网桥
+ovs-vsctl add-br br0
+# 把eth0挂到网桥上，默认情况下，所有OVS端口都是VLAN trunk口，因此eth0将通过所有VLAN。当您将eth0添加到OVS网桥时，可能分配给eth0的任何IP地址都会停止工作。在将eth0添加到OVS网桥之前，应将分配给eth0的IP地址迁移到其他接口。这就是通过eth1进行单独管理连接的原因。
+ovs-vsctl add-port br0 eth0
+# 将vm1添加为VLAN 100上的“访问端口”。这意味着从VM1进入OVS的流量将被取消标记，并被视为VLAN 100的一部分：
+ovs-vsctl add-port br0 tap0 tag=100
+# 在VLAN 200上添加VM2：
+ovs-vsctl add-port br0 tap1 tag=200
+```
+
+在宿主机2上如法炮制，把vm3标记成100，vm4标记成200
+#### 检验测试
+
+- 从vm1到vm3的Ping应该成功，因为这两个VM在同一个VLAN上。
+- 从vm2到vm4的Ping也应该成功，因为这些VM也在彼此相同的VLAN上。
+- 从vm1/vm3到vm2/vm4的Ping不应成功，因为这些VM位于不同的VLAN上。如果你有一个配置为在VLAN之间转发的路由器，那么ping将起作用，但到达vm3的数据包应该具有路由器的源MAC地址，而不是vm1。
+
 ### 如何使用VTEP模拟器
+
+[How to Use the VTEP Emulator — Open vSwitch 3.4.90 documentation](https://docs.openvswitch.org/en/latest/howto/vtep/)
 
 ### 使用sFlow监控虚拟机的流量
 
+[Monitoring VM Traffic Using sFlow — Open vSwitch 3.4.90 documentation](https://docs.openvswitch.org/en/latest/howto/sflow/)
+
 ### 使用DPDK加强的OVS
+
+[Using Open vSwitch with DPDK — Open vSwitch 3.4.90 documentation](https://docs.openvswitch.org/en/latest/howto/dpdk/)
