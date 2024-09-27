@@ -87,6 +87,14 @@ sudo yum install openvswitch
 # DPDK的用户态支持
 sudo yum install openvswitch-dpdk
 sudo yum install openvswitch-ipsec
+
+sudo systemctl enable openvswitch
+sudo systemctl start openvswitch
+
+ovs-vsctl add-br br0
+# 可以看到br0这个网桥设备, 那就说明安装成功了
+ip link
+ovs-vsctl del-br br0
 ```
 
 
