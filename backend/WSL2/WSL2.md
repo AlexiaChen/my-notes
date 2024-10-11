@@ -11,7 +11,7 @@ WSL2和宿主机windows之间的网络通信:
 
 [ruby on rails - Connecting to WSL2 server via local network - Stack Overflow](https://stackoverflow.com/questions/61002681/connecting-to-wsl2-server-via-local-network)
 
-```bash
+```powershell
 
 netsh interface portproxy add v4tov4 listenport=<port-to-listen> listenaddress=0.0.0.0 connectport=<port-to-forward> connectaddress=<forward-to-this-IP-address>
 
@@ -28,6 +28,25 @@ netsh interface portproxy delete v4tov4 listenport=1935 listenaddress=172.27.146
 ```
 
 注意connectaddress一般为WSL2中的port，由`ip addr`命令查看 inet。 listenaddress就是宿主机windows的地址了，这里的0.0.0.0是监听在any addr上。
+
+
+还有一个无关于WSL2的，也是在在宿主机上配置一个端口转发，你的宿主机上运行着一个VPN Client，这个Client连接着一个VPN网络。而跟你宿主机所在的一个局域网的机器没有VPN Client，我需要让这个机器访问到VPN网络中（比如云IDC机房的某台机器的服务端口），也是可以这样做:
+
+
+
+```powershell
+# 添加端口转发
+netsh interface portproxy add v4tov4 listenport=<local-port> listenaddress=<local-ip> connectport=<vpn-port> connectaddress=<vpn-ip>
+# 查看端口转发
+netsh interface portproxy show all
+# 删除端口转发
+netsh interface portproxy delete v4tov4 listenport=<local-port> listenaddress=<local-ip>
+```
+        
+- **`<local-port>`**: 你本机监听的一个端口，局域网中的机器就是连接到这个端口上
+- **`<local-ip>`**: 你本机的IP (通常使用 `0.0.0.0` 来监听所有网卡).
+- **`<vpn-port>`**: 你需要转发到VPN网络的某个服务的端口.
+-  **`<vpn-ip>`**: VPN网络中那台服务的IP地址
 
 #### WSL2上开启systemd
 

@@ -75,6 +75,8 @@ Open vSwitch的目标是使内核内代码尽可能小（这是性能所必需�
 ## 安装
 
 ```bash
+# 查看内核是否有OVS模块
+lsmod | grep openvswitch
 # Debian Ubuntu，核心的OVS用户态组件，还有文档，其他的OVS内核数据路径已经在上游的OS内核里面了
 sudo apt install openvswitch-switch openvswitch-common
 # 如果需要高速的用户态交换，需要DPDK的支持
