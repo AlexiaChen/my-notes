@@ -190,3 +190,59 @@ docker load < your-image-file.tar
 # stopped的容器也可以
 docker logs <nginx | container id> 2>&1 | grep "127."
 ```
+
+
+### Docker启动失败的修复
+
+就是systemctl restart docker 失败，报错:
+
+```txt
+docker.service - Docker Application Container Engine Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled) 
+Active: activating (auto-restart) (Result: exit-code) since Tue 2024-11-12 14:29:20 CST; 561ms ago TriggeredBy: ● docker.socket 
+Docs: [https://docs.docker.com](vscode-file://vscode-app/c:/Users/brain/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) 
+Process: 370084 ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock (code=exited, stat> Main PID: 370084 (code=exited, status=1/FAILURE)
+```
+
+解决方法：
+
+```bash
+# Check detailed logs
+
+sudo journalctl -xeu docker.service
+
+  
+
+# Stop docker service
+
+sudo systemctl stop docker.service
+
+sudo systemctl stop docker.socket
+
+  
+
+# Remove stale files
+
+sudo rm -rf /var/lib/docker/
+
+sudo rm -rf /var/run/docker.sock
+
+  
+
+# Reload daemon
+
+sudo systemctl daemon-reload
+
+  
+
+# Start docker services
+
+sudo systemctl start docker.socket
+
+sudo systemctl start docker.service
+
+  
+
+# Verify status
+
+sudo systemctl status docker
+```
