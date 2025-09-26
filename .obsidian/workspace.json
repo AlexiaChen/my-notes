@@ -1,22 +1,24 @@
 {
   "main": {
-    "id": "1f5848e05c78e475",
+    "id": "a6b499a6a7683757",
     "type": "split",
     "children": [
       {
-        "id": "6ee4c3535cc6822d",
+        "id": "55cdbc7ad79838d2",
         "type": "tabs",
         "children": [
           {
-            "id": "1a8059dcb3203752",
+            "id": "9f6f8f1899caa011",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
+                "file": "202303150848.md",
                 "mode": "source",
                 "source": false
-              }
+              },
+              "icon": "lucide-file",
+              "title": "202303150848"
             }
           }
         ]
@@ -25,122 +27,128 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "80c1ed04fc4a8d87",
+    "id": "43ea4a48783dc9fa",
     "type": "split",
     "children": [
       {
-        "id": "47674fe06031df43",
+        "id": "033d7a43f5bbc964",
         "type": "tabs",
         "children": [
           {
-            "id": "37dc58cfac316a81",
+            "id": "7235363b3fc23772",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "alphabetical"
-              }
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
             }
           },
           {
-            "id": "1042266280941d51",
+            "id": "9da14bce503adb18",
             "type": "leaf",
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "贝叶斯",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
-              }
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
             }
           },
           {
-            "id": "c73231a284fa3741",
+            "id": "18ff9e45f23db2e9",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
-              "state": {}
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
             }
           }
         ]
       }
     ],
     "direction": "horizontal",
-    "width": 465.5
+    "width": 300
   },
   "right": {
-    "id": "5d1ff6b4451a9628",
+    "id": "d457ef18f6d3a626",
     "type": "split",
     "children": [
       {
-        "id": "eccf77d53be56962",
+        "id": "76fa632684aa630b",
         "type": "tabs",
         "children": [
           {
-            "id": "2e9f118cb078750f",
+            "id": "b358ac9a8904526d",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
-                "collapseAll": true,
+                "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
-                "backlinkCollapsed": true,
-                "unlinkedCollapsed": false
-              }
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
             }
           },
           {
-            "id": "23edf46103a2d67d",
+            "id": "ba23ac4c44ae9419",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "出链"
+            }
+          },
+          {
+            "id": "b5afd6d3ed3081da",
             "type": "leaf",
             "state": {
               "type": "tag",
               "state": {
                 "sortOrder": "frequency",
-                "useHierarchy": true
-              }
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
             }
           },
           {
-            "id": "50f68985667b6375",
-            "type": "leaf",
-            "state": {
-              "type": "outgoing-link",
-              "state": {
-                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
-                "linksCollapsed": false,
-                "unlinkedCollapsed": false
-              }
-            }
-          },
-          {
-            "id": "f3693fec06d6888f",
+            "id": "6706053c570e0e37",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md"
-              }
-            }
-          },
-          {
-            "id": "a6765dea8e057e38",
-            "type": "leaf",
-            "state": {
-              "type": "all-properties",
-              "state": {
-                "sortOrder": "frequency"
-              }
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大纲"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
@@ -149,63 +157,63 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "canvas:新建白板": false,
-      "obsidian-excalidraw-plugin:新建 Excalidraw 绘图": false,
+      "bases:创建新数据库": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
-      "command-palette:打开命令面板": false,
-      "markdown-importer:打开 Markdown 格式转换器": false,
-      "zk-prefixer:创建时间戳笔记": false
+      "command-palette:打开命令面板": false
     }
   },
-  "active": "1a8059dcb3203752",
+  "active": "9f6f8f1899caa011",
   "lastOpenFiles": [
-    "backend/Database/MQ/MQ高手/18-如何用硬件同步原语CAS代替锁.md",
-    "backend/Database/MQ/MQ高手/19-数据压缩-时间换空间的游戏.md",
-    "backend/Database/MQ/MQ高手/17-如何正确地使用锁保护共享数据协调异步线程.md",
-    "backend/Database/MQ/MQ高手/16-缓存策略-如何使用缓存来合理减少磁盘IO.md",
-    "backend/Database/MQ/MQ高手/15-Kafka如何实现高性能IO.md",
-    "backend/Database/MQ/MQ高手/15-加餐-JMQ的Broker是如何异步处理消息的.md",
-    "attachments/Pasted image 20231005205905.png",
-    "attachments/Pasted image 20231005205710.png",
-    "backend/Database/MQ/MQ高手/14-内存管理-如何避免内存溢出和频繁的GC.md",
-    "backend/Database/MQ/MQ高手/13-传输协议-应用程序之间的对话语言.md",
-    "backend/Database/MQ/MQ高手/12-序列化和反序列化-如何通过网络传输结构化数据.md",
-    "backend/Database/MQ/MQ高手/11-如何实现高性能的异步网络传输.md",
-    "attachments/Pasted image 20231005200402.png",
-    "attachments/Pasted image 20231005195920.png",
-    "attachments/Pasted image 20231005195758.png",
-    "backend/Database/MQ/MQ高手/10-如何使用异步设计提升系统性能.md",
-    "attachments/Pasted image 20231005194412.png",
-    "attachments/Pasted image 20231005193722.png",
-    "backend/Database/MQ/MQ高手/09-学习开源代码该如何入手.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-23MySQL是怎样保证高可用的.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-22MySQL是怎么保证主备一致的.md",
-    "backend/Database/MySQL/MySQL45讲/实践篇-41自增ID用完怎么办.md",
-    "202309211028.md",
-    "backend/Container/Docker学习笔记.md",
-    "embbed-system/STM32/STM32学习笔记-2.md",
-    "attachments/Pasted image 20230825193720.png",
-    "attachments/Pasted image 20230825191319.png",
-    "attachments/Pasted image 20230825185712.png",
-    "embbed-system/STM32/STM32学习笔记-1.md",
-    "blockchain/ETH/EVM/EVM上的event log.md",
-    "embbed-system/STM32/用过Rust编写一个简单的STM32点灯实验.md",
-    "embbed-system/STM32",
-    "blockchain/ETH/ERC4337/ERC4337思维导图.md",
-    "backend/DevOps/Golang后端服务的可观测性说明.md",
-    "backend/DevOps/Sentry/在Red Hart 7.7上安装Docker服务.md",
-    "backend/DevOps/Sentry/自建Self-hosted Sentry服务.md",
-    "backend/DevOps/Sentry",
-    "math/四元数学习笔记.md",
-    "backend/Apple/APNs",
-    "backend/Apple",
-    "blockchain/ETH/ERC4337",
-    "AI/神经网络",
-    "未命名 1",
-    "未命名",
-    "AI/OpenAI",
-    "backend/SystemDesign/ArchDesign"
+    "AI  App头脑风暴.md",
+    "frontend/qt/QWebEngine混合开发与调试.md",
+    "attachments/Pasted image 20250926145827.png",
+    "frontend/qt/PyQt与PySide技术方案调研报告-成熟度-优劣-与Web混合开发.md",
+    "attachments/Pasted image 20250926140514.png",
+    "attachments/Pasted image 20250926135332.png",
+    "attachments/Pasted image 20250926134133.png",
+    "math/贝叶斯推断公式的推导过程.md",
+    "frontend/qt",
+    "AI/ClaudeCode/ClaudeCode替换模型到GLM-4.5.md",
+    "AI/prompt-engineering/GPT-4.1野兽模式.md",
+    "backend/Network/设置github的SSH代理.md",
+    "trade/trading-your-way-to-freedom/交易自由之路.md",
+    "trade/trading-your-way-to-freedom",
+    "trade/trading-strategy/灵活的超级趋势策略.md",
+    "trade/trading-strategy/比特币时刻策略.md",
+    "trade/trading-strategy/乌龟交易策略.md",
+    "trade/trading-strategy/RSI & Backed-Weighted MA Strategy.md",
+    "trade/trading-strategy/FlexMA-variance-tracker.md",
+    "trade/trading-strategy/Crypto-MVRV-Zscore策略.md",
+    "trade/trade-system/如何设计交易系统.md",
+    "trade/trade-system",
+    "trade/tech-analysis/量价关系/量价理论的八种关系.md",
+    "trade/tech-analysis/量价关系/怎样研判成交量的变化.md",
+    "trade/tech-analysis/量价关系/成交量的五种形态.md",
+    "trade/tech-analysis/量价关系/尾盘成交量蕴含的背后含义.md",
+    "trade/tech-analysis/量价关系/价升量先行换手率见玄机.md",
+    "trade/tech-analysis/量价关系/什么是量价理论.md",
+    "trade/tech-analysis/指标介绍/WMSR威廉指标.md",
+    "trade/tech-analysis/指标介绍/VR容量指标.md",
+    "trade/tech-analysis/指标介绍/TDS9 指标.md",
+    "trade/tech-analysis/指标介绍/SAR停损点转向指标.md",
+    "trade/tech-analysis/指标介绍/RSI相对强弱指标.md",
+    "trade/tech-analysis/量价关系",
+    "trade/tech-analysis/指标介绍",
+    "trade/tech-analysis",
+    "trade/quant",
+    "trade/position-sizing",
+    "trade/order-flow-trading",
+    "trade/nial-fuller-blog",
+    "attachments/Pasted image 20250508141031.png",
+    "attachments/Pasted image 20250508140939.png",
+    "attachments/Pasted image 20250508140922.png",
+    "attachments/Pasted image 20250508140841.png",
+    "attachments/Pasted image 20250508110014.png",
+    "attachments/Pasted image 20250508105843.png",
+    "未命名.canvas"
   ]
 }

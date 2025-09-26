@@ -1,7 +1,4 @@
 {
-  "theme": "system",
   "accentColor": "",
-  "cssTheme": "Things",
-  "translucency": true,
-  "baseFontSize": 16
+  "cssTheme": "Obsidian gruvbox"
 }
