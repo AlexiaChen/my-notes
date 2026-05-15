@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "55cdbc7ad79838d2",
+        "id": "8d6babd600a5ae0a",
         "type": "tabs",
         "children": [
           {
-            "id": "9f6f8f1899caa011",
+            "id": "6ce76c27a9a9facf",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "202303150848.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "202303150848"
+              "title": "README"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "贝叶斯",
+                "query": "第一性原理",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 421.5
   },
   "right": {
     "id": "d457ef18f6d3a626",
@@ -157,7 +157,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "bases:创建新数据库": false,
+      "bases:新建数据库": false,
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
       "canvas:新建白板": false,
@@ -166,54 +166,54 @@
       "command-palette:打开命令面板": false
     }
   },
-  "active": "9f6f8f1899caa011",
+  "active": "6ce76c27a9a9facf",
   "lastOpenFiles": [
-    "AI  App头脑风暴.md",
-    "frontend/qt/QWebEngine混合开发与调试.md",
-    "attachments/Pasted image 20250926145827.png",
-    "frontend/qt/PyQt与PySide技术方案调研报告-成熟度-优劣-与Web混合开发.md",
-    "attachments/Pasted image 20250926140514.png",
-    "attachments/Pasted image 20250926135332.png",
-    "attachments/Pasted image 20250926134133.png",
-    "math/贝叶斯推断公式的推导过程.md",
-    "frontend/qt",
-    "AI/ClaudeCode/ClaudeCode替换模型到GLM-4.5.md",
-    "AI/prompt-engineering/GPT-4.1野兽模式.md",
-    "backend/Network/设置github的SSH代理.md",
-    "trade/trading-your-way-to-freedom/交易自由之路.md",
-    "trade/trading-your-way-to-freedom",
-    "trade/trading-strategy/灵活的超级趋势策略.md",
-    "trade/trading-strategy/比特币时刻策略.md",
-    "trade/trading-strategy/乌龟交易策略.md",
-    "trade/trading-strategy/RSI & Backed-Weighted MA Strategy.md",
-    "trade/trading-strategy/FlexMA-variance-tracker.md",
-    "trade/trading-strategy/Crypto-MVRV-Zscore策略.md",
-    "trade/trade-system/如何设计交易系统.md",
-    "trade/trade-system",
-    "trade/tech-analysis/量价关系/量价理论的八种关系.md",
-    "trade/tech-analysis/量价关系/怎样研判成交量的变化.md",
-    "trade/tech-analysis/量价关系/成交量的五种形态.md",
-    "trade/tech-analysis/量价关系/尾盘成交量蕴含的背后含义.md",
-    "trade/tech-analysis/量价关系/价升量先行换手率见玄机.md",
-    "trade/tech-analysis/量价关系/什么是量价理论.md",
-    "trade/tech-analysis/指标介绍/WMSR威廉指标.md",
-    "trade/tech-analysis/指标介绍/VR容量指标.md",
-    "trade/tech-analysis/指标介绍/TDS9 指标.md",
-    "trade/tech-analysis/指标介绍/SAR停损点转向指标.md",
-    "trade/tech-analysis/指标介绍/RSI相对强弱指标.md",
-    "trade/tech-analysis/量价关系",
-    "trade/tech-analysis/指标介绍",
-    "trade/tech-analysis",
-    "trade/quant",
-    "trade/position-sizing",
-    "trade/order-flow-trading",
-    "trade/nial-fuller-blog",
-    "attachments/Pasted image 20250508141031.png",
-    "attachments/Pasted image 20250508140939.png",
-    "attachments/Pasted image 20250508140922.png",
-    "attachments/Pasted image 20250508140841.png",
-    "attachments/Pasted image 20250508110014.png",
-    "attachments/Pasted image 20250508105843.png",
+    "math/finite-element-analysis/有限元方法的第一堂课-第五版学习笔记-第一章.md",
+    "meta/history/认知邪修之安史之乱-历史宣传与神话.md",
+    "temp-notes/金税四期与CRS调研.md",
+    "meta/mine/认知邪修之密码学即政治.md",
+    "meta/series/认知邪修之大清盐商.md",
+    "meta/series/认知邪修之乔家大院.md",
+    "meta/series/认知邪修之大秦帝国.md",
+    "meta/anime/认知邪修之千与千寻.md",
+    "meta/anime/认知邪修之哈尔的移动城堡.md",
+    "meta/anime/认知邪修之命运石之门.md",
+    "meta/anime/认知邪修之魔法少女小圆.md",
+    "meta/series/认知邪修之权力的游戏.md",
+    "meta/game",
+    "meta/mine/认知邪修之认知本身.md",
+    "meta/series",
+    "meta/movie",
+    "meta/mine/认知邪修之阶级的背叛.md",
+    "meta/fiction/认知邪修之基地.md",
+    "meta/mine",
+    "meta/mine.md",
+    "meta/fiction/认知邪修之流浪地球.md",
+    "meta/fiction/认知邪修之朝闻道.md",
+    "meta/fiction/认知邪修之球状闪电.md",
+    "meta/anime/认知邪修之来自深渊.md",
+    "meta/anime/认知邪修之进击的巨人.md",
+    "meta/anime/认知邪修之福音战士.md",
+    "AI/神经网络/Python神经网络编程.md",
+    "AI/神经网络/高速可更新的差分神经网络评估方法-NNUE.md",
+    "meta/anime/认知邪修之海猫鸣泣之时.md",
+    "meta/anime/认知邪修之寒蝉鸣泣之时.md",
+    "meta/anime",
+    "meta/fiction",
+    "meta/history",
+    "meta",
+    "content",
+    "attachments/Pasted image 20260318094618.png",
+    "attachments/Pasted image 20260318100832.png",
+    "attachments/Pasted image 20260318100811.png",
+    "attachments/Pasted image 20260318100757.png",
+    "attachments/Pasted image 20260318100726.png",
+    "attachments/Pasted image 20260318100708.png",
+    "attachments/Pasted image 20260318100646.png",
+    "attachments/Pasted image 20260318100614.png",
+    "attachments/Pasted image 20260318100557.png",
+    "attachments/Pasted image 20260318100533.png",
+    "backend/Cloud/k8s",
     "未命名.canvas"
   ]
 }
