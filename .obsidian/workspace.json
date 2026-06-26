@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "trade/investment/反身性与耗散结构-月线级别的操作.md",
+                "file": "meta/economic/认知邪修之塔勒布经济学五部曲.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "反身性与耗散结构-月线级别的操作"
+              "title": "认知邪修之塔勒布经济学五部曲"
             }
           }
         ]
@@ -168,8 +168,21 @@
   },
   "active": "6ce76c27a9a9facf",
   "lastOpenFiles": [
-    "trade/investment/覆盖整个人类文明进程机器齿轮的行业核心美股.md",
+    "meta/history/认知邪修之西域考古论集-王炳华.md",
+    "meta/economic/认知邪修之塔勒布经济学五部曲.md",
+    "meta/economic/认知邪修之一本书财报财务系列.md",
+    "meta/history/认知邪修之游牧民族的世界史.md",
+    "meta/economic/认知邪修之牛奶可乐经济学.md",
+    "meta/history/认知邪修之商汤王朝.md",
+    "meta/economic",
+    "meta/history/认知邪修之万历十五年.md",
+    "meta/history/认知邪修之一看就懂的夏商西周史.md",
+    "meta/history/认知邪修之巫蛊-中国文化的历史暗流.md",
+    "meta/history/认知邪修之忽必烈的挑战-蒙古帝国与世界历史大转向.md",
+    "trade/crypto_currency/铁幕下的金流-论地缘物理垄断与金融反制的非线性博弈.md",
     "trade/investment/反身性与耗散结构-月线级别的操作.md",
+    "trade/crypto_currency/Temp.md",
+    "trade/investment/覆盖整个人类文明进程机器齿轮的行业核心美股.md",
     "trade/investment/挪威政府全球养老基金投资策略深度复制报告-非挪威国家与中国投资者报告.md",
     "trade/investment/巴菲特如何定义价值.md",
     "trade/investment/中国居民全天候资产配置策略白皮书.md",
@@ -182,18 +195,6 @@
     "AI/OpenAI/CodexApp的Skills配置.md",
     "meta/history/认知邪修之天朝的崩溃-鸦片战争再研究.md",
     "meta/history/认知邪修之1644年的幽灵-明清之争的解剖及一部被卡住的国史.md",
-    "meta/history/认知邪修之DK魔法百科.md",
-    "meta/history/认知邪修之魏晋之际的政治权力与家族网络.md",
-    "meta/history/认知邪修之秦汉史讲义.md",
-    "meta/history/认知邪修之一看就懂的夏商西周史.md",
-    "meta/history/认知邪修之逝去的盛景-宋朝商业文明的兴盛与落幕.md",
-    "meta/history/认知邪修之孔子大历史-初民-贵族与寡头们的早期华夏.md",
-    "meta/history/认知邪修之弃长安-安史之乱前后的内廷-诗人-政争与叛乱.md",
-    "meta/history/认知邪修之危机与重构-唐帝国及其地方诸侯.md",
-    "meta/history/认知邪修之战国歧途.md",
-    "meta/history/认知邪修之土地改革与华北乡村权力变迁.md",
-    "meta/history/认知邪修之叫魂1768年中国妖术大恐慌.md",
-    "meta/mine/认知邪修之国企降本增效.md",
     "attachments/Pasted image 20260518111824.png",
     "meta/game",
     "meta/series",
@@ -213,7 +214,6 @@
     "attachments/Pasted image 20260318100646.png",
     "attachments/Pasted image 20260318100614.png",
     "attachments/Pasted image 20260318100557.png",
-    "backend/Cloud/k8s",
     "未命名.canvas"
   ]
 }
