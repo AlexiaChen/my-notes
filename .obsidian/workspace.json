@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "trade/investment/DCF模型的局限性.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "DCF模型的局限性"
             }
           }
         ]
@@ -168,7 +168,15 @@
   },
   "active": "6ce76c27a9a9facf",
   "lastOpenFiles": [
+    "meta/series/认知邪修之乔家大院.md",
+    "trade/investment/DCF模型的局限性.md",
     "meta/economic/认知邪修之证明债务.md",
+    "meta/economic/认知邪修之牛奶可乐经济学.md",
+    "meta/economic/认知邪修之一本书财报财务系列.md",
+    "meta/economic/认知邪修之塔勒布经济学五部曲.md",
+    "meta/history/认知邪修之资源产权与秩序-鄱阳湖渔课制度与水域社会.md",
+    "meta/anime/认知邪修之军火女王.md",
+    "README.md",
     "meta/history/认知邪修之叫魂1768年中国妖术大恐慌.md",
     "meta/history/认知邪修之哈佛中国史.md",
     "meta/history/认知邪修之商汤王朝.md",
@@ -184,16 +192,8 @@
     "software-engineering/一次结对编程的亲身体验.md",
     "software-engineering/Google的软件工程.md",
     "software-engineering/并不是每个人都可以build system的.md",
-    "meta/anime/认知邪修之军火女王.md",
     "meta/anime/认知邪修之Monster.md",
     "meta/anime/认知邪修之空之境界.md",
-    "meta/anime/认知邪修之魔法禁书目录.md",
-    "meta/anime/认知邪修之高智能方程式.md",
-    "meta/anime/认知邪修之来自深渊.md",
-    "meta/anime/认知邪修之海猫鸣泣之时.md",
-    "meta/anime/认知邪修之命运石之门.md",
-    "meta/anime/认知邪修之寒蝉鸣泣之时.md",
-    "meta/anime/认知邪修之福音战士.md",
     "meta/human",
     "meta/politics",
     "meta/economic",
