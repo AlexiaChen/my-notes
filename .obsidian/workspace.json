@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "math/set-theory/朴素集合论基础/03-FAQ.md",
+                "file": "data-structure-algorithm/算法图解/13-接下来如何做.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "03-FAQ"
+              "title": "13-接下来如何做"
             }
           }
         ]
@@ -170,8 +170,22 @@
   },
   "active": "6ce76c27a9a9facf",
   "lastOpenFiles": [
-    "math/set-theory/朴素集合论基础/02-有序集合.md",
+    "data-structure-algorithm/算法图解/12-K最近邻算法-KNN.md",
+    "data-structure-algorithm/算法图解/13-接下来如何做.md",
+    "data-structure-algorithm/算法图解/11-动态规划.md",
+    "data-structure-algorithm/算法图解/10-贪婪算法.md",
+    "data-structure-algorithm/算法图解/09-迪杰斯特拉算法.md",
+    "data-structure-algorithm/算法图解/08-平衡树.md",
+    "data-structure-algorithm/算法图解/07-树.md",
+    "data-structure-algorithm/算法图解/06-广度优先搜索.md",
+    "data-structure-algorithm/算法图解/05-散列表.md",
+    "data-structure-algorithm/算法图解/04-快速排序.md",
+    "data-structure-algorithm/算法图解/03-递归.md",
+    "data-structure-algorithm/算法图解/02-选择排序.md",
+    "data-structure-algorithm/算法图解/01-算法简介.md",
     "math/set-theory/朴素集合论基础/03-FAQ.md",
+    "data-structure-algorithm/算法图解",
+    "math/set-theory/朴素集合论基础/02-有序集合.md",
     "math/set-theory/朴素集合论基础/01-集合及其基数.md",
     "PL/AReasonedSchemer/full-全书笔记.md",
     "math/set-theory/朴素集合论基础",
@@ -190,22 +204,8 @@
     "PL/TheLittleSchemer/full-全书笔记.md",
     "PL/TheLittleLearner",
     "PL/计算的本质/读书笔记/09-在-玩偶国-中编程.md",
-    "PL/TheLittleSchemer",
     "PL/计算的本质/读书笔记/08-不可能的程序.md",
     "PL/计算的本质/读书笔记/07-通用性无处不在.md",
-    "PL/计算的本质/读书笔记/06-从零开始编程.md",
-    "PL/计算的本质/读书笔记/05-终极机器.md",
-    "PL/计算的本质/读书笔记/04-增加计算能力.md",
-    "PL/计算的本质/读书笔记/03-最简单的计算机.md",
-    "PL/计算的本质/读书笔记/02-程序的含义.md",
-    "PL/计算的本质/读书笔记/00-01-刚好够用的Ruby基础.md",
-    "PL/计算的本质/程序的含义.md",
-    "PL/计算的本质/最简单的计算机之有限自动机.md",
-    "PL/未命名.md",
-    "compiler/编程语言实现模式/13-知识汇总.md",
-    "compiler/编程语言实现模式/12-使用模板生成DSL.md",
-    "compiler/编程语言实现模式/11-语言的翻译.md",
-    "compiler/编程语言实现模式/10-构建字节码解释器.md",
     "attachments/Pasted image 20260518111824.png",
     "attachments/Pasted image 20260318094618.png",
     "attachments/Pasted image 20260318100832.png",
