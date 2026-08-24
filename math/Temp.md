@@ -1,1 +1,0 @@
-[Home - Mathematics LibreTexts](https://math.libretexts.org/)
