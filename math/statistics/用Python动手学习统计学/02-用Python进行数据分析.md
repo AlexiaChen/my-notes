@@ -88,23 +88,23 @@ group.describe()
     - 协方差等于0，两个变量不相关
 
 $$
-Cov(x,y) = \frac{1}{N}\sum_{i = 1}^{N}(x_i - \mu_x)(y_i - \mu_y)
+\operatorname{Cov}(X,Y)=\frac{1}{N}\sum_{i=1}^{N}(x_i-\mu_x)(y_i-\mu_y)
 $$
 
 $$
-Cov(x,y) = \frac{1}{N - 1}\sum_{i = 1}^{N}(x_i - \mu_x)(y_i - \mu_y)
+\operatorname{Cov}(X,Y)=\frac{1}{N-1}\sum_{i=1}^{N}(x_i-\mu_x)(y_i-\mu_y)
 $$
 
-其中$\mu_x, \mu_y$是变量x，y的均值，N是样本容量。
+其中 $\mu_x,\mu_y$ 是变量 $x,y$ 的均值，$N$ 是样本容量。
 
 - 协方差矩阵，把多个变量的方差和协方差放在一起形成的矩阵
 
 $$
-CovMatrix(x,y) = \\
-\begin{bmatrix} 
-\sigma_{x}^2 & Cov(x,y)  \\
-Cov(x,y) & \sigma_{y}^2 \\
-\end{bmatrix} \\
+\Sigma=\begin{bmatrix}
+\sigma_x^2 & \operatorname{Cov}(X,Y) \\
+\operatorname{Cov}(X,Y) & \sigma_y^2 \\
+\end{bmatrix}
+
 $$
 
 下面用python进行协方差计算
@@ -139,8 +139,8 @@ sp.cov(x,y,ddof  = 1)
 - 皮尔逊积矩相关系数(皮尔逊相关系数)， 对于两个变量x，y的相关系数，可以简单看成是协方差的标准化
 
 $$
-\rho_{xy} = \frac{Cov(x,y)}{\sqrt{\sigma_x^2 \sigma_y^2}} = \\
-\frac{Cov(x,y)}{\sigma_x \sigma_y}
+\rho_{xy}=\frac{\operatorname{Cov}(X,Y)}{\sigma_x\sigma_y}
+
 $$
 
 > 皮尔逊相关系数，其实就是把协方差Normalize到最大值为1，最小值为-1之间，不然协方差会难以使用，皮尔逊相关系数是对协方差加以修正。其相关系数的绝对值越大，越说明相关性越高。越接近0，相关性越低
@@ -148,11 +148,11 @@ $$
 - 相关矩阵，把多个变量的相关系数放在一起得到的矩阵
 
 $$
-Cov(x, y) = \\
-\begin{bmatrix} 
-1 & \rho_{xy}  \\
+R=\begin{bmatrix}
+1 & \rho_{xy} \\
 \rho_{xy} & 1 \\
-\end{bmatrix} \\
+\end{bmatrix}
+
 $$
 
 下面用python来计算
@@ -374,8 +374,8 @@ def calc_sample_mean(size, n_trail):
  - 标准误差，样本均值的标准差的理论值, 可以看到，样本容量越大，标注误差就越小。标准误差可以用来估计样本均值与总体均值的差异，标准误差越小，说明样本均值越接近总体均值。除以样本容量的根，是因为这样可以消除样本容量的影响，使得不同大小的样本可以进行比较。如果直接使用标准差，那么样本容量越大，样本均值越稳定，但是这并不反应样本均值与总体均值的差异。
 
 $$
-标准误差(Standard Error) = \\
-\frac{\sigma}{\sqrt{N}}
+\operatorname{SE}(\bar X)=\frac{\sigma}{\sqrt N}
+
 $$
 
 > 样本均值的标准差必然小于总体的标准差
@@ -426,7 +426,7 @@ sns.set()
 正态分布的概率密度可以回顾一下 
 
 $$
-N(x | \mu, \sigma^2) = \frac{1}{\sqrt{2 \pi \sigma^2}}e^{-\frac{(x - \mu)^2}{2 \sigma^2}}
+f_X(x)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)
 $$
 
 ```python
@@ -454,13 +454,13 @@ sp.sum(sample_norm <= 3) / len(sample_norm)
 - 累积分布函数，也叫分布函数。对于随机变量X，当x为实数时，F(X)叫做累积分布函数。
 
 $$
-F(X) = P(X \leq x)
+F_X(x)=P(X\le x)
 $$
 
 简单来说，累积分布函数可以计算随机变量小于等于某个值的概率，用这个公式，就不需要像刚才pyhon中计算数据的个数了，比如
 
 $$
-P(x \leq 3) = \int_{- \infty}^3 \frac{1}{\sqrt{2 \pi \sigma^2}}e^{-\frac{(x - \mu)^2}{2 \sigma^2}}dx
+P(X\le3)=\int_{-\infty}^{3}\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(t-\mu)^2}{2\sigma^2}\right)\,dt
 $$
 
 ```python
@@ -484,11 +484,11 @@ r = stats.norm.ppf(loc = 4, scale = 0.8, q = left)
 assert(r == left)
 ```
 
-- 标准正态分布，均值为0，方差/标准差 为1的正态分布叫作标准正态分布，即 $N(x | 0, 1)$
+- 标准正态分布，均值为 $0$、方差为 $1$ 的分布记为 $X\sim\mathcal N(0,1)$。
 - $t$值 ，是一个统计量。本质上就是样本均值减去总体均值，再除以标准误差
 
 $$
-t = \frac{\widehat{\mu} - \mu}{\widehat{\sigma} / \sqrt{N}}
+t=\frac{\bar X-\mu}{s/\sqrt N}
 $$
 其中 $\widehat{\sigma}$ 为实际样本的无偏标准差
 
@@ -517,10 +517,10 @@ plt.plot(x, stats.norm.pdf(x = x), color = 'black', linestyle = 'dotted')
 
 - $t$分布，当总体服从正态分布时，$t$值的样本分布就是$t$分布。
 
-假设样本容量为N， 那么自由度就是N - 1.  $t$分布的图形与自由度相关，如果自由度为n - 1，则t分布表示为$t(n - 1)$
+假设样本容量为 $N$，自由度为 $\nu=N-1$；$t$ 分布记为 $t_\nu$。
 
 $$
-t(n - 1)的方差 = \frac{n - 1}{n - 3} 且  n > 3
+\operatorname{Var}(T_\nu)=\frac{\nu}{\nu-2}\quad(\nu>2),\qquad \nu=N-1
 $$
 
 可以看到，自由度（样本容量）越大，方差越接近1，t分布就越接近标准正态分布。样本容量越小，t分布就远离标准正态分布 ^32b2d6
@@ -569,11 +569,11 @@ sns.set()
 - 置信区间的计算
 
 $$
-CI = \mu \pm z \cdot \frac{\sigma}{\sqrt{n}} = \mu \pm z \cdot Standard Error
+\mathrm{CI}=\bar X\pm z_{\alpha/2}\frac{\sigma}{\sqrt n}=\bar X\pm z_{\alpha/2}\operatorname{SE}(\bar X)
 $$
 
 $$
-Standard Error = \frac{\sigma}{\sqrt{n}}
+\operatorname{SE}(\bar X)=\frac{\sigma}{\sqrt n}
 $$
 
 当然，可以用t分布来计算
@@ -660,7 +660,7 @@ sum(be_included_array) / len(be_included_array)
 将之前提到的3个条件放在一起，并且3个条件都满足的情况下，就可以用下列公式:
 
 $$
-t值 = \frac{样本均值 - 对比值}{标准差 ÷ \sqrt{样本容量}} = \frac{样本均值 - 对比值}{标准误差}
+t=\frac{\text{样本均值}-\text{对比值}}{s/\sqrt n}=\frac{\text{样本均值}-\text{对比值}}{\operatorname{SE}(\bar X)}
 $$
 
 如果套用在薯片的例子，就是对比值为薯片厂商号称的50g。
@@ -693,7 +693,7 @@ p值的表示形式是概率。p值和置信区间类似，在完全相同的条
 
 前面我们已经知道t值的公式了 [[#$t$ 值]] ， 以薯片举例子，假设总体服从均值为50的正态分布，则样本的t值服从t分布。[[#^32b2d6]]  
 
-使用t分布的累积分布函数可以得到当总体均值为50时，t值小于 | t | 的概率，这个概率用$\alpha$ 表示。$1 - \alpha$ 就是当总体均值为50时t值大于 | t | 的概率。 $1 - \alpha$  越小，t值大于 | t |的概率就越小，更容易出现显著性差异。
+使用 $t$ 分布的累积分布函数可以得到当总体均值为 $50$ 时，$|T|\ge |t_{\mathrm{obs}}|$ 的概率。双侧 $p$ 值应取两侧尾概率之和。
 
 #### 单侧检验与双侧检验
 
@@ -706,10 +706,10 @@ p值的表示形式是概率。p值和置信区间类似，在完全相同的条
 
 计算双侧检验的p值
 
-设样本对应的t值为$t_\mu$。使用t分布的累积分布函数可以得到当总体均值为50时，t值小于$t_\mu$的概率，这个概率用$\alpha$ 表示。
+设样本对应的 $t$ 值为 $t_{\mathrm{obs}}$。使用 $t$ 分布的累积分布函数计算尾概率。
 
 $$
-p = (1 - \alpha) * 2
+p=2\,\Pr(T_\nu\ge |t_{\mathrm{obs}}|)=2\bigl[1-F_{t_\nu}(|t_{\mathrm{obs}}|)\bigr]
 $$
 
 为什么要乘以2呢？是因为双侧经验，要计算薯片均重不是50g的概率，就要考虑大于和小于50g的两种情况。如果是单侧检验，那么就不用乘以2。p值就是 $1 - \alpha$ 。
@@ -858,10 +858,10 @@ stats.ttest_rel(after, before)
 那么独立样本t检验的公式：
 
 $$
-t = \frac{\mu_x - \mu_y}{\sqrt{{\sigma_x}^2 / m + {\sigma_y}^2 / n}}
+t=\frac{\bar x-\bar y}{\sqrt{s_x^2/m+s_y^2/n}}
 $$
 
-其中， $\mu_x$ 为x的样本均值，$\mu_y$为y的样本均值。m为x的样本容量，n为y的样本容量。${\sigma_x}^2$ 为x的无偏方差，${\sigma_y}^2$ 为y的无偏方差。
+其中 $\bar x,\bar y$ 为两组样本均值，$m,n$ 为样本容量，$s_x^2,s_y^2$ 为无偏样本方差。
 
 双变量的t分布的自由度会变得复杂，此时使用Welch的近似方法来计算p值，这种方法叫作Welch检验
 
@@ -914,7 +914,7 @@ stats.ttest_ind(after, before, equal_var = False)
 
 ### 列联表检验（卡方检验）
 
-有时也叫做 $\chi ^{2}$  检验。
+有时也叫做 $\chi^2$ 检验。
 
 #### 使用卡方检验的好处
 
@@ -947,10 +947,10 @@ stats.ttest_ind(after, before, equal_var = False)
 #### 计算观察频数和期望频数的差
 
 $$
-\chi ^{2} = \sum_{i = 1}^2\sum_{j = 1}^2\frac{(O_{ij} - E_{ij})^2}{E_{ij}}
+\chi^2=\sum_{i=1}^{2}\sum_{j=1}^{2}\frac{(O_{ij}-E_{ij})^2}{E_{ij}}
 $$
 
-其中$O_{ij}$是第i行第j列的观测频数，$E_{ij}$是第i行第j列的期望频数。计算的结果叫$\chi^2$ 统计量。
+其中 $O_{ij}$ 是第 $i$ 行第 $j$ 列的观测频数，$E_{ij}$ 是对应的期望频数。计算结果叫 $\chi^2$ 统计量。
 
 这个公式用人话说就是，观测频数表格与期望频数表格，对应格子的差值的平方除以期望频数表格对应格子而得到的值的累加。这个累加就是统计量。
 
